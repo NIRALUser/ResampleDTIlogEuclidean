@@ -32,8 +32,10 @@ public:
   itkNewMacro( Self ) ;
   itkTypeMacro( WarpTransform3D, Transform ) ;
   OutputPointType TransformPoint( const InputPointType & inputPoint ) const ;
-  const JacobianType & GetJacobian( const InputPointType &inputPoint ) const ;
+  void ComputeJacobianWithRespectToParameters(const InputPointType  &inputPoint, JacobianType &jacobian ) const ;
   void SetDeformationField( DeformationImagePointerType deformationField ) ;
+  void SetParameters(const TransformBase::ParametersType&) {}
+  void SetFixedParameters(const TransformBase::ParametersType&) {}
 protected:
   /** Get/Set the neighborhood radius used for gradient computation */
   itkGetConstReferenceMacro( NeighborhoodRadius, RadiusType ) ;
@@ -43,7 +45,6 @@ protected:
   RadiusType m_NeighborhoodRadius ;
   double m_DerivativeWeights[ 3 ] ;
   DeformationImagePointerType m_DeformationField ;
-//  Vector< double , 3 > m_OutputSpacing ;
   Size< 3 > m_SizeForJacobian ;
 };
 

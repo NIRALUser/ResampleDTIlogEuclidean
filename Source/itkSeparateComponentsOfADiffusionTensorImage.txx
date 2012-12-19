@@ -23,10 +23,10 @@ template< class TInput , class TOutput >
 SeparateComponentsOfADiffusionTensorImage< TInput,TOutput >
 ::SeparateComponentsOfADiffusionTensorImage()
 {
-  this->SetNumberOfRequiredInputs( 1 ) ;
-  this->SetNumberOfOutputs( 6 ) ;
+  this->SetNumberOfIndexedInputs( 1 ) ;
+  this->SetNumberOfIndexedOutputs( 6 ) ;
   this->SetNumberOfRequiredOutputs( 6 ) ;
-  for( unsigned int i = 1 ; i < this->GetNumberOfOutputs() ; i++ )//we skip output0 because it is created by default
+  for( unsigned int i = 1 ; i < this->GetNumberOfIndexedOutputs() ; i++ )//we skip output0 because it is created by default
   {
     OutputImagePointerType output
       = static_cast< OutputImageType* >( this->MakeOutput( i ).GetPointer() ) ; 
@@ -42,11 +42,11 @@ template< class TInput , class TOutput >
 void
 SeparateComponentsOfADiffusionTensorImage< TInput , TOutput >
 ::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread ,
-                                                     int itkNotUsed(threadId) )
+                                                      ThreadIdType itkNotUsed(threadId) )
 {
   InputIteratorType it( this->GetInput() , outputRegionForThread ) ;
   std::vector< OutputIteratorType > out ;
-  for( int i = 0 ; i < 6 ; i++ )
+  for( int i = 0 ; i < this->GetNumberOfIndexedOutputs() ; i++ )
   {
     OutputImagePointerType outputImagePtr = this->GetOutput( i ) ;
     OutputIteratorType outtemp( outputImagePtr , outputRegionForThread ) ;
@@ -57,7 +57,7 @@ SeparateComponentsOfADiffusionTensorImage< TInput , TOutput >
   for( it.GoToBegin() ; !it.IsAtEnd() ; ++it )
   {
     inputTensor = it.Get() ;
-    for( int i = 0 ; i < 6 ; i++ )
+    for( int i = 0 ; i < this->GetNumberOfIndexedOutputs() ; i++ )
     {
       out[ i ].Set( static_cast< OutputDataType >( inputTensor[ i ] ) ) ;
       ++out[ i ] ;
@@ -78,14 +78,14 @@ SeparateComponentsOfADiffusionTensorImage< TInput , TOutput >
   // call the superclass' implementation of this method
   Superclass::GenerateOutputInformation();
   // get pointers to the input and output
-  for( int i = 0 ; i < 6 ; i++ )
+  for(unsigned int i = 0 ; i < this->GetNumberOfIndexedOutputs() ; i++ )
   {
-    OutputImagePointerType outputPtr = this->GetOutput( i ) ;
+    OutputImagePointerType outputPtr ;//= this->GetOutput( i ) ;
     if( !outputPtr )
     {
       return ;
     }
-    outputPtr->CopyInformation( this->GetInput() ) ;
+//    outputPtr->CopyInformation( this->GetInput() ) ;
   }
   return ;
 }

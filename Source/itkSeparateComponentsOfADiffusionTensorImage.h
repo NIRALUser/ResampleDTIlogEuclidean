@@ -59,7 +59,7 @@ itkNewMacro( Self ) ;
 protected :
 SeparateComponentsOfADiffusionTensorImage() ;
 void ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread ,
-                           int threadId ) ;
+                            ThreadIdType threadId ) ;
 void GenerateOutputInformation() ;
 void GenerateInputRequestedRegion() ;
 

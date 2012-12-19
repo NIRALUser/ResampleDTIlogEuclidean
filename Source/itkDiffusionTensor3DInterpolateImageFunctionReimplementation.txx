@@ -32,7 +32,7 @@ void
 DiffusionTensor3DInterpolateImageFunctionReimplementation< TData , TCoordRep >
 ::SetInputImage( const DiffusionImageType *inputImage )
 {
-  DiffusionTensor3DInterpolateImageFunction< DataType >::SetInputImage( inputImage ) ;//separateFilter->GetOutput( 0 ) ) ;
+  DiffusionTensor3DInterpolateImageFunction< DataType >::SetInputImage( inputImage ) ;
   if( !inputImage )
   {
     return ;
@@ -47,8 +47,6 @@ DiffusionTensor3DInterpolateImageFunctionReimplementation< TData , TCoordRep >
   {
     m_Interpol[ i ]->SetInputImage( separateFilter->GetOutput( i ) ) ;
   }
-
- // this->m_Image = separateFilter->GetOutput( 0 ) ;
 }
 
 template< class TData , class TCoordRep >
@@ -56,7 +54,6 @@ typename DiffusionTensor3DInterpolateImageFunctionReimplementation< TData , TCoo
 ::TensorDataType 
 DiffusionTensor3DInterpolateImageFunctionReimplementation< TData , TCoordRep >
 ::EvaluateAtContinuousIndex( const ContinuousIndexType & index ) const
-//::Evaluate( const PointType &point )
 {
   if( this->m_Image.IsNotNull() )//If input image has been set
   {

@@ -54,7 +54,6 @@ public:
 
 protected:
   DiffusionTensor3DNonRigidTransform() ;
-  MutexLock::Pointer m_LockGetJacobian ;
   unsigned long latestTime ;
   typename TransformType::Pointer m_Transform ;
   typename AffineTransform::Pointer m_Affine;

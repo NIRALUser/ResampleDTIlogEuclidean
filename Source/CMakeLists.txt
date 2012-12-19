@@ -1,15 +1,19 @@
 project(ResampleDTIlogEuclidean)
 
-cmake_policy(SET CMP0012 NEW)
+cmake_minimum_required(VERSION 2.8.7)
 
 find_package(GenerateCLP REQUIRED)
 if(GenerateCLP_FOUND)
   include(${GenerateCLP_USE_FILE})
 endif(GenerateCLP_FOUND)
 
-find_package(ITK REQUIRED)
+find_package(ITK REQUIRED )
 include(${ITK_USE_FILE})
 
+
+if( ${ITK_VERSION_MAJOR} VERSION_LESS 4)
+  message(FATAL_ERROR "ITKv4 is necessary to compile this tool")
+endif()
 
 set (CLP ResampleDTI)
 if (Slicer3_SOURCE_DIR)
@@ -35,14 +39,8 @@ endif(Slicer3_SOURCE_DIR)
 set_target_properties (${CLP}logEuclideanLib PROPERTIES COMPILE_FLAGS "-Dmain=ModuleEntryPoint")
 target_link_libraries (${CLP}logEuclideanLib
   ModuleDescriptionParser
-  ITKIO
-  ITKAlgorithms
-  ITKBasicFilters
+  ${ITK_LIBRARIES}
 )
-
-if( NOT ${ITK_USE_OPTIMIZED_REGISTRATION_METHODS} )
-  message(WARNING "ITK has been compiled with ITK_USE_OPTIMIZED_REGISTRATION_METHODS set to OFF. The test  'ResampleDTIBSplineInterpolationTest' will fail if this option is OFF. Please recompile ITK with this option set to ON to pass successfully all the tests.")
-endif( NOT ${ITK_USE_OPTIMIZED_REGISTRATION_METHODS} )
 
 
 option(STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ON)
@@ -51,9 +49,7 @@ IF( ${STATIC_RESAMPLEDTI} )
   add_executable(${CLP}logEuclidean ${${CLP}_SOURCE} ${dtiProcessFiles} )
   target_link_libraries (${CLP}logEuclidean 
     ModuleDescriptionParser
-    ITKIO
-    ITKAlgorithms
-    ITKBasicFilters
+    ${ITK_LIBRARIES}
     )
 ELSE( ${STATIC_RESAMPLEDTI} )
   add_executable(${CLP}logEuclidean ResampleDTIApp.cxx)
@@ -77,5 +73,8 @@ if (Slicer3_SOURCE_DIR)
 endif (Slicer3_SOURCE_DIR)
 
 if(BUILD_TESTING)
+  if( NOT ${ITKV3_COMPATIBILITY} )
+    message(FATAL_ERROR "ITKV3_COMPATIBILITY set to ON is necessary to compile the tests")
+  endif()
   ADD_SUBDIRECTORY(Testing)
 endif(BUILD_TESTING)

@@ -23,7 +23,6 @@ template< class TData >
 DiffusionTensor3DNonRigidTransform< TData >
 ::DiffusionTensor3DNonRigidTransform()
 {
-  m_LockGetJacobian = MutexLock::New() ;
 }
 
 
@@ -33,7 +32,6 @@ DiffusionTensor3DNonRigidTransform< TData >
 ::SetAffineTransformType(typename AffineTransform::Pointer transform)
 {
   m_Affine=transform;
-//  m_LockGetJacobian = MutexLock::New() ;
 }
 
 
@@ -70,8 +68,7 @@ DiffusionTensor3DNonRigidTransform< TData >
     MatrixTransformType matrix ;
     matrix.SetIdentity() ;
     typename TransformType::JacobianType jacobian ;
-    m_LockGetJacobian->Lock() ;
-    jacobian = m_Transform->GetJacobian( outputPosition ) ;
+    m_Transform->ComputeJacobianWithRespectToParameters( outputPosition , jacobian ) ;
     for( int i = 0 ; i < 3 ; i++ )
       {
       for( int j = 0 ; j < 3 ; j++ )
@@ -79,7 +76,6 @@ DiffusionTensor3DNonRigidTransform< TData >
         matrix[ i ][ j ] = jacobian[ i ][ j ] + matrix[ i ][ j ] ;
         }
       }
-    m_LockGetJacobian->Unlock() ;
     LightObject::Pointer newTransform = m_Affine->CreateAnother() ;
     typename AffineTransform::Pointer newAffine = dynamic_cast< AffineTransform* >( newTransform.GetPointer() ) ;
     /*m_Affine->SetMatrix3x3( matrix ) ;

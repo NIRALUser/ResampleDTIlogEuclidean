@@ -896,6 +896,7 @@ int Do( parameters list )
                && nonRigidTransforms > 0
              )
              || list.deffield.compare( "" )
+             || list.concatOnly
            )
     {
       //Create warp transform

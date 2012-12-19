@@ -6,17 +6,15 @@ namespace itk
 
 template< class FieldData >
 WarpTransform3D< FieldData >
-::WarpTransform3D():Superclass( 3 , 0 )
+::WarpTransform3D():Superclass( 0 )
 {
   m_DeformationField = 0 ;
-//  m_OutputSpacing.Fill( 1 ) ;
   for( int i = 0 ; i < 3 ; i++ )
     {
     m_NeighborhoodRadius[ i ] = 1 ; // radius of neighborhood we will use
     m_DerivativeWeights[ i ] = 1.0 ;
     }
   m_SizeForJacobian.Fill( 1 ) ;
-  this->m_Jacobian.SetSize( 3 , 3 ) ;
 }
 
 //Returns the position of the transformed point. If input point is outside of the deformation
@@ -42,34 +40,31 @@ WarpTransform3D< FieldData >
 //Copied and modified from dtiprocess
 //available there: http://www.nitrc.org/projects/dtiprocess/
 template< class FieldData >
-const typename WarpTransform3D< FieldData >::JacobianType &
+void
 WarpTransform3D< FieldData >
-::GetJacobian( const InputPointType & inputPoint ) const
+::ComputeJacobianWithRespectToParameters(const InputPointType  & inputPoint, JacobianType & jacobian ) const
 {
-//  ZeroFluxNeumannBoundaryCondition< DeformationImageType > nbc;
+  jacobian.SetSize( 3 , 3 ) ;
   ConstNeighborhoodIteratorType bit;
   itk::ImageRegion< 3 > region ;
   itk::Index< 3 > start ;
   m_DeformationField->TransformPhysicalPointToIndex( inputPoint , start ) ;
   if( !m_DeformationField->GetLargestPossibleRegion().IsInside( start ) )
   {
-    this->m_Jacobian.Fill( 0 ) ;
-    return this->m_Jacobian ;
+    jacobian.Fill( 0 ) ;
   }
   region.SetIndex( start ) ;
   region.SetSize( m_SizeForJacobian ) ;
   bit = ConstNeighborhoodIteratorType(m_NeighborhoodRadius , m_DeformationField , region ) ;
-//  bit.OverrideBoundaryCondition(&nbc);
   bit.GoToBegin();
   for( unsigned int i = 0; i < 3; ++i )
   {
     for( unsigned int j = 0; j < 3 ; ++j )
     {
-      this->m_Jacobian( j , i ) = m_DerivativeWeights[ i ]
+      jacobian( j , i ) = m_DerivativeWeights[ i ]
                 * 0.5 * ( bit.GetNext( i )[ j ] - bit.GetPrevious( i )[ j ] ) ;
     }
   }
-  return this->m_Jacobian ;
 }
 
 
@@ -87,7 +82,6 @@ WarpTransform3D< FieldData >
       }
       m_DerivativeWeights[ i ] = 1.0 / deformationField->GetSpacing()[ i ] ;
     }
-//    m_OutputSpacing = deformationField->GetSpacing() ;
 }
 
 

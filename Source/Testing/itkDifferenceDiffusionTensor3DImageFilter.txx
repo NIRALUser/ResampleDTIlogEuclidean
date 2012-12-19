@@ -176,7 +176,7 @@ DifferenceDiffusionTensor3DImageFilter<TInputImage, TOutputImage>
 template <class TInputImage, class TOutputImage>
 void
 DifferenceDiffusionTensor3DImageFilter<TInputImage, TOutputImage>
-::ThreadedGenerateData(const OutputImageRegionType &threadRegion, int threadId)
+::ThreadedGenerateData(const OutputImageRegionType &threadRegion, ThreadIdType threadId )
 {
   typedef ConstNeighborhoodIterator<InputImageType>   SmartIterator;
   typedef ImageRegionConstIterator<InputImageType>    InputIterator;

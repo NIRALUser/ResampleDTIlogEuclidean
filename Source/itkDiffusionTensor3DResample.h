@@ -88,7 +88,7 @@ itkGetMacro( OutputDirection , typename OutputImageType::DirectionType ) ;
 protected :
 DiffusionTensor3DResample() ;
 void ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread ,
-                           int threadId ) ;
+                            ThreadIdType threadId ) ;
 void BeforeThreadedGenerateData() ;
 void GenerateOutputInformation() ;
 void AfterThreadedGenerateData() ;

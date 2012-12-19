@@ -65,7 +65,7 @@ unsigned long GetMTime() const ;
 protected :
 TransformDeformationFieldFilter() ;
 void ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread ,
-                           int threadId ) ;
+                            ThreadIdType threadId ) ;
 void BeforeThreadedGenerateData() ;
 void GenerateOutputInformation() ;
 void GenerateInputRequestedRegion() ;
