@@ -1,0 +1,23 @@
+\BOOKMARK [1][]{section.1}{Introduction}{}
+\BOOKMARK [1][]{section.2}{Theory}{}
+\BOOKMARK [2][]{subsection.2.1}{Transformation}{section.2}
+\BOOKMARK [3][]{section*.2}{Finite Strain Method}{subsection.2.1}
+\BOOKMARK [3][]{section*.3}{Preservation of Principal Direction Method}{subsection.2.1}
+\BOOKMARK [3][]{section*.4}{Non-Rigid Transformations}{subsection.2.1}
+\BOOKMARK [2][]{subsection.2.2}{Interpolation}{section.2}
+\BOOKMARK [2][]{subsection.2.3}{Tensor Correction}{section.2}
+\BOOKMARK [1][]{section.3}{Implementation}{}
+\BOOKMARK [2][]{subsection.3.1}{Organization of the Software}{section.3}
+\BOOKMARK [2][]{subsection.3.2}{Diffusion Tensor Resampling Filter}{section.3}
+\BOOKMARK [2][]{subsection.3.3}{Transforms}{section.3}
+\BOOKMARK [2][]{subsection.3.4}{Interpolators}{section.3}
+\BOOKMARK [2][]{subsection.3.5}{Extending Existing ITK Classes}{section.3}
+\BOOKMARK [2][]{subsection.3.6}{Warp Transformations}{section.3}
+\BOOKMARK [1][]{section.4}{Performance}{}
+\BOOKMARK [2][]{subsection.4.1}{Computational Time}{section.4}
+\BOOKMARK [2][]{subsection.4.2}{Memory Usage}{section.4}
+\BOOKMARK [1][]{section.5}{Testing}{}
+\BOOKMARK [1][]{section.6}{Conclusion}{}
+\BOOKMARK [1][]{section.7}{Acknowledgments}{}
+\BOOKMARK [1][]{section.8}{Software Requirements}{}
+\BOOKMARK [1][]{section.A}{Appendix - Results on Real Images}{}

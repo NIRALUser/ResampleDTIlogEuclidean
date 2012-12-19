@@ -1,0 +1,47 @@
+This is BibTeX, Version 0.99c (Web2C 7.5.4)
+The top-level auxiliary file: ArticleExample.aux
+The style file: plain.bst
+Database file #1: InsightJournal.bib
+Warning--empty journal in Pieper2004
+You've used 10 entries,
+            2118 wiz_defined-function locations,
+            624 strings with 6697 characters,
+and the built_in function-call counts, 3423 in all, are:
+= -- 334
+> -- 177
+< -- 0
++ -- 73
+- -- 60
+* -- 271
+:= -- 596
+add.period$ -- 30
+call.type$ -- 10
+change.case$ -- 60
+chr.to.int$ -- 0
+cite$ -- 11
+duplicate$ -- 107
+empty$ -- 248
+format.name$ -- 60
+if$ -- 684
+int.to.chr$ -- 0
+int.to.str$ -- 10
+missing$ -- 9
+newline$ -- 53
+num.names$ -- 20
+pop$ -- 45
+preamble$ -- 1
+purify$ -- 50
+quote$ -- 0
+skip$ -- 68
+stack$ -- 0
+substring$ -- 240
+swap$ -- 10
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 40
+warning$ -- 1
+while$ -- 32
+width$ -- 12
+write$ -- 111
+(There was 1 warning)

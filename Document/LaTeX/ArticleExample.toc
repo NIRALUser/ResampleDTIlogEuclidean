@@ -1,0 +1,23 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}Theory}{3}{section.2}
+\contentsline {subsection}{\numberline {2.1}Transformation}{3}{subsection.2.1}
+\contentsline {subsubsection}{Finite Strain Method}{3}{section*.2}
+\contentsline {subsubsection}{Preservation of Principal Direction Method}{3}{section*.3}
+\contentsline {subsubsection}{Non-Rigid Transformations}{4}{section*.4}
+\contentsline {subsection}{\numberline {2.2}Interpolation}{4}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Tensor Correction}{5}{subsection.2.3}
+\contentsline {section}{\numberline {3}Implementation}{6}{section.3}
+\contentsline {subsection}{\numberline {3.1}Organization of the Software}{6}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Diffusion Tensor Resampling Filter}{6}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Transforms}{7}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Interpolators}{7}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Extending Existing ITK Classes}{7}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.6}Warp Transformations}{7}{subsection.3.6}
+\contentsline {section}{\numberline {4}Performance}{8}{section.4}
+\contentsline {subsection}{\numberline {4.1}Computational Time}{8}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Memory Usage}{8}{subsection.4.2}
+\contentsline {section}{\numberline {5}Testing}{8}{section.5}
+\contentsline {section}{\numberline {6}Conclusion}{10}{section.6}
+\contentsline {section}{\numberline {7}Acknowledgments}{10}{section.7}
+\contentsline {section}{\numberline {8}Software Requirements}{10}{section.8}
+\contentsline {section}{\numberline {A}Appendix - Results on Real Images}{11}{section.A}

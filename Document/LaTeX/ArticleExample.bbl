@@ -1,0 +1,60 @@
+\begin{thebibliography}{10}
+
+\bibitem{Alexander2001}
+D.C. Alexander, C.~Pierpaoli, P.J. Basser, and J.C. Gee.
+\newblock Spatial transformations of {D}iffusion {T}ensor {M}agnetic
+  {R}esonance {I}mages.
+\newblock {\em IEEE Transactions on medical imaging}, 20(11):1131--1139, 2001.
+
+\bibitem{Arsigny2006}
+Vincent Arsigny, Pierre Fillard, Xavier Pennec, and Nicholas Ayache.
+\newblock {L}og-{E}uclidean metrics for fast and simple calculus on diffusion
+  tensors.
+\newblock {\em {M}agnetic {R}esonance in Medicine}, 56(2):411--421, August
+  2006.
+
+\bibitem{Basser1994}
+P.J. Basser, J.~Mattiello, and D.~Le Bihan.
+\newblock {MR} {D}iffusion {T}ensor spectroscopy and imaging.
+\newblock {\em Biophys J}, 66:259--267, 1994.
+
+\bibitem{Dong2004}
+Q.~Dong, R.C. Welsh, T.L. Chenevert, R.C. Carlos, P.~Maly-Sundgren, D.M.
+  Gomez-Hassan, and S.K. Mukherji.
+\newblock {MR} {D}iffusion {T}ensor spectroscopy and imaging.
+\newblock {\em J Magn Reson Imaging}, 19:6--18, 2004.
+
+\bibitem{Higham1988}
+Nicholas~J. Higham.
+\newblock Computing a nearest symmetric positive semidefinite matrix.
+\newblock {\em Linear Algebra and its Applications}, 103:103--118, May 1988.
+
+\bibitem{ITKSoftwareGuideSecondEdition}
+L.~Ibanez, W.~Schroeder, L.~Ng, and J.~Cates.
+\newblock {\em The {ITK} {S}oftware {G}uide}.
+\newblock Kitware, Inc. ISBN 1-930934-15-7,
+  http://www.itk.org/ItkSoftwareGuide.pdf, second edition, 2005.
+
+\bibitem{Meijering2002}
+E.~Meijering.
+\newblock A chronology of interpolation from ancient astronomy to modern signal
+  and image processing.
+\newblock {\em Proceedings of the IEEE}, 90(3):319--342, 2002.
+
+\bibitem{Meijering2003}
+Erik Meijering and Michael Unser.
+\newblock A note on cubic convolution interpolation.
+\newblock {\em IEEE Trans. Image Process}, 12:477--479, 2003.
+
+\bibitem{Meijering2000}
+Erik H.~W. Meijering.
+\newblock Spline interpolation in medical imaging: Comparison with other
+  convolution-based approaches.
+\newblock {\em EUSIPC}, 4:1989--1996, 2000.
+
+\bibitem{Pieper2004}
+S.~Pieper, M.~Halle, and R.~Kikinis.
+\newblock {3D SLICER}.
+\newblock 04 2004.
+
+\end{thebibliography}
