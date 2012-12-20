@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.6)
-cmake_policy(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
+cmake_policy(VERSION 2.8)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/IJMacros.txt)
 
@@ -39,28 +39,31 @@ FOREACH(Package ${Required_Packages})
   LOADPACKAGE(${Package})
 ENDFOREACH(Package)
 
-
-#Then we compile GenerateCLP et al
-set( GENERATECLPDIR_DIR ${CMAKE_SOURCE_DIR}/GenerateCLPDirectory )
-set( GENERATECLPBIN_DIR ${CMAKE_BINARY_DIR}/GenerateCLPDirectory )
-try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/tclap ${GENERATECLPDIR_DIR}/tclap  
-  tclap)
-IF(WIN32)
-  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/ModuleDescriptionParser ${GENERATECLPDIR_DIR}/ModuleDescriptionParser
-    ModuleDescriptionParser CMAKE_FLAGS -DITK_DIR=${ITK_DIR} -DBUILD_SHARED_LIBS:BOOL=OFF )
-  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP 
-    GenerateCLP CMAKE_FLAGS -DModuleDescriptionParser_DIR=${GENERATECLPBIN_DIR}/ModuleDescriptionParser
-    -DTCLAP_DIR=${GENERATECLPBIN_DIR}/tclap -DBUILD_SHARED_LIBS:BOOL=OFF )
-ELSE(WIN32)
-  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/ModuleDescriptionParser ${GENERATECLPDIR_DIR}/ModuleDescriptionParser
-    ModuleDescriptionParser CMAKE_FLAGS -DITK_DIR=${ITK_DIR} )
-  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP 
-    GenerateCLP CMAKE_FLAGS -DModuleDescriptionParser_DIR=${GENERATECLPBIN_DIR}/ModuleDescriptionParser
-    -DTCLAP_DIR=${GENERATECLPBIN_DIR}/tclap )
-ENDIF(WIN32)
-#And finally we load GenerateCLP
-set(GenerateCLP_DIR ${GENERATECLPBIN_DIR}/GenerateCLP)
-LOADPACKAGE( GenerateCLP )
+option(BUILD_GENERATECLP "Build GenerateCLP" ON)
+if( ${BUILD_GENERATECLP} )
+  message(WARNING "build GenerateCLP")
+  #Then we compile GenerateCLP et al
+  set( GENERATECLPDIR_DIR ${CMAKE_SOURCE_DIR}/GenerateCLPDirectory )
+  set( GENERATECLPBIN_DIR ${CMAKE_BINARY_DIR}/GenerateCLPDirectory )
+  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/tclap ${GENERATECLPDIR_DIR}/tclap  
+    tclap)
+  IF(WIN32)
+    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/ModuleDescriptionParser ${GENERATECLPDIR_DIR}/ModuleDescriptionParser
+      ModuleDescriptionParser CMAKE_FLAGS -DITK_DIR=${ITK_DIR} -DBUILD_SHARED_LIBS:BOOL=OFF )
+    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP 
+      GenerateCLP CMAKE_FLAGS -DModuleDescriptionParser_DIR=${GENERATECLPBIN_DIR}/ModuleDescriptionParser
+      -DTCLAP_DIR=${GENERATECLPBIN_DIR}/tclap -DBUILD_SHARED_LIBS:BOOL=OFF )
+  ELSE(WIN32)
+    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/ModuleDescriptionParser ${GENERATECLPDIR_DIR}/ModuleDescriptionParser
+      ModuleDescriptionParser CMAKE_FLAGS -DITK_DIR=${ITK_DIR} )
+    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP 
+      GenerateCLP CMAKE_FLAGS -DModuleDescriptionParser_DIR=${GENERATECLPBIN_DIR}/ModuleDescriptionParser
+      -DTCLAP_DIR=${GENERATECLPBIN_DIR}/tclap )
+  ENDIF(WIN32)
+  #And finally we load GenerateCLP
+  set(GenerateCLP_DIR ${GENERATECLPBIN_DIR}/GenerateCLP)
+  LOADPACKAGE( GenerateCLP )
+endif()
 
 
 

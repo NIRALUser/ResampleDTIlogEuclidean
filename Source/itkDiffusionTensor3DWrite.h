@@ -24,6 +24,10 @@
 #include "itkDiffusionTensor3D.h"
 
 
+#ifndef NRRD_SPACE_MAX
+#include <NrrdIO.h>
+#endif
+
 namespace itk
 {
 
