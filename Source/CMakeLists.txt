@@ -32,7 +32,13 @@ dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.h
 dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.txx
 )
 
-add_library(${CLP}logEuclideanLib SHARED ${${CLP}_SOURCE} ${dtiProcessFiles} )
+option(STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ON)
+
+IF( ${STATIC_RESAMPLEDTI} )
+  add_library(${CLP}logEuclideanLib STATIC ${${CLP}_SOURCE} ${dtiProcessFiles} )
+ELSE( ${STATIC_RESAMPLEDTI} )
+  add_library(${CLP}logEuclideanLib SHARED ${${CLP}_SOURCE} ${dtiProcessFiles} )
+ENDIF()
 if(Slicer3_SOURCE_DIR)
   slicer3_set_plugins_output_path(${CLP}logEuclideanLib)
 endif(Slicer3_SOURCE_DIR)
@@ -43,18 +49,8 @@ target_link_libraries (${CLP}logEuclideanLib
 )
 
 
-option(STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ON)
-
-IF( ${STATIC_RESAMPLEDTI} )
-  add_executable(${CLP}logEuclidean ${${CLP}_SOURCE} ${dtiProcessFiles} )
-  target_link_libraries (${CLP}logEuclidean 
-    ModuleDescriptionParser
-    ${ITK_LIBRARIES}
-    )
-ELSE( ${STATIC_RESAMPLEDTI} )
-  add_executable(${CLP}logEuclidean ResampleDTIApp.cxx)
-  target_link_libraries (${CLP}logEuclidean ${CLP}logEuclideanLib)
-ENDIF( ${STATIC_RESAMPLEDTI} )
+add_executable(${CLP}logEuclidean ResampleDTIApp.cxx)
+target_link_libraries (${CLP}logEuclidean ${CLP}logEuclideanLib)
 if(Slicer3_SOURCE_DIR)
   slicer3_set_plugins_output_path(${CLP}logEuclidean)
 endif(Slicer3_SOURCE_DIR)

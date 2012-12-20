@@ -41,7 +41,6 @@ ENDFOREACH(Package)
 
 option(BUILD_GENERATECLP "Build GenerateCLP" ON)
 if( ${BUILD_GENERATECLP} )
-  message(WARNING "build GenerateCLP")
   #Then we compile GenerateCLP et al
   set( GENERATECLPDIR_DIR ${CMAKE_SOURCE_DIR}/GenerateCLPDirectory )
   set( GENERATECLPBIN_DIR ${CMAKE_BINARY_DIR}/GenerateCLPDirectory )
