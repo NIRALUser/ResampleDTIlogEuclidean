@@ -51,6 +51,9 @@ target_link_libraries (${CLP}logEuclideanLib
 
 add_executable(${CLP}logEuclidean ResampleDTIApp.cxx)
 target_link_libraries (${CLP}logEuclidean ${CLP}logEuclideanLib)
+if( NOT ${STATIC_RESAMPLEDTI} )
+  set_target_properties(${CLP}logEuclidean PROPERTIES COMPILE_FLAGS "-DBUILD_SHARED_LIBS") # definition of the variable for c++ preprocessor
+endif()
 if(Slicer3_SOURCE_DIR)
   slicer3_set_plugins_output_path(${CLP}logEuclidean)
 endif(Slicer3_SOURCE_DIR)

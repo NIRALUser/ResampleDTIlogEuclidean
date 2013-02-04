@@ -18,6 +18,9 @@ set(OriginalImage ${SOURCE_DIRECTORY}/dt-helix.nrrd )
 
 add_executable(${CLP}logEuclideanTest ${CLP}Test.cxx)
 target_link_libraries(${CLP}logEuclideanTest ${CLP}logEuclideanLib)
+if( NOT ${STATIC_RESAMPLEDTI} )
+  set_target_properties(${CLP}logEuclideanTest PROPERTIES COMPILE_FLAGS "-DBUILD_SHARED_LIBS") # definition of the variable for c++ preprocessor
+endif()
 
 set(TransformFile ${SOURCE_DIRECTORY}/rotation.tfm )
 set(TransformedImage1 ${TEMP_DIR}/dt-helix-transformed1.nrrd )

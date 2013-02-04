@@ -1,7 +1,11 @@
 #include "itkTestMainExtended.h"
 
 #ifdef WIN32
-#define MODULE_IMPORT// __declspec(dllimport) // "dllimport" -> Dll = Dynamic library on windows -> if ResampleDTIlogEuclidean is static, just set MODULE_IMPORT to nothing: Fails to link (linkage error) if dllimport because library is static and tries to link as dynamic
+#ifdef BUILD_SHARED_LIBS
+#define MODULE_IMPORT __declspec(dllimport)
+#else
+#define MODULE_IMPORT
+#endif
 #else
 #define MODULE_IMPORT
 #endif
