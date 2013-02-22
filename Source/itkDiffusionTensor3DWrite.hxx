@@ -11,8 +11,8 @@
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DWrite_txx
-#define __itkDiffusionTensor3DWrite_txx
+#ifndef __itkDiffusionTensor3DWrite_hxx
+#define __itkDiffusionTensor3DWrite_hxx
 
 #include "itkDiffusionTensor3DWrite.h"
 

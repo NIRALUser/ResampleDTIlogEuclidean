@@ -108,7 +108,7 @@ OutputTensorDataType m_DefaultTensor ;
 }//end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DResample.txx"
+#include "itkDiffusionTensor3DResample.hxx"
 #endif
 
 #endif

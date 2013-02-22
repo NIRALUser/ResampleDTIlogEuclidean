@@ -69,7 +69,7 @@ private:
 }//end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DFSAffineTransform.txx"
+#include "itkDiffusionTensor3DFSAffineTransform.hxx"
 #endif
 
 #endif
