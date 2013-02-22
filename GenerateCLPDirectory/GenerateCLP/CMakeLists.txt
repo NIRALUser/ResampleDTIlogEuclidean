@@ -24,7 +24,7 @@ endif(ITK_FOUND)
 if(NOT DEFINED BUILD_SHARED_LIBS)
   option(BUILD_SHARED_LIBS "Build with shared libraries." ON)
 endif(NOT DEFINED BUILD_SHARED_LIBS)
- 
+
 set(GENERATECLP_SOURCE GenerateCLP.cxx)
 add_executable(GenerateCLP ${GENERATECLP_SOURCE})
 get_target_property(GenerateCLP_EXE_PATH GenerateCLP LOCATION)
@@ -40,7 +40,7 @@ endif(BUILD_TESTING)
 
 include(GenerateGenerateCLPConfig.cmake)
 
-install(TARGETS GenerateCLP RUNTIME 
+install(TARGETS GenerateCLP RUNTIME
   DESTINATION bin COMPONENT Development
   )
 install(FILES ${GenerateCLP_BINARY_DIR}/GenerateCLPConfig.cmake_install
@@ -63,11 +63,11 @@ install(FILES ${GenerateCLP_BINARY_DIR}/UseGenerateCLP.cmake_install
 set(GenerateCLP_FORWARD_DIR_BUILD "${EXECUTABLE_OUTPUT_PATH}")
 set(GenerateCLP_FORWARD_DIR_INSTALL ".")
 if(WIN32)
-  set(GenerateCLP_FORWARD_PATH_BUILD 
+  set(GenerateCLP_FORWARD_PATH_BUILD
     "\"${GenerateCLP_FORWARD_DIR_BUILD}\" CONFIG_DIR_POST,\"${ITK_DIR}/bin\" CONFIG_DIR_POST")
   set(GenerateCLP_FORWARD_PATH_INSTALL "\"\"")
 else(WIN32)
-  set(GenerateCLP_FORWARD_PATH_BUILD 
+  set(GenerateCLP_FORWARD_PATH_BUILD
     "\"${GenerateCLP_FORWARD_DIR_BUILD}\",\"${ITK_DIR}/bin\"")
   set(GenerateCLP_FORWARD_PATH_INSTALL
     "\"../lib/GenerateCLP\",\"../lib/InsightToolkit\",\"../lib/ModuleDescriptionParser\"")
@@ -83,7 +83,7 @@ if(NOT WIN32)
     ${CMAKE_CURRENT_BINARY_DIR}/GenerateCLPLauncher.c)
   add_dependencies(GenerateCLPLauncher GenerateCLP)
 
-  install(TARGETS GenerateCLPLauncher RUNTIME 
+  install(TARGETS GenerateCLPLauncher RUNTIME
     DESTINATION bin COMPONENT Development
     )
 endif(NOT WIN32)

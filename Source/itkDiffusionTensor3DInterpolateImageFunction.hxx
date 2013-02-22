@@ -11,26 +11,22 @@
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DInterpolateImageFunction_txx
-#define __itkDiffusionTensor3DInterpolateImageFunction_txx
+#ifndef __itkDiffusionTensor3DInterpolateImageFunction_hxx
+#define __itkDiffusionTensor3DInterpolateImageFunction_hxx
 
 #include "itkDiffusionTensor3DInterpolateImageFunction.h"
 
 namespace itk
 {
 
-template< class TData , class TCoordRep >
-DiffusionTensor3DInterpolateImageFunction< TData , TCoordRep >
+template <class TData, class TCoordRep>
+DiffusionTensor3DInterpolateImageFunction<TData, TCoordRep>
 ::DiffusionTensor3DInterpolateImageFunction()
 {
 //  m_InputImage = 0 ;
-  latestTime = 0 ;
+  latestTime = 0;
 //  SetDefaultPixelValue( ZERO ) ;
 }
-
-
-
-
 
 /*
 template< class TData >
@@ -40,14 +36,13 @@ DiffusionTensor3DInterpolateImageFunction< TData >
 {
   m_DefaultPixelValue = defaultPixelValue ;
   m_DefaultPixel.SetIdentity() ;
-  for( unsigned int i = 0 ; i < 3 ; i++ ) 
+  for( unsigned int i = 0 ; i < 3 ; i++ )
     {
     m_DefaultPixel( i , i ) *= static_cast< TData >( this->m_DefaultPixelValue ) ;
     }
 }
 */
 
-
-}//end namespace itk
+} // end namespace itk
 
 #endif

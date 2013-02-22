@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(VERSION 2.8)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/IJMacros.txt)
+include(${CMAKE_SOURCE_DIR}/IJMacros.txt)
 
 #Change PROJECT_NAME to the name of your project
-PROJECT(ResampleDTIIJ)
+project(ResampleDTIIJ)
 
 #The following lines are required to use Dart
-ENABLE_TESTING()
-INCLUDE(Dart)
+enable_testing()
+include(Dart)
 
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${ResampleDTIIJ_BINARY_DIR}/bin" )
@@ -29,36 +29,36 @@ set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${ResampleDTIIJ_BINARY_DIR}/bin" )
 # If no version is specified, the most recent release of the package
 # will be used.
 #We have to first load ITK
-SET(Required_Packages
+set(Required_Packages
 ITK
 )
 
 #this foreach loads all of the packages that you specified as required.
 #It shouldn't need to be modified.
-FOREACH(Package ${Required_Packages})
+foreach(Package ${Required_Packages})
   LOADPACKAGE(${Package})
-ENDFOREACH(Package)
+endforeach(Package)
 
 option(BUILD_GENERATECLP "Build GenerateCLP" ON)
 if( ${BUILD_GENERATECLP} )
   #Then we compile GenerateCLP et al
   set( GENERATECLPDIR_DIR ${CMAKE_SOURCE_DIR}/GenerateCLPDirectory )
   set( GENERATECLPBIN_DIR ${CMAKE_BINARY_DIR}/GenerateCLPDirectory )
-  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/tclap ${GENERATECLPDIR_DIR}/tclap  
+  try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/tclap ${GENERATECLPDIR_DIR}/tclap
     tclap)
-  IF(WIN32)
+  if(WIN32)
     try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/ModuleDescriptionParser ${GENERATECLPDIR_DIR}/ModuleDescriptionParser
       ModuleDescriptionParser CMAKE_FLAGS -DITK_DIR=${ITK_DIR} -DBUILD_SHARED_LIBS:BOOL=OFF )
-    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP 
+    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP
       GenerateCLP CMAKE_FLAGS -DModuleDescriptionParser_DIR=${GENERATECLPBIN_DIR}/ModuleDescriptionParser
       -DTCLAP_DIR=${GENERATECLPBIN_DIR}/tclap -DBUILD_SHARED_LIBS:BOOL=OFF )
-  ELSE(WIN32)
+  else(WIN32)
     try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/ModuleDescriptionParser ${GENERATECLPDIR_DIR}/ModuleDescriptionParser
       ModuleDescriptionParser CMAKE_FLAGS -DITK_DIR=${ITK_DIR} )
-    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP 
+    try_compile(RESULT_VAR ${GENERATECLPBIN_DIR}/GenerateCLP ${GENERATECLPDIR_DIR}/GenerateCLP
       GenerateCLP CMAKE_FLAGS -DModuleDescriptionParser_DIR=${GENERATECLPBIN_DIR}/ModuleDescriptionParser
       -DTCLAP_DIR=${GENERATECLPBIN_DIR}/tclap )
-  ENDIF(WIN32)
+  endif(WIN32)
   #And finally we load GenerateCLP
   set(GenerateCLP_DIR ${GENERATECLPBIN_DIR}/GenerateCLP)
   LOADPACKAGE( GenerateCLP )
@@ -69,27 +69,27 @@ endif()
 
 #Set any libraries that your project depends on.
 #examples: ITKCommon, VTKRendering, etc
-SET(Libraries
+set(Libraries
   ModuleDescriptionParser
   ITKIO
-  ITKAlgorithms 
+  ITKAlgorithms
   ITKBasicFilters
 )
 
 #the following block of code is an example of how to build an executable in
 #cmake.  Unmodified, it will add an executable called "MyExe" to the project.
 #MyExe will be built using the files MyClass.h and MyClass.cxx, and it will
-#be linked to all the libraries you specified above. 
+#be linked to all the libraries you specified above.
 #You can build more than one executable per project
-#SET(CurrentExe "ImageCompare")
-#ADD_EXECUTABLE(${CurrentExe} ImageCompare.cxx) 
-#TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
-#SET(CurrentExe "ImageCopy")
-#ADD_EXECUTABLE(${CurrentExe} ImageCopy.cxx) 
-#TARGET_LINK_LIBRARIES(${CurrentExe} ${Libraries})
+#set(CurrentExe "ImageCompare")
+#add_executable(${CurrentExe} ImageCompare.cxx)
+#target_link_libraries(${CurrentExe} ${Libraries})
+#set(CurrentExe "ImageCopy")
+#add_executable(${CurrentExe} ImageCopy.cxx)
+#target_link_libraries(${CurrentExe} ${Libraries})
 
 set (CLP ResampleDTI)
-ADD_SUBDIRECTORY(Source)
+add_subdirectory(Source)
 
 
 #the following line is an example of how to add a test to your project.
@@ -98,8 +98,8 @@ ADD_SUBDIRECTORY(Source)
 #project or an external executable.  After that list any args that are needed
 #for this test.  Include as many tests as you like.  If your project doesn't have
 #any tests you can comment out or delete the following line.
-#ADD_TEST(CreateImage ImageCopy ${CMAKE_SOURCE_DIR}/img1.png)
-#ADD_TEST(CompareImage ImageCompare ${CMAKE_SOURCE_DIR}/img1.png ${CMAKE_SOURCE_DIR}/img1.png.base.png)
+#add_test(CreateImage ImageCopy ${CMAKE_SOURCE_DIR}/img1.png)
+#add_test(CompareImage ImageCompare ${CMAKE_SOURCE_DIR}/img1.png ${CMAKE_SOURCE_DIR}/img1.png.base.png)
 
 #Once you're done modifying this template, you should rename it to "CMakeLists.txt"
 

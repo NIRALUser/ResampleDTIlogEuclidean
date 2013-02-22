@@ -39,7 +39,7 @@ macro(GENERATECLP SOURCES)
 
   # compute the input filename
   if (TMP_FILEPATH)
-    set(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.xml) 
+    set(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.xml)
   else (TMP_FILEPATH)
     set(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.xml)
   endif (TMP_FILEPATH)
@@ -50,7 +50,7 @@ macro(GENERATECLP SOURCES)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h
       DEPENDS "${GENERATECLP_EXE}" ${TMP_INPUT}
       COMMAND "${GENERATECLP_EXE}"
-      --InputXML "${quote}${TMP_INPUT}${quote}" 
+      --InputXML "${quote}${TMP_INPUT}${quote}"
       --OutputCxx "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h${quote}"
       ${verbatim}
       )
@@ -61,9 +61,9 @@ macro(GENERATECLP SOURCES)
     add_custom_command(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h
       DEPENDS "${GENERATECLP_EXE}" ${TMP_INPUT} ${ARGV2}
-      COMMAND "${GENERATECLP_EXE}" 
+      COMMAND "${GENERATECLP_EXE}"
       --logoFiles "${quote}${ARGV2}${quote}"
-      --InputXML "${quote}${TMP_INPUT}${quote}" 
+      --InputXML "${quote}${TMP_INPUT}${quote}"
       --OutputCxx "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h${quote}"
       ${verbatim}
       )
@@ -74,6 +74,6 @@ macro(GENERATECLP SOURCES)
     set_source_files_properties(${TMP_FILENAME}.cxx PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h OBJECT_DEPENDS ${ARGV2})
   endif ("x${ARGV2}" STREQUAL "x")
 
-  set(${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h ${${SOURCES}}) 
+  set(${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h ${${SOURCES}})
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endmacro(GENERATECLP)
