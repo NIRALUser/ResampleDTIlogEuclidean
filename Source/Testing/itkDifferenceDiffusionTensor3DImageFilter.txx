@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkDifferenceDiffusionTensor3DImageFilter_txx
-#define __itkDifferenceDiffusionTensor3DImageFilter_txx
+#ifndef __itkDifferenceDiffusionTensor3DImageFilter_hxx
+#define __itkDifferenceDiffusionTensor3DImageFilter_hxx
 
 #include "itkDifferenceDiffusionTensor3DImageFilter.h"
 

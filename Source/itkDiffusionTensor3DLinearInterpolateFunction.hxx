@@ -11,27 +11,26 @@
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DLinearInterpolateFunction_txx
-#define __itkDiffusionTensor3DLinearInterpolateFunction_txx
+#ifndef __itkDiffusionTensor3DLinearInterpolateFunction_hxx
+#define __itkDiffusionTensor3DLinearInterpolateFunction_hxx
 
 #include "itkDiffusionTensor3DLinearInterpolateFunction.h"
 
 namespace itk
 {
 
-    
-template< class TData , class TCoordRep >
+template <class TData, class TCoordRep>
 void
-DiffusionTensor3DLinearInterpolateFunction< TData , TCoordRep >
+DiffusionTensor3DLinearInterpolateFunction<TData, TCoordRep>
 ::AllocateInterpolator()
 {
-  for( int i = 0 ; i < 6 ; i++ )
+  for( int i = 0; i < 6; i++ )
     {
-    linearInterpolator[ i ] = LinearInterpolateImageFunctionType::New() ;
-    this->m_Interpol[ i ] = linearInterpolator[ i ] ;
+    linearInterpolator[i] = LinearInterpolateImageFunctionType::New();
+    this->m_Interpol[i] = linearInterpolator[i];
     }
 }
 
-}//end itk namespace
+} // end itk namespace
 
 #endif
