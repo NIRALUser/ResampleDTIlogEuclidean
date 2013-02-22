@@ -19,109 +19,103 @@
 namespace itk
 {
 
-template< class TInput , class TOutput >
-SeparateComponentsOfADiffusionTensorImage< TInput,TOutput >
+template <class TInput, class TOutput>
+SeparateComponentsOfADiffusionTensorImage<TInput, TOutput>
 ::SeparateComponentsOfADiffusionTensorImage()
 {
-  this->SetNumberOfIndexedInputs( 1 ) ;
-  this->SetNumberOfIndexedOutputs( 6 ) ;
-  this->SetNumberOfRequiredOutputs( 6 ) ;
-  for( unsigned int i = 1 ; i < this->GetNumberOfIndexedOutputs() ; i++ )//we skip output0 because it is created by default
-  {
+  this->SetNumberOfIndexedInputs( 1 );
+  this->SetNumberOfIndexedOutputs( 6 );
+  this->SetNumberOfRequiredOutputs( 6 );
+  for( unsigned int i = 1; i < this->GetNumberOfIndexedOutputs(); i++ )  // we skip output0 because it is created by
+                                                                         // default
+    {
     OutputImagePointerType output
-      = static_cast< OutputImageType* >( this->MakeOutput( i ).GetPointer() ) ; 
-    this->ProcessObject::SetNthOutput( i , output.GetPointer() ) ;
-  }
+      = static_cast<OutputImageType *>( this->MakeOutput( i ).GetPointer() );
+    this->ProcessObject::SetNthOutput( i, output.GetPointer() );
+    }
 }
 
-
-
-
-
-template< class TInput , class TOutput >
+template <class TInput, class TOutput>
 void
-SeparateComponentsOfADiffusionTensorImage< TInput , TOutput >
-::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread ,
-                                                      ThreadIdType itkNotUsed(threadId) )
+SeparateComponentsOfADiffusionTensorImage<TInput, TOutput>
+::ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread,
+                        ThreadIdType itkNotUsed(threadId) )
 {
-  InputIteratorType it( this->GetInput() , outputRegionForThread ) ;
-  std::vector< OutputIteratorType > out ;
-  for( int i = 0 ; i < this->GetNumberOfIndexedOutputs() ; i++ )
-  {
-    OutputImagePointerType outputImagePtr = this->GetOutput( i ) ;
-    OutputIteratorType outtemp( outputImagePtr , outputRegionForThread ) ;
-    outtemp.GoToBegin() ;
-    out.push_back( outtemp ) ;
-  }
-  InputTensorDataType inputTensor ;
-  for( it.GoToBegin() ; !it.IsAtEnd() ; ++it )
-  {
-    inputTensor = it.Get() ;
-    for( int i = 0 ; i < this->GetNumberOfIndexedOutputs() ; i++ )
+  InputIteratorType               it( this->GetInput(), outputRegionForThread );
+  std::vector<OutputIteratorType> out;
+
+  for( int i = 0; i < this->GetNumberOfIndexedOutputs(); i++ )
     {
-      out[ i ].Set( static_cast< OutputDataType >( inputTensor[ i ] ) ) ;
-      ++out[ i ] ;
+    OutputImagePointerType outputImagePtr = this->GetOutput( i );
+    OutputIteratorType     outtemp( outputImagePtr, outputRegionForThread );
+    outtemp.GoToBegin();
+    out.push_back( outtemp );
     }
-  }
-} 
+  InputTensorDataType inputTensor;
+  for( it.GoToBegin(); !it.IsAtEnd(); ++it )
+    {
+    inputTensor = it.Get();
+    for( int i = 0; i < this->GetNumberOfIndexedOutputs(); i++ )
+      {
+      out[i].Set( static_cast<OutputDataType>( inputTensor[i] ) );
+      ++out[i];
+      }
+    }
+}
 
-
-
-/** 
+/**
  * Inform pipeline of required output region
  */
-template< class TInput , class TOutput >
-void 
-SeparateComponentsOfADiffusionTensorImage< TInput , TOutput >
+template <class TInput, class TOutput>
+void
+SeparateComponentsOfADiffusionTensorImage<TInput, TOutput>
 ::GenerateOutputInformation()
 {
   // call the superclass' implementation of this method
   Superclass::GenerateOutputInformation();
+
   // get pointers to the input and output
-  for(unsigned int i = 0 ; i < this->GetNumberOfIndexedOutputs() ; i++ )
-  {
-    OutputImagePointerType outputPtr ;//= this->GetOutput( i ) ;
-    if( !outputPtr )
+  for( unsigned int i = 0; i < this->GetNumberOfIndexedOutputs(); i++ )
     {
-      return ;
-    }
+    OutputImagePointerType outputPtr; // = this->GetOutput( i ) ;
+    if( !outputPtr )
+      {
+      return;
+      }
 //    outputPtr->CopyInformation( this->GetInput() ) ;
-  }
-  return ;
+    }
+  return;
 }
 
-
-
-/** 
+/**
  * Inform pipeline of necessary input image region
  *
  * Determining the actual input region is non-trivial, especially
  * when we cannot assume anything about the transform being used.
  * So we do the easy thing and request the entire input image.
  */
-template< class TInput , class TOutput >
-void 
-SeparateComponentsOfADiffusionTensorImage< TInput , TOutput >
+template <class TInput, class TOutput>
+void
+SeparateComponentsOfADiffusionTensorImage<TInput, TOutput>
 ::GenerateInputRequestedRegion()
 {
   // call the superclass's implementation of this method
-  Superclass::GenerateInputRequestedRegion() ;
+  Superclass::GenerateInputRequestedRegion();
 
   if( !this->GetInput() )
     {
-    return ;
+    return;
     }
   // get pointers to the input and output
-  InputImagePointerType  inputPtr  = 
-      const_cast< InputImageType* >( this->GetInput() ) ;
+  InputImagePointerType inputPtr  =
+    const_cast<InputImageType *>( this->GetInput() );
 
   // Request the entire input image
-  typename InputImageType::RegionType inputRegion ;
-  inputRegion = inputPtr->GetLargestPossibleRegion() ;
-  inputPtr->SetRequestedRegion( inputRegion ) ;
-  return ;
+  typename InputImageType::RegionType inputRegion;
+  inputRegion = inputPtr->GetLargestPossibleRegion();
+  inputPtr->SetRequestedRegion( inputRegion );
+  return;
 }
 
-
-}//end namespace itk
+} // end namespace itk
 #endif
