@@ -648,7 +648,6 @@ void SetOutputParameters( const parameters &list ,
       readerReference->GetOutput()->SetDirection( directionReference ) ; 
       }
     }
-  resampler->SetOutputParametersFromImage( image ) ;//is probably useless but doesn't cost much
   typename ResamplerType::OutputImageType::SpacingType m_Spacing ;
   typename ResamplerType::OutputImageType::PointType m_Origin ;
   typename ResamplerType::OutputImageType::DirectionType m_Direction ;
@@ -818,6 +817,7 @@ int Do( parameters list )
       typedef itk::DiffusionTensor3DRead< PixelType > ReaderType ;
       typedef typename ReaderType::Pointer ReaderTypePointer ;
       ReaderTypePointer reader = ReaderType::New() ;
+      reader->SetCatchExceptions( false ) ;
       //Read input volume
       if(list.numberOfThread) 
       {
@@ -830,10 +830,13 @@ int Do( parameters list )
     }
     catch( itk::ExceptionObject & Except )
     {
-      std::cerr << "Reading input image: Exception caught!"
+      if( !list.concatOnly || list.referenceVolume.empty() )
+      {
+        std::cerr << "Reading input image: Exception caught!"
                 << std::endl ;
-      std::cerr << Except << std::endl ;
-      return EXIT_FAILURE ;
+        std::cerr << Except << std::endl ;
+        return EXIT_FAILURE ;
+      }
     }
     if( list.space )//&&  list.transformationFile.compare( "" ) )
     {

@@ -25,7 +25,8 @@ DiffusionTensor3DRead< TData >
 ::DiffusionTensor3DRead()
 {
   m_MeasurementFrame.SetIdentity() ; 
-  m_NumberOfThreads=0;
+  m_NumberOfThreads = 0 ;
+  m_CatchExceptions = true ;
 }
 
 
@@ -98,9 +99,16 @@ DiffusionTensor3DRead< TData >
   }
   catch( itk::ExceptionObject &excep )
     {
-    std::cerr<< "DiffusionTensor3DRead::Load:  exception caught!" << std::endl ;
-    std::cerr<< excep << std::endl ;
-    return -1 ;
+    if( !m_CatchExceptions )
+      {
+      throw excep ;
+      }
+    else
+      {
+      std::cerr<< "DiffusionTensor3DRead::Load:  exception caught!" << std::endl ;
+      std::cerr<< excep << std::endl ;
+      return -1 ;
+      }
     }
   return 0;
 }

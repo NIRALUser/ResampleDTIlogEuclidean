@@ -12,7 +12,7 @@ include( CTest )
 set(SOURCE_DIRECTORY ${ResampleDTIIJ_SOURCE_DIR}/Source/Testing/TestData )
 set(TEMP_DIR ${ResampleDTIIJ_BINARY_DIR}/Testing/Temporary )
 
-set(ResampleTest ${ResampleDTIIJ_BINARY_DIR}/bin/${CLP}logEuclideanTest )
+#set(ResampleTest ${ResampleDTIIJ_BINARY_DIR}/bin/${CLP}logEuclideanTest )
 set(TransformedImage ${TEMP_DIR}/dt-helix-transformed.nrrd )
 set(OriginalImage ${SOURCE_DIRECTORY}/dt-helix.nrrd )
 
@@ -22,7 +22,7 @@ target_link_libraries(${CLP}logEuclideanTest ${CLP}logEuclideanLib)
 set(TransformFile ${SOURCE_DIRECTORY}/rotation.tfm )
 set(TransformedImage1 ${TEMP_DIR}/dt-helix-transformed1.nrrd )
 set(ReferenceImageRotationNN ${SOURCE_DIRECTORY}/dt-helix-ref-Rotated.nrrd)
-add_test(${CLP}logEuclideanRotationNNTest ${ResampleTest}
+add_test(NAME ${CLP}logEuclideanRotationNNTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageRotationNN}
     ${TransformedImage1}
@@ -41,7 +41,7 @@ add_test(${CLP}logEuclideanRotationNNTest ${ResampleTest}
 set(TransformedImage2 ${TEMP_DIR}/dt-helix-transformed2.nrrd )
 set(ReferenceImageRotationAndAffine ${SOURCE_DIRECTORY}/dt-helix-ref-RotationAndAffine.nrrd)
 set(RotationAndAffineFile ${SOURCE_DIRECTORY}/rotationAndAffine.tfm )
-add_test(${CLP}logEuclidean2RigidTransformsLinearTest ${ResampleTest}
+add_test( NAME ${CLP}logEuclidean2RigidTransformsLinearTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageRotationAndAffine}
     ${TransformedImage2}
@@ -61,7 +61,7 @@ add_test(${CLP}logEuclidean2RigidTransformsLinearTest ${ResampleTest}
 set(TransformedImage3 ${TEMP_DIR}/dt-helix-transformed3.nrrd )
 set(ReferenceImageBSplineWS ${SOURCE_DIRECTORY}/dt-helix-ref-BS.nrrd)
 set(BSplineFile ${SOURCE_DIRECTORY}/FastNonrigidBSplineregistrationTransform.tfm)
-add_test(${CLP}logEuclideanBSplineWSInterpolationTest ${ResampleTest}
+add_test( NAME ${CLP}logEuclideanBSplineWSInterpolationTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageBSplineWS}
     ${TransformedImage3}
@@ -79,7 +79,7 @@ add_test(${CLP}logEuclideanBSplineWSInterpolationTest ${ResampleTest}
 set(TransformedImage4 ${TEMP_DIR}/dt-helix-transformed4.nrrd )
 set(ReferenceImageBSplineInterpolation ${SOURCE_DIRECTORY}/dt-helix-ref-BSInterpolation.nrrd)
 set(AffineFile ${SOURCE_DIRECTORY}/affine.tfm)
-add_test(${CLP}logEuclideanBSplineInterpolationTest ${ResampleTest}
+add_test( NAME ${CLP}logEuclideanBSplineInterpolationTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageBSplineInterpolation}
     ${TransformedImage4}
@@ -97,7 +97,7 @@ add_test(${CLP}logEuclideanBSplineInterpolationTest ${ResampleTest}
 set(TransformedImage5 ${TEMP_DIR}/dt-helix-transformed5.nrrd )
 set(ReferenceImageHField ${SOURCE_DIRECTORY}/dt-helix-ref-HField.nrrd)
 set(HFieldFile ${SOURCE_DIRECTORY}/deformationField.nrrd)
-add_test(${CLP}logEuclideanHFieldTest ${ResampleTest}
+add_test( NAME ${CLP}logEuclideanHFieldTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageHField}
     ${TransformedImage5}
@@ -114,7 +114,7 @@ add_test(${CLP}logEuclideanHFieldTest ${ResampleTest}
 set(TransformedImage7 ${TEMP_DIR}/dt-helix-transformed7.nrrd )
 set(ReferenceImageLog ${SOURCE_DIRECTORY}/dt-helix-ref-Log.nrrd)
 set(AffineFile ${SOURCE_DIRECTORY}/affine.tfm)
-add_test(${CLP}logEuclideanLogTest ${ResampleTest}
+add_test(NAME ${CLP}logEuclideanLogTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageLog}
     ${TransformedImage7}
@@ -133,7 +133,7 @@ set(SourceScalarFile ${SOURCE_DIRECTORY}/AddTest_DOUBLE.mha )
 file( COPY ${SourceScalarFile} DESTINATION ${TEMP_DIR} )
 set( BinaryScalarFile ${TEMP_DIR}/AddTest_DOUBLE.mha )
 
-add_test( itkTestMainExtendedScalarTest ${ResampleTest}
+add_test( NAME itkTestMainExtendedScalarTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
  --compare
    ${BinaryScalarFile}
    ${BinaryScalarFile}
@@ -144,7 +144,7 @@ add_test( itkTestMainExtendedScalarTest ${ResampleTest}
   )
 
 set(TransformedImage6 ${TEMP_DIR}/dt-helix-transformed6.nrrd )
-add_test(itkTestMainExtendedFailedTest ${ResampleTest}
+add_test( NAME itkTestMainExtendedFailedTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
   --compare
     ${ReferenceImageHField}
     ${TransformedImage6}
@@ -155,3 +155,57 @@ add_test(itkTestMainExtendedFailedTest ${ResampleTest}
     ${TransformedImage6}
   )
 set_tests_properties( itkTestMainExtendedFailedTest PROPERTIES WILL_FAIL true)
+
+
+
+
+set(ReferenceConcatenatedDisplacementField ${SOURCE_DIRECTORY}/ReferenceConcatenatedDisplacementField.nrrd)
+set(ConcatDisplacementField ${TEMP_DIR}/ConcatenatedDisplacementField.nrrd )
+set(DummyTransformedImage ${TEMP_DIR}/dt-helix-transformed8-dummy.nrrd )
+set(HFieldFile ${SOURCE_DIRECTORY}/deformationField.nrrd)
+set(ScalarInput ${SOURCE_DIRECTORY}/dt-helix-fa.nrrd)
+add_test( NAME ${CLP}logEuclideanHFieldConcatOnlyTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+  --compare
+    ${ConcatDisplacementField}
+    ${ReferenceConcatenatedDisplacementField}
+  --compareIntensityTolerance 0
+  ModuleEntryPoint
+    -H ${HFieldFile}
+    ${ScalarInput}
+    ${DummyTransformedImage}
+    -n 8
+    --concatenationOnly
+    --hfieldtype h-Field
+    -R ${OriginalImage}
+    --outputDisplacementField ${ConcatDisplacementField}
+  )
+
+add_test(NAME ${CLP}logEuclideanHFieldConcatFailedNoConcatenationOnlyTest COMMAND $<TARGET_FILE:${CLP}logEuclidean>
+    -H ${HFieldFile}
+    ${ScalarInput}
+    ${DummyTransformedImage}
+    -n 8
+    --hfieldtype h-Field
+    -R ${OriginalImage}
+    --outputDisplacementField ${ConcatDisplacementField}
+  )
+set_tests_properties(${CLP}logEuclideanHFieldConcatFailedNoConcatenationOnlyTest PROPERTIES WILL_FAIL true)
+
+add_test(NAME ${CLP}logEuclideanHFieldConcatFailedNoReferenceImageTest COMMAND ${CLP}logEuclidean
+    -H ${HFieldFile}
+    ${ScalarInput}
+    ${DummyTransformedImage}
+    -n 8
+    --concatenationOnly
+    --hfieldtype h-Field
+    --outputDisplacementField ${ConcatDisplacementField}
+  )
+set_tests_properties(${CLP}logEuclideanHFieldConcatFailedNoReferenceImageTest PROPERTIES WILL_FAIL true)
+
+
+
+
+
+
+
+
