@@ -648,11 +648,10 @@ void SetOutputParameters( const parameters & list,
       readerReference->GetOutput()->SetDirection( directionReference );
       }
     }
-  resampler->SetOutputParametersFromImage( image ); // is probably useless but doesn't cost much
-  typename ResamplerType::OutputImageType::SpacingType m_Spacing;
-  typename ResamplerType::OutputImageType::PointType m_Origin;
-  typename ResamplerType::OutputImageType::DirectionType m_Direction;
-  typename ResamplerType::OutputImageType::SizeType m_Size;
+  typename ResamplerType::OutputImageType::SpacingType m_Spacing ;
+  typename ResamplerType::OutputImageType::PointType m_Origin ;
+  typename ResamplerType::OutputImageType::DirectionType m_Direction ;
+  typename ResamplerType::OutputImageType::SizeType m_Size ;
   if( VectorIsNul( list.outputImageSpacing ) )
     {
     if( list.referenceVolume.compare( "" ) )
@@ -814,11 +813,12 @@ int Do( parameters list )
   itk::Matrix<double, 3, 3> measurementFrame;
   try
     {
-    typedef itk::DiffusionTensor3DRead<PixelType> ReaderType;
-    typedef typename ReaderType::Pointer          ReaderTypePointer;
-    ReaderTypePointer reader = ReaderType::New();
-    // Read input volume
-    if( list.numberOfThread )
+      typedef itk::DiffusionTensor3DRead< PixelType > ReaderType ;
+      typedef typename ReaderType::Pointer ReaderTypePointer ;
+      ReaderTypePointer reader = ReaderType::New() ;
+      reader->SetCatchExceptions( false ) ;
+      //Read input volume
+      if(list.numberOfThread) 
       {
       reader->SetNumberOfThreads( list.numberOfThread );
       }
@@ -829,10 +829,13 @@ int Do( parameters list )
     }
   catch( itk::ExceptionObject & Except )
     {
-    std::cerr << "Reading input image: Exception caught!"
-              << std::endl;
-    std::cerr << Except << std::endl;
-    return EXIT_FAILURE;
+      if( !list.concatOnly || list.referenceVolume.empty() )
+      {
+        std::cerr << "Reading input image: Exception caught!"
+                << std::endl ;
+        std::cerr << Except << std::endl ;
+        return EXIT_FAILURE ;
+      }
     }
   if( list.space )  // &&  list.transformationFile.compare( "" ) )
     {
