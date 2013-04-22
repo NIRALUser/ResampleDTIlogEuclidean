@@ -47,6 +47,7 @@
 #include <itkVectorResampleImageFilter.h>
 #include <itkBSplineDeformableTransform.h>
 #include "dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.h"
+#include <itkTransformFactory.h>
 
 // Use an anonymous namespace to keep class types and function names
 // from colliding when module is used as shared object module.  Every
@@ -460,56 +461,39 @@ SetTransformAndOrder( parameters & list,
       }
     else
       {
-      itk::AffineTransform<float, 3>::Pointer
-        floatAffineTransform = dynamic_cast<itk::AffineTransform<float, 3> *>
+      typename RigidTransformType::Rigid3DTransformType::Pointer
+      doubleRigid3DTransform = dynamic_cast<
+          typename RigidTransformType::Rigid3DTransformType *>
         ( transform.GetPointer() );
-      if( floatAffineTransform ) // if affine transform in float
+      if( doubleRigid3DTransform ) // if rigid3D transform in double
         {
-        list.transformType.assign( "a" );
-        floatMatrixOffsetTransform = floatAffineTransform;
-        SetListFromTransform<float>( floatMatrixOffsetTransform, list );
+        list.transformType.assign( "rt" );
+        precisionChecking = 0;
+        doubleMatrixOffsetTransform = doubleRigid3DTransform;
+        SetListFromTransform<double>( doubleMatrixOffsetTransform, list );
         }
-      else
+      else // if non-rigid
         {
-        typename RigidTransformType::Rigid3DTransformType::Pointer
-        doubleRigid3DTransform = dynamic_cast<
-            typename RigidTransformType::Rigid3DTransformType *>
+        nonRigidFile = dynamic_cast<
+            typename NonRigidTransformType::TransformType *>
           ( transform.GetPointer() );
-        if( doubleRigid3DTransform ) // if rigid3D transform in double
+        if( nonRigidFile ) // if non rigid Transform loaded
           {
-          list.transformType.assign( "rt" );
-          precisionChecking = 0;
-          doubleMatrixOffsetTransform = doubleRigid3DTransform;
-          SetListFromTransform<double>( doubleMatrixOffsetTransform, list );
+          list.transformType.assign( "nr" );
           }
-        else
+        else // something else
           {
-          itk::Rigid3DTransform<float>::Pointer
-            floatRigid3DTransform = dynamic_cast<
-              itk::Rigid3DTransform<float> *>
-            ( transform.GetPointer() );
-          if( floatRigid3DTransform ) // if rigid3D transform in float
+          doubleMatrixOffsetTransform = dynamic_cast< itk::MatrixOffsetTransformBase<double, 3, 3>* > ( transform.GetPointer() ) ;
+          if( doubleMatrixOffsetTransform )
             {
-            list.transformType.assign( "rt" );
-            precisionChecking = 0;
-            floatMatrixOffsetTransform = floatRigid3DTransform;
-            SetListFromTransform<float>( floatMatrixOffsetTransform, list );
+            list.transformType.assign( "a" );
+            SetListFromTransform<double>( doubleMatrixOffsetTransform, list );
             }
-          else // if non-rigid
+          else
             {
-            nonRigidFile = dynamic_cast<
-                typename NonRigidTransformType::TransformType *>
-              ( transform.GetPointer() );
-            if( nonRigidFile ) // if non rigid Transform loaded
-              {
-              list.transformType.assign( "nr" );
-              }
-            else // something else
-              {
-              std::cerr << "Transformation type not yet implemented for tensors"
-                        << std::endl;
-              return NULL;
-              }
+            std::cerr << "Transformation type not yet implemented for tensors"
+                      << std::endl;
+            return NULL;
             }
           }
         }
@@ -585,6 +569,7 @@ int ReadTransform( parameters & list,
   dummyOutputCenter.Fill( 0 );
   if( list.transformationFile.compare( "" ) )
     {
+    itk::TransformFactory< itk::MatrixOffsetTransformBase<double, 3, 3> >::RegisterTransform();
     transformFile = itk::TransformFileReader::New();
     transformFile->SetFileName( list.transformationFile.c_str() );
     transformFile->Update();
@@ -602,7 +587,6 @@ int ReadTransform( parameters & list,
         }
       }
     while( transformFile->GetTransformList()->size() );
-
     transformFile->Update();
     return numberOfNonRigidTransform;
     }
