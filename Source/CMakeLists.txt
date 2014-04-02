@@ -77,3 +77,8 @@ if(BUILD_TESTING)
   endif()
   add_subdirectory(Testing)
 endif(BUILD_TESTING)
+
+if( NOT DEFINED RUNTIME_DESTINATION )
+  set( RUNTIME_DESTINATION bin)
+endif()
+install( TARGETS ${CLP}logEuclidean DESTINATION ${RUNTIME_DESTINATION})
