@@ -91,6 +91,7 @@ struct parameters
   bool notbulk;
   std::string outputDisfield;
   bool concatOnly;
+  bool noMeasurementFrame ;
   };
 
 // Verify if some input parameters are null
@@ -795,36 +796,42 @@ int Do( parameters list )
   typedef typename WriterType::Pointer           WriterTypePointer;
   WriterTypePointer         writer = WriterType::New();
   itk::Matrix<double, 3, 3> measurementFrame;
+  bool hasMeasurementFrame ;
   try
+  {
+    typedef itk::DiffusionTensor3DRead< PixelType > ReaderType ;
+    typedef typename ReaderType::Pointer ReaderTypePointer ;
+    ReaderTypePointer reader = ReaderType::New() ;
+    reader->SetCatchExceptions( false ) ;
+    //Read input volume
+    if(list.numberOfThread) 
     {
-      typedef itk::DiffusionTensor3DRead< PixelType > ReaderType ;
-      typedef typename ReaderType::Pointer ReaderTypePointer ;
-      ReaderTypePointer reader = ReaderType::New() ;
-      reader->SetCatchExceptions( false ) ;
-      //Read input volume
-      if(list.numberOfThread) 
-      {
       reader->SetNumberOfThreads( list.numberOfThread );
-      }
+    }
     reader->Update( list.inputVolume.c_str() );
     image = reader->GetOutput();
     writer->SetMetaDataDictionary( reader->GetMetaDataDictionary() );
     measurementFrame = reader->GetMeasurementFrame();
+    hasMeasurementFrame = reader->GetHasMeasurementFrame() ;
+    if( !hasMeasurementFrame || list.noMeasurementFrame )
+    {
+      measurementFrame = reader->GetOutput()->GetDirection() ;
     }
+  }
   catch( itk::ExceptionObject & Except )
+  {
+    if( !list.concatOnly || list.referenceVolume.empty() )
     {
-      if( !list.concatOnly || list.referenceVolume.empty() )
-      {
-        std::cerr << "Reading input image: Exception caught!"
+      std::cerr << "Reading input image: Exception caught!"
                 << std::endl ;
-        std::cerr << Except << std::endl ;
-        return EXIT_FAILURE ;
-      }
+      std::cerr << Except << std::endl ;
+      return EXIT_FAILURE ;
     }
+  }
   if( list.space )  // &&  list.transformationFile.compare( "" ) )
-    {
-    RASLPS<PixelType>( image );
-    }
+  {
+    RASLPS<PixelType>( image ) ;
+  }
   typedef itk::DiffusionTensor3DInterpolateImageFunction<PixelType>
     InterpolatorType;
   typedef typename InterpolatorType::Pointer InterpolatorTypePointer;
@@ -1195,6 +1202,7 @@ int main( int argc, char * argv[] )
   list.notbulk = notbulk;
   list.outputDisfield = outputDisfield;
   list.concatOnly = concatOnly;
+  list.noMeasurementFrame = noMeasurementFrame;
   // verify if all the vector parameters have the good length
   if( list.outputImageSpacing.size() != 3 || list.outputImageSize.size() != 3
       || ( list.outputImageOrigin.size() != 3
