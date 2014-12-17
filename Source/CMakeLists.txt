@@ -7,9 +7,44 @@ if(GenerateCLP_FOUND)
   include(${GenerateCLP_USE_FILE})
 endif(GenerateCLP_FOUND)
 
-find_package(ITK REQUIRED )
-include(${ITK_USE_FILE})
+set(ITKComponents
+ITKDiffusionTensorImage
+ITKRegistrationCommon
+ITKOptimizersv4
+ITKMetricsv4
+ITKRegistrationMethodsv4
+ITKTransform
+ITKIOImageBase
+ITKIONRRD
+ITKIOBMP
+ITKIOBioRad
+ITKIOCSV
+ITKIODCMTK
+ITKIOGDCM
+ITKIOGE
+ITKIOGIPL
+ITKIOHDF5
+ITKIOIPL
+ITKIOImageBase
+ITKIOJPEG
+ITKIOLSM
+ITKIOMRC
+ITKIOMesh
+ITKIOMeta
+ITKIONIFTI
+ITKIONRRD
+ITKIOPNG
+ITKIORAW
+ITKIOSiemens
+ITKIOTIFF
+ITKIOTransformBase
+ITKIOTransformHDF5
+ITKIOTransformInsightLegacy
+ITKIOTransformMatlab
+)
 
+find_package(ITK COMPONENTS ${ITKComponents} REQUIRED )
+include(${ITK_USE_FILE})
 
 if( ${ITK_VERSION_MAJOR} VERSION_LESS 4)
   message(FATAL_ERROR "ITKv4 is necessary to compile this tool")

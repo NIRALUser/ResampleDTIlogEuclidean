@@ -27,9 +27,6 @@
 #include <itkCovariantVector.h>
 #include <itkDiffusionTensor3D.h>
 #include <itkAffineTransform.h>
-#include <itkDTITubeSpatialObject.h>
-#include <itkGroupSpatialObject.h>
-#include <itkRGBPixel.h>
 #include <itkVectorImage.h>
 
 // VNL Includes
@@ -56,7 +53,6 @@ typedef itk::Image<GradientPixelType, DIM> GradientImageType;
 typedef itk::Image<RealType, DIM> RealImageType;
 typedef itk::Image<ScalarPixelType, DIM> IntImageType;
 typedef itk::Image<LabelType, DIM> LabelImageType;
-typedef itk::Image<itk::RGBPixel<unsigned char>,3> RGBImageType;
 
 typedef TensorImageType::SizeType ImageSizeType;
 typedef TensorImageType::SpacingType ImageSpacingType;
@@ -66,16 +62,5 @@ typedef itk::AffineTransform<TransformRealType,3> AffineTransformType;
 typedef vnl_vector_fixed<double, 3> GradientType;
 typedef itk::VectorContainer<unsigned int, GradientType> GradientListType;
 
-//enum InterpolationType {NearestNeighbor, Linear, Cubic};
-//enum TensorReorientationType {FiniteStrain, PreservationPrincipalDirection};
-
-//enum EigenValueIndex {Lambda1 = 0, Lambda2, Lambda3};
-
-//typedef itk::DTITubeSpatialObject<3> DTITubeType;
-//typedef DTITubeType::TubePointType DTIPointType;
-//typedef DTITubeType::PointListType DTIPointListType;
-
-//typedef itk::GroupSpatialObject<3> GroupType;
-//typedef GroupType::ChildrenListType ChildrenListType;
 
 #endif
