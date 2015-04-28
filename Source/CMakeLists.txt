@@ -7,15 +7,7 @@ if(GenerateCLP_FOUND)
   include(${GenerateCLP_USE_FILE})
 endif(GenerateCLP_FOUND)
 
-set(ITKComponents
-ITKDiffusionTensorImage
-ITKRegistrationCommon
-ITKOptimizersv4
-ITKMetricsv4
-ITKRegistrationMethodsv4
-ITKTransform
-ITKIOImageBase
-ITKIONRRD
+set( ALL_IO
 ITKIOBMP
 ITKIOBioRad
 ITKIOCSV
@@ -25,35 +17,49 @@ ITKIOGE
 ITKIOGIPL
 ITKIOHDF5
 ITKIOIPL
-ITKIOImageBase
 ITKIOJPEG
 ITKIOLSM
 ITKIOMRC
 ITKIOMesh
 ITKIOMeta
 ITKIONIFTI
-ITKIONRRD
 ITKIOPNG
 ITKIORAW
 ITKIOSiemens
+ITKIOSpatialObjects
+ITKIOStimulate
 ITKIOTIFF
-ITKIOTransformBase
 ITKIOTransformHDF5
-ITKIOTransformInsightLegacy
 ITKIOTransformMatlab
+ITKIOVTK
+ITKIOXML
+)
+
+list(APPEND LIST_ITK_IO_USED ITKIONRRD ITKIOTransformInsightLegacy)
+foreach( io ${ALL_IO} )
+  list( FIND ITK_MODULES_ENABLED ${io} position )
+  if( ${position} GREATER -1 ) #not found: ${position}==-1
+    list( APPEND LIST_ITK_IO_USED ${io} )
+  endif()
+endforeach()
+
+set(ITKComponents
+ITKCommon
+  ITKImageFunction
+  ITKImageGrid
+  ITKTransform
+
+ITKIOImageBase
+ITKIOTransformBase
+${LIST_ITK_IO_USED}
 )
 
 find_package(ITK COMPONENTS ${ITKComponents} REQUIRED )
 include(${ITK_USE_FILE})
-
 if( ${ITK_VERSION_MAJOR} VERSION_LESS 4)
   message(FATAL_ERROR "ITKv4 is necessary to compile this tool")
 endif()
-
 set (CLP ResampleDTI)
-if (Slicer3_SOURCE_DIR)
-   set(LOGOFILE ${Slicer3_SOURCE_DIR}/Resources/NAMICLogo.h)
-endif (Slicer3_SOURCE_DIR)
 
 set ( ${CLP}_SOURCE ${CLP}.cxx )
 generateclp(${CLP}_SOURCE ${CLP}.xml ${LOGOFILE})
@@ -68,6 +74,7 @@ dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.txx
 )
 
 option(STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ON)
+
 
 if( ${STATIC_RESAMPLEDTI} )
   add_library(${CLP}logEuclideanLib STATIC ${${CLP}_SOURCE} ${dtiProcessFiles} )
@@ -89,27 +96,8 @@ target_link_libraries (${CLP}logEuclidean ${CLP}logEuclideanLib)
 if( NOT ${STATIC_RESAMPLEDTI} )
   set_target_properties(${CLP}logEuclidean PROPERTIES COMPILE_FLAGS "-DBUILD_SHARED_LIBS") # definition of the variable for c++ preprocessor
 endif()
-if(Slicer3_SOURCE_DIR)
-  slicer3_set_plugins_output_path(${CLP}logEuclidean)
-endif(Slicer3_SOURCE_DIR)
-
-
-if (Slicer3_SOURCE_DIR)
-  # install each target in the production area (where it would appear in an
-  # installation) and install each target in the developer area (for running
-  # from a build)
-  set(TARGETS
-    ${CLP}logEuclidean
-    ${CLP}logEuclideanLib
-    )
-  slicer3_install_plugins(${TARGETS})
-
-endif (Slicer3_SOURCE_DIR)
 
 if(BUILD_TESTING)
-  if( NOT ${ITKV3_COMPATIBILITY} )
-    message(FATAL_ERROR "ITKV3_COMPATIBILITY set to ON is necessary to compile the tests")
-  endif()
   add_subdirectory(Testing)
 endif(BUILD_TESTING)
 

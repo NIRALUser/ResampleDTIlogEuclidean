@@ -4,13 +4,17 @@
 # Settings specific to build trees
 #
 #    tclap include files referenced as "tclap/foo.h"
-set(TCLAP_INCLUDE_DIRS_CONFIG ${TCLAP_SOURCE_DIR}/include)
+set(TCLAP_INCLUDE_DIRS_CONFIG ${TCLAP_INCLUDE_DIRS})
+set(TCLAP_LIBRARY_DIRS_CONFIG
+  ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+  )
 set(TCLAP_USE_FILE_CONFIG ${TCLAP_BINARY_DIR}/UseTCLAP.cmake)
 
 
-# Configure Slicer3Config.cmake for the install tree.
+# Configure TCLAPConfig.cmake for the install tree.
 configure_file(${TCLAP_SOURCE_DIR}/TCLAPConfig.cmake.in
-               ${TCLAP_BINARY_DIR}/TCLAPConfig.cmake @ONLY IMMEDIATE)
+               ${TCLAP_BINARY_DIR}/TCLAPConfig.cmake @ONLY)
 
 
 
@@ -19,6 +23,6 @@ configure_file(${TCLAP_SOURCE_DIR}/TCLAPConfig.cmake.in
 #    tclap include files referenced as "tclap/foo.h"
 
 
-# Configure Slicer3Config.cmake for the install tree.
-configure_file(${TCLAP_SOURCE_DIR}/TCLAPInstallConfig.cmake.in
-               ${TCLAP_BINARY_DIR}/install/TCLAPConfig.cmake @ONLY IMMEDIATE)
+# TODO- Configure TCLAPInstallConfig.cmake for the install tree.
+#configure_file(${TCLAP_SOURCE_DIR}/TCLAPInstallConfig.cmake.in
+#               ${TCLAP_BINARY_DIR}/install/TCLAPConfig.cmake @ONLY)

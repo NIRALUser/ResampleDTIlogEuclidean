@@ -2,19 +2,19 @@
 
   Copyright 2005 Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/ModuleParameter.h $
-  Date:      $Date: 2008-07-07 11:07:40 -0400 (Mon, 07 Jul 2008) $
-  Version:   $Revision: 7248 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
 #ifndef __ModuleParameter_h
 #define __ModuleParameter_h
 
-#include "ModuleDescriptionParserWin32Header.h"
+#include "ModuleDescriptionParserExport.h"
 
 #include <string>
 #include <vector>
@@ -43,7 +43,7 @@ public:
     this->Tag = tag;
   }
 
-  virtual std::string GetTag() const
+  virtual const std::string& GetTag() const
   {
     return this->Tag;
   }
@@ -53,7 +53,7 @@ public:
     this->CPPType = type;
   }
 
-  virtual std::string GetCPPType() const 
+  virtual const std::string& GetCPPType() const 
   {
     return this->CPPType;
   }
@@ -63,7 +63,7 @@ public:
     this->Type = type;
   }
 
-  virtual std::string GetType() const 
+  virtual const std::string& GetType() const 
   {
     return this->Type;
   }
@@ -73,7 +73,7 @@ public:
     this->Reference = ref;
   }
 
-  virtual std::string GetReference() const
+  virtual const std::string& GetReference() const
   {
     return this->Reference;
   }
@@ -83,17 +83,42 @@ public:
     this->Hidden = hidden;
   }
 
-  virtual std::string GetHidden() const
+  virtual const std::string& GetHidden() const
   {
     return this->Hidden;
   }
+
+  // Simple return types are parameters on output channel with no
+  // flags and without a specified index 
+  virtual bool IsReturnParameter() const
+  {
+    // could check for tag == float, int, float-vector, ...
+    if (this->Channel == "output" 
+        && !this->IsFlagParameter() && !this->IsIndexParameter())
+      {
+      return true;
+      }
+    return false;
+  }
   
+  // Has a flag or a long flag?
+  virtual bool IsFlagParameter() const
+  {
+    return (this->Flag != "" || this->LongFlag != "");
+  }
+
+  // Is an index type?
+  virtual bool IsIndexParameter() const
+  {
+    return (this->Index != "");
+  }
+
   virtual void SetArgType(const std::string &argType)
   {
     this->ArgType = argType;
   }
 
-  virtual std::string GetArgType() const 
+  virtual const std::string& GetArgType() const 
   {
     return this->ArgType;
   }
@@ -103,7 +128,7 @@ public:
     this->StringToType = stringToType;
   }
 
-  virtual std::string GetStringToType() const
+  virtual const std::string &GetStringToType() const
   {
     return this->StringToType;
   }
@@ -113,7 +138,7 @@ public:
     this->Name = name;
   }
 
-  virtual std::string GetName() const
+  virtual const std::string& GetName() const
   {
     return this->Name;
   }
@@ -123,14 +148,14 @@ public:
     this->LongFlag = longFlag;
   }
 
-  virtual std::string GetLongFlag() const
+  virtual const std::string& GetLongFlag() const
   {
     return this->LongFlag;
   }
   
   virtual void SetLongFlagAliasesAsString(const std::string &aliases);
 
-  virtual std::string GetLongFlagAliasesAsString() const
+  virtual const std::string& GetLongFlagAliasesAsString() const
   {
     return this->LongFlagAliasesAsString;
   }
@@ -142,7 +167,7 @@ public:
 
   virtual void SetDeprecatedLongFlagAliasesAsString(const std::string &aliases);
 
-  virtual std::string GetDeprecatedLongFlagAliasesAsString() const
+  virtual const std::string& GetDeprecatedLongFlagAliasesAsString() const
   {
     return this->DeprecatedLongFlagAliasesAsString;
   }
@@ -157,7 +182,7 @@ public:
     this->Label = label;
   }
   
-  virtual std::string GetLabel() const
+  virtual const std::string& GetLabel() const
   {
     return this->Label;
   }
@@ -167,7 +192,7 @@ public:
     this->Constraints = constraints;
   }
   
-  virtual std::string GetConstraints() const
+  virtual const std::string& GetConstraints() const
   {
     return this->Constraints;
   }
@@ -177,7 +202,7 @@ public:
     this->Maximum = maximum;
   }
   
-  virtual std::string GetMaximum() const 
+  virtual const std::string& GetMaximum() const 
   {
     return this->Maximum;
   }
@@ -187,7 +212,7 @@ public:
     this->Minimum = minimum;
   }
   
-  virtual std::string GetMinimum() const 
+  virtual const std::string& GetMinimum() const 
   {
     return this->Minimum;
   }
@@ -197,7 +222,7 @@ public:
     this->Step = step;
   }
   
-  virtual std::string GetStep() const
+  virtual const std::string& GetStep() const
   {
     return this->Step;
   }
@@ -207,7 +232,7 @@ public:
     this->Description = description;
   }
 
-  virtual std::string GetDescription() const
+  virtual const std::string& GetDescription() const
   {
     return this->Description;
   }
@@ -217,7 +242,7 @@ public:
     this->Channel = channel;
   }
 
-  virtual std::string GetChannel() const
+  virtual const std::string& GetChannel() const
   {
     return this->Channel;
   }
@@ -227,7 +252,7 @@ public:
     this->Index = index;
   }
 
-  virtual std::string GetIndex() const
+  virtual const std::string& GetIndex() const
   {
     return this->Index;
   }
@@ -237,7 +262,7 @@ public:
     this->Default = def;
   }
 
-  virtual std::string GetDefault() const
+  virtual const std::string& GetDefault() const
   {
     return this->Default;
   }
@@ -247,14 +272,14 @@ public:
     this->Flag = flag;
   }
 
-  virtual std::string GetFlag() const
+  virtual const std::string& GetFlag() const
   {
     return this->Flag;
   }
 
   virtual void SetFlagAliasesAsString(const std::string &aliases);
 
-  virtual std::string GetFlagAliasesAsString() const
+  virtual const std::string& GetFlagAliasesAsString() const
   {
     return this->FlagAliasesAsString;
   }
@@ -266,7 +291,7 @@ public:
 
   virtual void SetDeprecatedFlagAliasesAsString(const std::string &aliases);
 
-  virtual std::string GetDeprecatedFlagAliasesAsString() const
+  virtual const std::string& GetDeprecatedFlagAliasesAsString() const
   {
     return this->DeprecatedFlagAliasesAsString;
   }
@@ -281,7 +306,7 @@ public:
     this->Multiple = multiple;
   }
 
-  virtual std::string GetMultiple() const
+  virtual const std::string& GetMultiple() const
   {
     return this->Multiple;
   }
@@ -291,14 +316,14 @@ public:
     this->Aggregate = aggregate;
   }
 
-  virtual std::string GetAggregate() const
+  virtual const std::string& GetAggregate() const
   {
     return this->Aggregate;
   }
   
   virtual void SetFileExtensionsAsString(const std::string &extensions);
 
-  virtual std::string GetFileExtensionsAsString() const
+  virtual const std::string& GetFileExtensionsAsString() const
   {
     return this->FileExtensionsAsString;
   }
@@ -310,7 +335,7 @@ public:
     this->CoordinateSystem = coordinateSystem;
   }
 
-  virtual std::string GetCoordinateSystem() const
+  virtual const std::string& GetCoordinateSystem() const
   {
     return this->CoordinateSystem;
   }
@@ -325,7 +350,11 @@ public:
     return this->Elements;
   }
 
-  
+  virtual void SetElements(const std::vector<std::string> & elements)
+  {
+    this->Elements = elements;
+  }
+
 protected:
 
   

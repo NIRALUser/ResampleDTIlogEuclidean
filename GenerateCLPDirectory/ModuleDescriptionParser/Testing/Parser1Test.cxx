@@ -2,13 +2,13 @@
 
   Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/Testing/Parser1Test.cxx $
-  Date:      $Date: 2008-06-25 09:17:35 -0400 (Wed, 25 Jun 2008) $
-  Version:   $Revision: 7171 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
 #include <stdlib.h>

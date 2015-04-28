@@ -2,20 +2,20 @@
 
   Copyright 2005 Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/ModuleParameterGroup.h $
-  Date:      $Date: 2006-06-20 08:02:31 -0400 (Tue, 20 Jun 2006) $
-  Version:   $Revision: 615 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
 
 #ifndef __ModuleParameterGroup_h
 #define __ModuleParameterGroup_h
 
-#include "ModuleDescriptionParserWin32Header.h"
+#include "ModuleDescriptionParserExport.h"
 #include "ModuleParameter.h"
 
 #include <vector>
@@ -55,6 +55,10 @@ public:
 
   void AddParameter(const ModuleParameter &parameter) {
     this->Parameters.push_back(parameter);
+  }
+
+  void SetParameters(const std::vector<ModuleParameter> &parameters) {
+    this->Parameters = parameters;
   }
 
   const std::vector<ModuleParameter>& GetParameters() const {

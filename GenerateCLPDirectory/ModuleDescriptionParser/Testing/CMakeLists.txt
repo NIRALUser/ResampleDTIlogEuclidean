@@ -1,33 +1,53 @@
-project(ModuleDescriptionParserTesting)
+# --------------------------------------------------------------------------
+# Build tests
+# --------------------------------------------------------------------------
+set(KIT ${PROJECT_NAME})
+create_test_sourcelist(Tests ${KIT}CxxTests.cxx
+  ModuleDescriptionTest.cxx
+  )
 
-cmake_minimum_required(VERSION 2.4)
-if(COMMAND CMAKE_POLICY)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND CMAKE_POLICY)
+add_executable(${KIT}CxxTests ${Tests})
+target_link_libraries(${KIT}CxxTests ${KIT})
 
-set(PARSER1TEST_SOURCE Parser1Test )
+# --------------------------------------------------------------------------
+# Build Parser1Test executable
+# --------------------------------------------------------------------------
+set(PARSER1TEST_SOURCE Parser1Test.cxx )
 add_executable(Parser1Test ${PARSER1TEST_SOURCE})
 target_link_libraries(Parser1Test ModuleDescriptionParser )
 
-set(ModuleFactoryTest_SOURCE ModuleFactoryTest )
-add_executable(ModuleFactoryTest ${ModuleFactoryTest_SOURCE})
-target_link_libraries(ModuleFactoryTest ModuleDescriptionParser )
+# --------------------------------------------------------------------------
+# Build ModuleFactoryTest executable
+# --------------------------------------------------------------------------
+#set(ModuleFactoryTest_SOURCE ModuleFactoryTest.cxx)
+#add_executable(ModuleFactoryTest ${ModuleFactoryTest_SOURCE})
+#target_link_libraries(ModuleFactoryTest ModuleDescriptionParser )
 
-include_directories(
-  ${ModuleDescriptionParser_SOURCE_DIR}
+#include_directories(
+#  ${ModuleDescriptionParser_SOURCE_DIR}
+#  )
+
+# --------------------------------------------------------------------------
+# Add tests
+# --------------------------------------------------------------------------
+set(TEST_DATA ${CMAKE_CURRENT_SOURCE_DIR}/TestData)
+add_test(
+  NAME Parser1Test1
+  COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:Parser1Test> ${TEST_DATA}/ParserTest1.xml
   )
 
-set(EXE_PREFIX ${EXECUTABLE_OUTPUT_PATH} )
-if(WIN32)
-  set(EXE_PREFIX ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
-endif(WIN32)
+add_test(
+  NAME Parser1Test2
+  COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:Parser1Test> ${TEST_DATA}/ParserTest2.xml)
 
-set(TEST_DATA ${ModuleDescriptionParserTesting_SOURCE_DIR}/TestData)
-add_test(Parser1Test1 ${LAUNCH_EXE} ${EXE_PREFIX}/Parser1Test ${TEST_DATA}/ParserTest1.xml)
+add_test(
+  NAME ModuleDescriptionTest
+  COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:${KIT}CxxTests> ModuleDescriptionTest ${TEST_DATA}
+  )
 
-add_test(Parser1Test2 ${LAUNCH_EXE} ${EXE_PREFIX}/Parser1Test ${TEST_DATA}/ParserTest2.xml)
-
-if(Slicer3_BINARY_DIR)
-  add_test(ModuleFactoryTest ${LAUNCH_EXE} ${EXE_PREFIX}/ModuleFactoryTest ${Slicer3_BINARY_DIR}/${Slicer3_INSTALL_PLUGINS_BIN_DIR}/)
-endif(Slicer3_BINARY_DIR)
+#add_test(
+#  NAME ModuleFactoryTest
+#  COMMAND ${Slicer_LAUNCH_COMMAND} $<TARGET_FILE:ModuleFactoryTest>
+#    ${Slicer_BINARY_DIR}/${Slicer_INSTALL_PLUGINS_BIN_DIR}/
+#  )
 

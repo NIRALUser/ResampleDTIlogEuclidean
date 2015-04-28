@@ -1,32 +1,46 @@
-find_package( ITK )
-if( ITK_FOUND )
-  include(${ITK_USE_FILE})
-else( ITK_FOUND )
-  message( FATAL_ERROR "Cannot build without ITK" )
-endif( ITK_FOUND )
 
-find_package(GenerateCLP NO_MODULE REQUIRED)
-if(GenerateCLP_FOUND)
-  include(${GenerateCLP_USE_FILE})
-endif(GenerateCLP_FOUND)
+#
+# Configure Test Prerequisites
+#
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/CMake/GenerateCLPTestPrerequisites.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/CMake/GenerateCLPTestPrerequisites.cmake
+  @ONLY
+  )
 
-set( CLPEXAMPLE1_SOURCE CLPExample1.cxx )
-GENERATECLP(CLPEXAMPLE1_SOURCE CLPExample1.xml)
-add_executable( CLPExample1 ${CLPEXAMPLE1_SOURCE})
-target_link_libraries( CLPExample1 ITKEXPAT)
+#
+# Helper macro
+#
+set(_previous_test "NODEPENDS")
+macro(generateclp_add_test cliname stepname)
+  set(testname GenerateCLPTest-${cliname}-${stepname})
+  add_test(NAME ${testname}
+    COMMAND ${CMAKE_COMMAND}
+    -DTEST_SOURCE_DIR:PATH=${CMAKE_CURRENT_SOURCE_DIR}/${cliname}
+    -DTEST_BINARY_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/${cliname}
+    -DTEST_CONFIGURATION:STRING=$<CONFIGURATION>
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/GenerateCLPTest-${stepname}.cmake)
+  if(NOT ${_previous_test} STREQUAL "NODEPENDS")
+    set_tests_properties(${testname} PROPERTIES DEPENDS ${_previous_test})
+  endif()
+  set(_previous_test ${testname})
+  set_property(TEST ${testname} PROPERTY LABELS ${PROJECT_NAME})
+endmacro()
 
-set( POINTEXAMPLE1_SOURCE PointExample1.cxx )
-GENERATECLP(POINTEXAMPLE1_SOURCE PointExample1.xml)
-add_executable( PointExample1 ${POINTEXAMPLE1_SOURCE})
-target_link_libraries( PointExample1 ITKEXPAT)
+#
+# Add Tests
+#
+set(_previous_test "NODEPENDS")
+generateclp_add_test(Slicer3Example Configure)
+generateclp_add_test(Slicer3Example Build)
+generateclp_add_test(Slicer3Example Test)
 
-set( SLICER3EXAMPLE_SOURCE Slicer3Example.cxx )
-GENERATECLP(SLICER3EXAMPLE_SOURCE Slicer3Example.xml)
-add_executable( Slicer3Example ${SLICER3EXAMPLE_SOURCE})
-target_link_libraries( Slicer3Example)
+set(_previous_test "NODEPENDS")
+generateclp_add_test(PointExample1 Configure)
+generateclp_add_test(PointExample1 Build)
+#generateclp_add_test(PointExample1 Test)
 
-add_test(Slicer3CLPExample1 ${EXECUTABLE_OUTPUT_PATH}/Slicer3Example --help)
-add_test(Slicer3CLPExample2 ${EXECUTABLE_OUTPUT_PATH}/Slicer3Example --echo --load_freesurfer_volume FSV --stereo)
-add_test(Slicer3CLPExample3 ${EXECUTABLE_OUTPUT_PATH}/Slicer3Example)
-
-
+set(_previous_test "NODEPENDS")
+generateclp_add_test(CLPExample1 Configure)
+generateclp_add_test(CLPExample1 Build)
+generateclp_add_test(CLPExample1 Test)

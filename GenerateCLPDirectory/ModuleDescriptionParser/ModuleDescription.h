@@ -2,20 +2,20 @@
 
   Copyright 2005 Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/ModuleDescription.h $
-  Date:      $Date: 2007-10-05 22:14:08 -0400 (Fri, 05 Oct 2007) $
-  Version:   $Revision: 4550 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
 
 #ifndef __ModuleDescription_h
 #define __ModuleDescription_h
 
-#include "ModuleDescriptionParserWin32Header.h"
+#include "ModuleDescriptionParserExport.h"
 
 #include "ModuleParameterGroup.h"
 
@@ -41,6 +41,16 @@ public:
   const std::string&  GetCategory() const
   {
     return this->Category;
+  }
+
+  void SetIndex(const std::string &ind)
+  {
+    this->Index = ind;
+  }
+
+  const std::string& GetIndex() const
+  {
+    return this->Index;
   }
   
   void SetTitle(const std::string &title)
@@ -113,7 +123,7 @@ public:
     return this->Contributor;
   }
 
-  // Set the type of module: Unknown, SharedObjectModule, CommandLineModule
+  /// Set the type of module: Unknown, SharedObjectModule, CommandLineModule
   void SetType(const std::string &type)
   {
     if (type == "SharedObjectModule" 
@@ -129,15 +139,15 @@ public:
   }
 
   
-  // Get the type of the module: Unknown, SharedObjectModule, CommandLineModule
+  /// Get the type of the module: Unknown, SharedObjectModule, CommandLineModule
   const std::string& GetType() const
   {
     return this->Type;
   }
 
-  // Set the type of an alternative version of the module: Unknown,
-  // SharedObjectModule, CommandLineModule. The alternative version is
-  // usually a different type than the primary version.
+  /// Set the type of an alternative version of the module: Unknown,
+  /// SharedObjectModule, CommandLineModule. The alternative version is
+  /// usually a different type than the primary version.
   void SetAlternativeType(const std::string &type)
   {
     if (type == "SharedObjectModule" 
@@ -153,73 +163,73 @@ public:
   }
 
   
-  // Get the type of an alternative version of the module: Unknown,
-  // SharedObjectModule, CommandLineModule. The alternative version is
-  // usually a different type than the primary version.
+  /// Get the type of an alternative version of the module: Unknown,
+  /// SharedObjectModule, CommandLineModule. The alternative version is
+  /// usually a different type than the primary version.
   const std::string& GetAlternativeType() const
   {
     return this->AlternativeType;
   }
   
-  // Set the target for the module.  This is the entry point for a
-  // shared object module and the full command (with path) for an executable.
+  /// Set the target for the module.  This is the entry point for a
+  /// shared object module and the full command (with path) for an executable.
   void SetTarget(const std::string &target)
   {
     this->Target = target;
   }
 
-  // Get the target for the module.  This is the entry point for a
-  // shared object module and the full command (with path) for an executable.
+  /// Get the target for the module.  This is the entry point for a
+  /// shared object module and the full command (with path) for an executable.
   const std::string& GetTarget() const
   {
     return this->Target;
   }
 
-  // Set the alternative target for the module.  This is the entry
-  // point for a shared object module and the full command (with path)
-  // for an executable. The alternative target is used for a second version
-  // of a module (whose type differs from the primary target,
-  // executable verses shared object).
+  /// Set the alternative target for the module.  This is the entry
+  /// point for a shared object module and the full command (with path)
+  /// for an executable. The alternative target is used for a second version
+  /// of a module (whose type differs from the primary target,
+  /// executable verses shared object).
   void SetAlternativeTarget(const std::string &target)
   {
     this->AlternativeTarget = target;
   }
 
-  // Get the alternative target for the module.  This is the entry for a
-  // shared object module and the full command (with path) for an
-  // executable. The alternative target is used for a second version
-  // of a module (whose type differs from the primary target,
-  // executable verses shared object).
+  /// Get the alternative target for the module.  This is the entry for a
+  /// shared object module and the full command (with path) for an
+  /// executable. The alternative target is used for a second version
+  /// of a module (whose type differs from the primary target,
+  /// executable verses shared object).
   const std::string& GetAlternativeTarget() const
   {
     return this->AlternativeTarget;
   }
 
-  // Set the location for the module.  This is path to the file (shared
-  // object or executable) for the module.
+  /// Set the location for the module.  This is path to the file (shared
+  /// object or executable) for the module.
   void SetLocation(const std::string &target)
   {
     this->Location = target;
   }
 
-  // Get the location for the module.  This is path to the file (shared
-  // object or executable) for the module.
+  /// Get the location for the module.  This is path to the file (shared
+  /// object or executable) for the module.
   const std::string& GetLocation() const
   {
     return this->Location;
   }
 
-  // Set the alternative location for the module.  This is path to the
-  // file (shared object or executable) for a second version of the
-  // module (usually a different type from the primary).
+  /// Set the alternative location for the module.  This is path to the
+  /// file (shared object or executable) for a second version of the
+  /// module (usually a different type from the primary).
   void SetAlternativeLocation(const std::string &target)
   {
     this->AlternativeLocation = target;
   }
 
-  // Get the alternative location for the module.  This is path to the
-  // file (shared object or executable) for a second version of the
-  // module (usually a different type from the primary).
+  /// Get the alternative location for the module.  This is path to the
+  /// file (shared object or executable) for a second version of the
+  /// module (usually a different type from the primary).
   const std::string& GetAlternativeLocation() const
   {
     return this->AlternativeLocation;
@@ -248,11 +258,31 @@ public:
       this->ParameterGroups = groups;
   }
 
+  /// Return true if the module has a parameter matching the \a name.
+  /// \sa HasReturnParameters()
   bool HasParameter(const std::string& name) const;
 
+  /// Does the module have any simple (primitive) return types?
+  /// \sa HasParameter()
+  bool HasReturnParameters() const;
+
+  /// Search the list of parameters and return a copy of the parameters
+  /// that have the same \a defaultValue.
+  /// \sa HasParameter(), HasReturnParameters(), GetParameterDefaultValue()
+  std::vector<ModuleParameter> FindParametersWithDefaultValue(
+    const std::string& defaultvalue)const;
+
+  /// Set the default value of the parameter \a name.
+  /// Return true if the parameter is found and different than \a value,
+  /// false otherwise.
+  /// \sa GetParameterDefaultValue(),
+  /// \sa FindParametersWithDefaultValue(), HasParameter()
   bool SetParameterDefaultValue(const std::string& name,
                                 const std::string& value);
 
+  /// Return the parameter default value and an empty string if the parameter
+  /// can not be found.
+  /// \sa SetParameterDefaultValue()
   std::string GetParameterDefaultValue(const std::string& name) const;
 
   const ModuleProcessInformation* GetProcessInformation() const
@@ -260,11 +290,25 @@ public:
   
   ModuleProcessInformation* GetProcessInformation()
     {return &ProcessInformation;}
-  
-  
+
+  ///
+  /// Read a parameter file. Syntax of file is "name: value" for each
+  /// parameter. Returns a bool indicating whether any parameter value
+  /// was modified.
+  bool ReadParameterFile(const std::string& filename);
+
+  ///
+  /// Write a parameter file. By default, the method writes out all
+  /// the parameters.  The "withHandlesToBulkParameters" parameter
+  /// controls whether the handles to the bulk parameters (image,
+  /// geometry, etc.) are writte to the file.
+  bool WriteParameterFile(const std::string& filename, bool withHandlesToBulkParameters = true);
+
+
 private:
   std::string Title;
-  std::string Category;
+  std::string Category; 
+  std::string Index;
   std::string Description;
   std::string Version;
   std::string DocumentationURL;

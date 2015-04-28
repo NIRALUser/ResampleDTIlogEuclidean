@@ -107,6 +107,11 @@ public:
    * Returns bool, whether or not the switch has been set.
    */
   bool getValue();
+  
+  /**
+   * Returns string, 0 if false, 1 if true.
+   */
+  virtual std::string getValueAsString()const;
 
 };
 
@@ -136,6 +141,20 @@ inline SwitchArg::SwitchArg(const std::string& flag,
 
 inline bool SwitchArg::getValue() { return _value; }
 
+inline std::string SwitchArg::getValueAsString()const
+{
+  std::string res;
+  if( _value )
+    {
+    res = "1";
+    }
+  else
+    {
+    res = "0";
+    }
+  return res;
+}
+
 inline bool SwitchArg::combinedSwitchesMatch(std::string& combinedSwitches )
 {
   // make sure this is actually a combined switch
@@ -149,17 +168,19 @@ inline bool SwitchArg::combinedSwitchesMatch(std::string& combinedSwitches )
 
   // ok, we're not specifying a ValueArg, so we know that we have
   // a combined switch list.  
-  for ( unsigned int i = 1; i < combinedSwitches.length(); i++ )
-    if ( combinedSwitches[i] == _flag[0] ) 
-      {
-      // update the combined switches so this one is no longer present
-      // this is necessary so that no unlabeled args are matched
-      // later in the processing.
-      //combinedSwitches.erase(i,1);
-      combinedSwitches[i] = Arg::blankChar(); 
-      return true;
-      }
-
+  if (_flag.length() > 0)
+    {
+    for ( unsigned int i = 1; i < combinedSwitches.length(); i++ )
+      if ( combinedSwitches[i] == _flag[0] ) 
+        {
+        // update the combined switches so this one is no longer present
+        // this is necessary so that no unlabeled args are matched
+        // later in the processing.
+        //combinedSwitches.erase(i,1);
+        combinedSwitches[i] = Arg::blankChar(); 
+        return true;
+        }
+    }
   // none of the switches passed in the list match. 
   return false;  
 }

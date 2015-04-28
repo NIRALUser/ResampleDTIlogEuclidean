@@ -2,13 +2,13 @@
 
   Copyright 2005 Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/ModuleProcessInformation.h $
-  Date:      $Date: 2008-07-07 13:56:02 -0400 (Mon, 07 Jul 2008) $
-  Version:   $Revision: 7251 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
 
@@ -17,6 +17,11 @@
 
 #include <ostream>
 #include <cstring>
+#include <string.h>
+
+#if defined(_WIN32)
+#pragma warning ( disable : 4996 )
+#endif
 
 extern "C" {
   struct ModuleProcessInformation
@@ -25,18 +30,26 @@ extern "C" {
     unsigned char Abort;
     
     /** Outputs from the module to the calling application **/
-    float Progress;      // Overall progress
-    float StageProgress; // Progress of a single stage in an algorithm
+    float Progress;      /// Overall progress
+    float StageProgress; /// Progress of a single stage in an algorithm
     char  ProgressMessage[1024];
     void (*ProgressCallbackFunction)(void *);
     void *ProgressCallbackClientData;
 
     double ElapsedTime;
 
+    ModuleProcessInformation()
+      {
+        ProgressCallbackFunction = 0;
+        ProgressCallbackClientData = 0;
+        Initialize();
+      }
+
     void Initialize()
       {
         Abort = 0;
         Progress = 0;
+        StageProgress = 0;
         strcpy(ProgressMessage, "");
         ElapsedTime = 0.0;
       };

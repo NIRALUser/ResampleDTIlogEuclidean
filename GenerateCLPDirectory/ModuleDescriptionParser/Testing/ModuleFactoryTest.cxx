@@ -2,7 +2,7 @@
 
   Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
@@ -11,11 +11,17 @@
   Version:   $Revision$
 
 ==========================================================================*/
+
+// ModuleDescriptionParser includes
+#include "ModuleFactory.h"
+
+// ITKSYS includes
+#include <itksys/Directory.hxx>
+#include <itksys/SystemTools.hxx>
+
+// STD includes
 #include <string>
 #include <cstdlib>
-#include "ModuleFactory.h"
-#include "itksys/Directory.hxx"
-#include "itksys/SystemTools.hxx"
 
 void WarningMessage(const char *msg);
 void ErrorMessage(const char *msg);

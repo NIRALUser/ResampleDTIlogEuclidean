@@ -2,25 +2,29 @@
 
   Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/ModuleFactory.cxx $
-  Date:      $Date: 2008-06-25 11:51:24 -0400 (Wed, 25 Jun 2008) $
-  Version:   $Revision: 7175 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
-#include "itksys/DynamicLoader.hxx"
-#include "itksys/Directory.hxx"
-#include "itksys/SystemTools.hxx"
-#include "itksys/Process.h"
-#include "itksys/Base64.h"
 
+// ModuleDescriptionParser includes
 #include "ModuleFactory.h"
 #include "ModuleDescriptionParser.h"
 #include "ModuleDescription.h"
 
+// ITKSYS includes
+#include <itksys/DynamicLoader.hxx>
+#include <itksys/Directory.hxx>
+#include <itksys/SystemTools.hxx>
+#include <itksys/Process.h>
+#include <itksys/Base64.h>
+
+// STD includes
 #include <set>
 #include <map>
 #include <sstream>
@@ -29,13 +33,27 @@
 #include <algorithm>
 #include <deque>
 
-#if !defined(WIN32) && defined(HAVE_BFD)
+#if defined(_WIN32)
+#pragma warning ( disable : 4996 )
+#endif
+
+#if !defined(_WIN32) && defined(HAVE_BFD)
 #include "BinaryFileDescriptor.h"
+#endif
+
+#if defined(__APPLE__) && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1030)
+// needed to hack around itksys to override defaults used by Mac OS X
+#include <dlfcn.h>
 #endif
 
 #include "ModuleDescriptionParserConfigure.h" /* ModuleDescriptionParser_USE_PYTHON */
 
 #ifdef ModuleDescriptionParser_USE_PYTHON
+// Python will define _LARGEFILE_SOURCE to 1, while kwsys simply defines it - undef it here
+// to avoid getting a warning during the build
+#ifdef _LARGEFILE_SOURCE
+#undef _LARGEFILE_SOURCE
+#endif 
 // If debug, Python wants pythonxx_d.lib, so fake it out
 #ifdef _DEBUG
 #undef _DEBUG
@@ -46,6 +64,7 @@
 #endif
 #endif
 
+//-----------------------------------------------------------------------------
 static void
 splitString (std::string &text,
              std::string &separators,
@@ -62,6 +81,7 @@ splitString (std::string &text,
     }
 }
 
+//-----------------------------------------------------------------------------
 inline bool
 NameIsPythonModule ( const char* name )
 {
@@ -77,7 +97,7 @@ NameIsPythonModule ( const char* name )
 }
 
 
-
+//-----------------------------------------------------------------------------
 /**
  * A file scoped function to determine if a file has
  * the shared library extension in its name, this converts name to lower
@@ -97,13 +117,16 @@ NameIsSharedLibrary(const char* name)
 #endif
   
   std::string sname = name;
-  if ( sname.rfind(extension) == sname.size() - extension.size() )
+  const std::string::size_type extpos(sname.rfind(extension));
+  if (extpos != std::string::npos &&
+      (extpos  == sname.size() - extension.size()) )
     {
     return true;
     }
   return false;
 }
 
+//-----------------------------------------------------------------------------
 /**
  * A file scoped function to determine if a file has
  * the executable extension in its name
@@ -151,18 +174,12 @@ NameIsExecutable(const char* name)
     // extension. 
     return !NameIsSharedLibrary(name);
     }
-  else
-    {
-    // no default extension but we found another extension that can be
-    // an executable
-    return true;
-    }
-
+  // no default extension but we found another extension that can be
+  // an executable
   return true;
 }
 
-
-
+//-----------------------------------------------------------------------------
 /**
  * A file scope typedef to make the cast code to the load
  * function cleaner to read.
@@ -172,6 +189,7 @@ typedef int (*ModuleEntryPoint)(int argc, char* argv[]);
 typedef const char * (*ModuleLogoFunction)(int *width, int *height, int *pixel_size, unsigned long *bufferLength);
 
 
+//-----------------------------------------------------------------------------
 // Private implementaton of an std::map
 class ModuleDescriptionMap : public std::map<std::string, ModuleDescription> {};
 class ModuleFileMap : public std::set<std::string> {};
@@ -180,6 +198,7 @@ class ModuleFileMap : public std::set<std::string> {};
 //
 //
 
+//-----------------------------------------------------------------------------
 // cache entry for a module
 struct ModuleCacheEntry
 {
@@ -195,12 +214,12 @@ struct ModuleCacheEntry
   std::string Logo;
 };
 
+//-----------------------------------------------------------------------------
 // map from a filename to cache entry
 class ModuleCache : public std::map<std::string, ModuleCacheEntry> {};
 
 
-// ---
-
+//-----------------------------------------------------------------------------
 ModuleFactory::ModuleFactory()
 {
   this->Name = "Application";
@@ -214,6 +233,7 @@ ModuleFactory::ModuleFactory()
   this->CacheModified = false;
 }
 
+//-----------------------------------------------------------------------------
 ModuleFactory::~ModuleFactory()
 {
   delete this->InternalCache;
@@ -221,9 +241,8 @@ ModuleFactory::~ModuleFactory()
   delete this->InternalFileMap;
 }
 
-
-void
-ModuleFactory::WarningMessage(const char *msg)
+//-----------------------------------------------------------------------------
+void ModuleFactory::WarningMessage(const char *msg)
 {
   if (this->WarningMessageCallback && msg)
     {
@@ -231,8 +250,8 @@ ModuleFactory::WarningMessage(const char *msg)
     }
 }
 
-void
-ModuleFactory::ErrorMessage(const char *msg)
+//-----------------------------------------------------------------------------
+void ModuleFactory::ErrorMessage(const char *msg)
 {
   if (this->ErrorMessageCallback && msg)
     {
@@ -240,8 +259,8 @@ ModuleFactory::ErrorMessage(const char *msg)
     }
 }
 
-void
-ModuleFactory::InformationMessage(const char *msg)
+//-----------------------------------------------------------------------------
+void ModuleFactory::InformationMessage(const char *msg)
 {
   if (this->InformationMessageCallback && msg)
     {
@@ -249,8 +268,8 @@ ModuleFactory::InformationMessage(const char *msg)
     }
 }
 
-void
-ModuleFactory::ModuleDiscoveryMessage(const char *msg)
+//-----------------------------------------------------------------------------
+void ModuleFactory::ModuleDiscoveryMessage(const char *msg)
 {
   if (this->ModuleDiscoveryMessageCallback && msg)
     {
@@ -258,59 +277,58 @@ ModuleFactory::ModuleDiscoveryMessage(const char *msg)
     }
 }
 
-
-void
-ModuleFactory::SetWarningMessageCallback( CallbackFunctionType f )
+//-----------------------------------------------------------------------------
+void ModuleFactory::SetWarningMessageCallback( CallbackFunctionType f )
 {
   this->WarningMessageCallback = f;
 }
 
+//-----------------------------------------------------------------------------
 ModuleFactory::CallbackFunctionType
 ModuleFactory::GetWarningMessageCallback()
 {
   return this->WarningMessageCallback;
 }
 
-void
-ModuleFactory::SetErrorMessageCallback( CallbackFunctionType f )
+//-----------------------------------------------------------------------------
+void ModuleFactory::SetErrorMessageCallback( CallbackFunctionType f )
 {
   this->ErrorMessageCallback = f;
 }
 
+//-----------------------------------------------------------------------------
 ModuleFactory::CallbackFunctionType
 ModuleFactory::GetErrorMessageCallback()
 {
   return this->ErrorMessageCallback;
 }
 
-void
-ModuleFactory::SetInformationMessageCallback( CallbackFunctionType f )
+//-----------------------------------------------------------------------------
+void ModuleFactory::SetInformationMessageCallback( CallbackFunctionType f )
 {
   this->InformationMessageCallback = f;
 }
 
-ModuleFactory::CallbackFunctionType
-ModuleFactory::GetInformationMessageCallback()
+//-----------------------------------------------------------------------------
+ModuleFactory::CallbackFunctionType ModuleFactory::GetInformationMessageCallback()
 {
   return this->InformationMessageCallback;
 }
 
-void
-ModuleFactory::SetModuleDiscoveryMessageCallback( CallbackFunctionType f )
+//-----------------------------------------------------------------------------
+void ModuleFactory::SetModuleDiscoveryMessageCallback( CallbackFunctionType f )
 {
   this->ModuleDiscoveryMessageCallback = f;
 }
 
-ModuleFactory::CallbackFunctionType
-ModuleFactory::GetModuleDiscoveryMessageCallback()
+//-----------------------------------------------------------------------------
+ModuleFactory::CallbackFunctionType ModuleFactory::GetModuleDiscoveryMessageCallback()
 {
   return this->ModuleDiscoveryMessageCallback;
 }
 
-
-std::vector<std::string>
-ModuleFactory
-::GetModuleNames() const
+//-----------------------------------------------------------------------------
+std::vector<std::string> ModuleFactory ::GetModuleNames() const
 {
   std::vector<std::string> names;
 
@@ -324,9 +342,8 @@ ModuleFactory
   return names;
 }
 
-ModuleDescription
-ModuleFactory
-::GetModuleDescription(const std::string& name) const
+//-----------------------------------------------------------------------------
+ModuleDescription ModuleFactory::GetModuleDescription(const std::string& name) const
 {
   std::map<std::string, ModuleDescription>::const_iterator mit;
 
@@ -340,29 +357,25 @@ ModuleFactory
   return ModuleDescription();
 }
 
-
-
-void
-ModuleFactory
-::Scan()
+//-----------------------------------------------------------------------------
+void ModuleFactory::Scan()
 {
   // Load the module cache information
   this->LoadModuleCache();
   
   // Scan for shared object modules first since they will be higher
   // performance than command line module
-  int numberOfShared, numberOfExecutables, numberOfPeekedExecutables, numberOfPython = 0, numberOfOtherFiles;
-
-  numberOfShared = this->ScanForSharedObjectModules();
-  numberOfPeekedExecutables = this->ScanForCommandLineModulesByPeeking();
-  numberOfExecutables = this->ScanForCommandLineModulesByExecuting();
+  int numberOfShared = this->ScanForSharedObjectModules();
+  int numberOfPeekedExecutables = this->ScanForCommandLineModulesByPeeking();
+  int numberOfExecutables = this->ScanForCommandLineModulesByExecuting();
+  int numberOfPython = 0;
 #ifdef ModuleDescriptionParser_USE_PYTHON
   // Be sure that python is initialized
   Py_Initialize();
   numberOfPython = this->ScanForPythonModulesByLoading();
 #endif
 
-  numberOfOtherFiles = this->ScanForNotAModuleFiles();
+  /*int numberOfOtherFiles = */this->ScanForNotAModuleFiles();
   
   // Store the module cache information
   this->SaveModuleCache();
@@ -374,9 +387,8 @@ ModuleFactory
     }
 }
 
-long
-ModuleFactory
-::ScanForNotAModuleFiles()
+//-----------------------------------------------------------------------------
+long ModuleFactory::ScanForNotAModuleFiles()
 {
   // Any file that was not found to be a module will be put in the
   // cache at the end as NotAModule
@@ -402,6 +414,8 @@ ModuleFactory
   long numberTested = 0;
   long numberFound = 0;
   double t0, t1;
+
+  std::stringstream notModulesList;
   
   t0 = itksys::SystemTools::GetTime();  
   for (pit = modulePaths.begin(); pit != modulePaths.end(); ++pit)
@@ -450,6 +464,8 @@ ModuleFactory
           
           (*this->InternalCache)[entry.Location] = entry;
           this->CacheModified = true;
+
+          notModulesList << fullFilename << " is not a module\n";
           }
         }
       }
@@ -463,12 +479,13 @@ ModuleFactory
   
   this->InformationMessage( information.str().c_str() );
 
+//  this->WarningMessage ( notModulesList.str().c_str() );
+  
   return numberFound;
 }
 
-long
-ModuleFactory
-::ScanForSharedObjectModules()
+//-----------------------------------------------------------------------------
+long ModuleFactory::ScanForSharedObjectModules()
 {
   // add any of the self-describing shared object modules available
   //
@@ -506,7 +523,6 @@ ModuleFactory
 
     for ( unsigned int ii=0; ii < directory.GetNumberOfFiles(); ++ii)
       {
-      bool isAPlugin = true;
       const char *filename = directory.GetFile(ii);
       
       // skip any directories
@@ -551,9 +567,16 @@ ModuleFactory
             // whatever, it was in the cache, so we can safely skip it.
             continue;
             }
-          
+
+#if defined(__APPLE__) && (MAC_OS_X_VERSION_MAX_ALLOWED >= 1030)
+          // Mac OS X defaults to RTLD_GLOBAL and there is no way to
+          // override in itksys. So make the direct call to dlopen().
+          itksys::DynamicLoader::LibraryHandle lib
+            = dlopen(fullLibraryPath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+#else
           itksys::DynamicLoader::LibraryHandle lib
             = itksys::DynamicLoader::OpenLibrary(fullLibraryPath.c_str());
+#endif
           if ( lib )
             {
             // Look for the entry points and symbols to get an XML
@@ -634,7 +657,11 @@ ModuleFactory
                 
                 sprintf(entryPointAsText, "%p", entryPoint);
                 entryPointAsString = lowerName + ":" + entryPointAsText;
-                module.SetTarget( entryPointAsString );
+                // Set the target as "Unknown" and close the
+                // library forcing a lazy evaluation later should this
+                // module be used.
+                // module.SetTarget( entryPointAsString );
+                module.SetTarget( "Unknown" );
                 module.SetLocation( fullLibraryPath );
 
                 // Parse the xml to build the description of the module
@@ -683,7 +710,7 @@ ModuleFactory
                   // Store the module in the list
                   (*this->InternalMap)[module.GetTitle()] =  module ;
                   
-                  information << "A module named \"" << module.GetTitle()
+                  information << "ScanForSharedObjectModules: A module named \"" << module.GetTitle()
                               << "\" has been discovered at "
                               << module.GetLocation() << "("
                               << module.GetTarget() << ")" << std::endl;
@@ -741,13 +768,15 @@ ModuleFactory
                 
                 (*this->InternalCache)[entry.Location] = entry;
                 this->CacheModified = true;
+
+                // Close the library to release resources and force a
+                // lazy load when the module is used
+                itksys::DynamicLoader::CloseLibrary(lib);
                 }
               else
                 {
                 // not a plugin, no xml description, close the library
                 itksys::DynamicLoader::CloseLibrary(lib);
-
-                isAPlugin = false;
                 information << filename
                             << " is not a plugin (no XML description)."
                             << std::endl;
@@ -762,8 +791,6 @@ ModuleFactory
 
               // not a plugin, doesn't have the symbols, close the library
               itksys::DynamicLoader::CloseLibrary(lib);
-
-              isAPlugin = false;
               information << filename
                           << " is not a plugin (no entry points)."
                           << std::endl;
@@ -787,9 +814,8 @@ ModuleFactory
   return numberFound;
 }
 
-long
-ModuleFactory
-::ScanForCommandLineModulesByExecuting()
+//-----------------------------------------------------------------------------
+long ModuleFactory::ScanForCommandLineModulesByExecuting()
 {
   // add any of the self-describing command-line modules available
   //
@@ -829,14 +855,19 @@ ModuleFactory
 
     for ( unsigned int ii=0; ii < directory.GetNumberOfFiles(); ++ii)
       {
-      bool isAPlugin = true;
       const char *filename = directory.GetFile(ii);
       
       // skip any directories
       if (!itksys::SystemTools::FileIsDirectory(filename))
         {
-        // try to focus only on executables
-        if ( NameIsExecutable(filename) )
+        
+        // try to focus only on executables or those that have registered
+        // programs to execute them
+        
+        // does the file have a known extension?
+        std::string ext = itksys::SystemTools::GetFilenameExtension(filename);
+        const char *executable = this->GetExecutableForFileExtension(ext);
+        if ( NameIsExecutable(filename) || executable != NULL)
           {
           numberTested++;
           //std::cout << "Testing " << filename << " as a plugin:" <<std::endl;
@@ -873,14 +904,34 @@ ModuleFactory
             }
 
           // command, process and argument to probe the executable
-          char *command[3];
+          char *command[4];
           itksysProcess *process = itksysProcess_New();
           std::string arg("--xml");
 
+          // does the command have a known extension?
+          ext = itksys::SystemTools::GetFilenameExtension(commandName);
+          executable = this->GetExecutableForFileExtension(ext);
+
           // build the command/parameter array.
-          command[0] = const_cast<char*>(commandName.c_str());
-          command[1] = const_cast<char*>(arg.c_str());
-          command[2] = 0;
+          //command[1] = const_cast<char*>(arg.c_str());
+          //command[2] = 0;
+          if (executable == NULL)
+            {
+            // should be able to execute it on it's own
+            command[0] = const_cast<char*>(commandName.c_str());
+            command[1] = const_cast<char*>(arg.c_str());
+            command[2] = 0;
+            }
+          else
+            {
+            // use the executable to run it
+            command[0] = const_cast<char*>(executable);
+            command[1] = const_cast<char*>(commandName.c_str());
+            command[2] = const_cast<char*>(arg.c_str());
+            command[3] = 0;
+            //std::cout << "ScanForCommandLineModulesByExec: Got a registered exec, command[0] = " << command[0] << ", command[1] = " << command[1] << "\n";
+            }
+          
 
           // setup the command
           itksysProcess_SetCommand(process, command);
@@ -937,8 +988,21 @@ ModuleFactory
                 // Construct and configure the module object
                 ModuleDescription module;
                 module.SetType("CommandLineModule");
-                module.SetTarget( commandName );
-                module.SetLocation( commandName );
+                if (executable != NULL)
+                  {
+                  // includes the exec with the bare command name
+                  // std::string newcommand = std::string(executable) + std::string(" ") + commandName;
+                  // std::cout << "ScanForCommandLineModulesByExecuting: Setting location to " << executable << ", target to " << newcommand.c_str() << "\n";
+                  //module.SetTarget(newcommand);
+                  // use location to point to the executable used to run the command in commandName
+                  module.SetLocation(executable);
+                  module.SetTarget(commandName);
+                  }
+                else
+                  {
+                  module.SetTarget(commandName);
+                  module.SetLocation( commandName );
+                  }
 
                 // Parse the xml to build the description of the module
                 // and the parameters
@@ -963,9 +1027,7 @@ ModuleFactory
 
                   // Store the module in the list
                   (*this->InternalMap)[module.GetTitle()] =  module ;
-
-                  
-                  information << "A module named \"" << module.GetTitle()
+                  information << "ScanForCommandLineModulesByExecuting: A module named \"" << module.GetTitle()
                               << "\" has been discovered at "
                               << module.GetLocation() 
                               << "(" << module.GetTarget() << ")"
@@ -1028,25 +1090,21 @@ ModuleFactory
                 }
               else
                 {
-                isAPlugin = false;
                 information << filename << " is not a plugin (did not generate an XML description)." << std::endl;
                 }
               }
             else
               {
-              isAPlugin = false;
               information << filename << " is not a plugin (exited with errors)." << std::endl;
               }
             }
           else if (result == itksysProcess_State_Expired)
             {
-            isAPlugin = false;
             information << filename << " is not a plugin (timeout exceeded)." << std::endl;
             }
           else
             {
-            isAPlugin = false;
-            information << filename << " is not a plugin (did not exit cleanly)." << std::endl;
+            information << filename << " is not a plugin (did not exit cleanly), command[0] = " << command[0] << ", [1] = " << command[1] << std::endl;
             }
 
           // clean up
@@ -1067,14 +1125,13 @@ ModuleFactory
   return numberFound;
 }
 
-#if WIN32
+//-----------------------------------------------------------------------------
+#ifdef WIN32
 // Implementation of ScanForCommandLineModulesByPeeking() for Windows.
 // On Windows, executables can be opened and queried like libraries
 // for global symbols.
 //
-long
-ModuleFactory
-::ScanForCommandLineModulesByPeeking()
+long ModuleFactory::ScanForCommandLineModulesByPeeking()
 {
   // add any of the self-describing command-line modules available
   //
@@ -1313,6 +1370,8 @@ ModuleFactory
   return numberFound;
 }
 #else
+
+//-----------------------------------------------------------------------------
 // Implementation of ScanForCommandLineModulesByPeeking() for variants
 // of unix.  On Linux, executables cannot be opened and queried like
 // libraries because the loader tries to load "main" at a fixed
@@ -1321,9 +1380,7 @@ ModuleFactory
 // directly, using the Binary File Descriptor (BFD) library to find
 // global symbols.
 //
-long
-ModuleFactory
-::ScanForCommandLineModulesByPeeking()
+long ModuleFactory::ScanForCommandLineModulesByPeeking()
 {
   // only use this implementation if the system we are on has the BFD library
 
@@ -1571,10 +1628,9 @@ ModuleFactory
 #endif
 }
 #endif
-          
-void
-ModuleFactory
-::GetLogoForCommandLineModuleByExecuting(ModuleDescription& module)
+
+//-----------------------------------------------------------------------------
+void ModuleFactory::GetLogoForCommandLineModuleByExecuting(ModuleDescription& module)
 {
   itksysProcess *process = itksysProcess_New();
   char *command[3];
@@ -1691,10 +1747,8 @@ ModuleFactory
   itksysProcess_Delete(process);
 }
 
-
-long
-ModuleFactory
-::ScanForPythonModulesByLoading()
+//-----------------------------------------------------------------------------
+long ModuleFactory::ScanForPythonModulesByLoading()
 {
   long numberFound = 0;
 
@@ -1718,6 +1772,32 @@ ModuleFactory
   PyObject* PythonDictionary = PyModule_GetDict(PythonModule);
   
   std::vector<std::string> modulePaths;
+
+  // Setting the environment variables from Tk
+
+  std::string SetEnvString =    "from __main__ import tk\n"
+                                "import os;\n"
+                                "os.environ = dict([ ( s[:s.find('=')],s[s.find('=')+1:]) for s in tk.call('env').splitlines()]);\n";
+  PyObject* v2;
+      
+  v2 = PyRun_String( SetEnvString.c_str(),
+                            Py_file_input,
+                            PythonDictionary,
+                            PythonDictionary );
+  if (v2 == NULL)
+    {
+    this->WarningMessage ( "Failed to load the environment to Python" );
+    PyErr_Print();
+    }
+  else
+    {
+    if (Py_FlushLine())
+      {
+      PyErr_Clear();
+      }
+    }
+
+
 #ifdef _WIN32
   std::string delim(";");
 #else
@@ -1793,22 +1873,20 @@ ModuleFactory
             "if not ModulePath in sys.path:\n"
             "    sys.path.append ( ModulePath )\n"
             "Module = __import__ ( ModuleName )\n"
-            "print 'Module: ', dir ( Module )\n"
             "if 'XML' in dir ( Module ):\n"
-            "    print 'Found XML!'\n"
             "    XML = Module.XML\n"
             "if 'toXML' in dir ( Module ):\n"
-            "    XML = Module.ToXML()\n"
+            "    XML = Module.toXML()\n"
             "if not 'Execute' in dir ( Module ):\n"
             "    XML = ''\n";
 
-          PyObject* v;
+          PyObject* v1;
       
-          v = PyRun_String( LoadModuleString.c_str(),
+          v1 = PyRun_String( LoadModuleString.c_str(),
                             Py_file_input,
                             PythonDictionary,
                             PythonDictionary );
-          if (v == NULL)
+          if (v1 == NULL)
             {
             PyErr_Print();
             continue;
@@ -1934,10 +2012,8 @@ ModuleFactory
   return numberFound;
 }
 
-
-void
-ModuleFactory
-::LoadModuleCache()
+//-----------------------------------------------------------------------------
+void ModuleFactory::LoadModuleCache()
 {
   std::stringstream information;
   if (this->CachePath == "")
@@ -2062,9 +2138,8 @@ ModuleFactory
     }
 }
 
-void
-ModuleFactory
-::SaveModuleCache()
+//-----------------------------------------------------------------------------
+void ModuleFactory::SaveModuleCache()
 {
   if (this->CacheModified)
     {
@@ -2080,7 +2155,7 @@ ModuleFactory
       }
     else
       {
-      information << "New modules discovered, updating module cache."
+      information << "New modules discovered, updating module cache in directory " << this->CachePath
                   << std::endl;
 
       // put code here to write the cache
@@ -2151,12 +2226,11 @@ ModuleFactory
     }
 }
 
-int
-ModuleFactory
-::GetModuleFromCache(const std::string &commandName,
-                     long int commandModifiedTime,
-                     const std::string & type,
-                     std::stringstream &stream)
+//-----------------------------------------------------------------------------
+int ModuleFactory ::GetModuleFromCache(const std::string &commandName,
+                                       long int commandModifiedTime,
+                                       const std::string & type,
+                                       std::stringstream &stream)
 {
   int returnval = 0;
   
@@ -2177,6 +2251,7 @@ ModuleFactory
         module.SetType( (*cit).second.Type );
         if (type == "CommandLineModule")
           {
+          //std::cout << "GetModuleFromCache: it's a CommandLineModule: setting target to " << commandName << std::endl;
           module.SetTarget( commandName );
           }
         else if (type == "PythonModule")
@@ -2189,8 +2264,17 @@ ModuleFactory
           {
           module.SetTarget( "Unknown" );
           }
-        module.SetLocation( commandName );
-
+        // does the command have a known extension?
+        std::string ext = itksys::SystemTools::GetFilenameExtension(commandName);
+        const char *executable = this->GetExecutableForFileExtension(ext);
+        if (executable == NULL)
+          {
+          module.SetLocation( commandName );
+          }
+        else
+          {
+          module.SetLocation( executable );
+          }
         if ((*cit).second.Logo != "None")
           {
           ModuleLogo logo;
@@ -2268,4 +2352,53 @@ ModuleFactory
     }
 
   return returnval;
+}
+
+//-----------------------------------------------------------------------------
+void ModuleFactory::RegisterFileExtension(const char *ext,
+                                          const char *cmdstring,
+                                          const char *path)
+{
+  if (ext == NULL || cmdstring == NULL)
+    {
+    return;
+    }
+
+  std::string extString = std::string(ext);
+  std::string formattedCommandString;
+  if (path != NULL)
+    {
+    char command[4096];
+  
+    sprintf(command, cmdstring, path);
+    formattedCommandString = std::string(command);
+    }
+  else
+    {
+    formattedCommandString = std::string(cmdstring);
+    }
+  //std::cout << "RegisterFileExtension: registering extension " << extString << " with command " << formattedCommandString << std::endl;
+  
+  this->RegisteredExecutablesForFileExtensions[extString] = formattedCommandString;
+}
+
+//-----------------------------------------------------------------------------
+const char * ModuleFactory::GetExecutableForFileExtension(std::string ext)
+{
+  if (ext.length() == 0)
+    {
+    return NULL;
+    }
+  std::map<std::string, std::string>::iterator iter;
+  for (iter = this->RegisteredExecutablesForFileExtensions.begin();
+       iter != this->RegisteredExecutablesForFileExtensions.end();
+       iter++)
+    {
+    if (ext.compare(iter->first) == 0)
+      {
+      // std::cout << "GetExecutableForFileExtension: for ext " << ext << " returning command " << iter->second << "\n";
+      return iter->second.c_str();
+      }
+    }
+  return NULL;
 }

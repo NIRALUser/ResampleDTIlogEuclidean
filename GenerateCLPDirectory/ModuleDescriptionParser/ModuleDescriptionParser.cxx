@@ -2,21 +2,23 @@
 
   Copyright 2005 Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   Module Description Parser
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Libs/ModuleDescriptionParser/ModuleDescriptionParser.cxx $
-  Date:      $Date: 2008-07-07 11:07:40 -0400 (Mon, 07 Jul 2008) $
-  Version:   $Revision: 7248 $
+  Module:    $HeadURL$
+  Date:      $Date$
+  Version:   $Revision$
 
 ==========================================================================*/
 #include "ModuleDescriptionParser.h"
 
 #include "ModuleDescription.h"
+#include "ModuleDescriptionUtilities.h"
 
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <vector>
 #include <stack>
 #include "expat.h"
@@ -35,62 +37,6 @@ static bool
 validVariable(std::string &s)
 {
   return (startsWithValidVariableChar(s) && s.find_first_not_of("_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") == std::string::npos);
-}
-
-static void
-replaceSubWithSub(std::string& s, const char *o, const char  *n)
-{
-  if (s.size())
-    {
-    std::string from(o), to(n);
-    std::string::size_type start = 0;
-    while ((start = s.find(from, start)) != std::string::npos)
-      {
-      s.replace(start, from.size(), to);
-      start += to.size();
-      }
-    }
-}
-
-static void
-trimLeading(std::string& s, const char* extraneousChars = " \t\n")
-{
-  if (s.size())
-    {
-    std::string::size_type pos = s.find_first_not_of(extraneousChars);
-    if (pos != std::string::npos)
-      {
-      s = s.substr(pos);
-      }
-    else
-      {
-      s = "";
-      }
-    }
-}
-
-static void
-trimTrailing(std::string& s, const char* extraneousChars = " \t\n")
-{
-  if (s.size())
-    {
-    std::string::size_type pos = s.find_last_not_of(extraneousChars);
-    if (pos != std::string::npos)
-      {
-      s = s.substr(0, pos + 1);
-      }
-    else
-      {
-      s = "";
-      }
-    }
-}
-
-static void
-trimLeadingAndTrailing(std::string& s, const char* extraneousChars = " \t\n")
-{
-  trimLeading(s, extraneousChars);
-  trimTrailing(s, extraneousChars);
 }
 
 /* ParserState: A class to keep state information for the parser. This
@@ -113,7 +59,7 @@ public:
   int ErrorLine;                               /* Error line number */
   int Depth;                                   /* The depth of the tag */
 
-  ParserState():LastData(10),Debug(false),Error(false),Depth(-1){};
+  ParserState():LastData(10),CurrentGroup(0),CurrentParameter(0),Debug(false),Error(false),ErrorLine(-1),Depth(-1){};
 };
 
 /***************************
@@ -204,18 +150,31 @@ startElement(void *userData, const char *element, const char **attrs)
       }
     parameter = new ModuleParameter;
     parameter->SetTag(name);
+    parameter->SetCPPType("int");
     int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
-    if (attrCount == 2 && 
-        (strcmp(attrs[0], "multiple") == 0) &&
-        (strcmp(attrs[1], "true") == 0))
+    for (int attr=0; attr < (attrCount / 2); attr++)
       {
-      parameter->SetMultiple(attrs[1]);
-      parameter->SetCPPType("std::vector<int>");
-      parameter->SetArgType("int");
-      parameter->SetStringToType("atoi");      }
-    else
-      {
-      parameter->SetCPPType("int");
+      // check hidden
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      // check multiple
+      if ((strcmp(attrs[2*attr], "multiple") == 0) &&
+          (strcmp(attrs[2*attr+1], "true") == 0))
+        {
+        parameter->SetMultiple(attrs[2*attr+1]);
+        parameter->SetCPPType("std::vector<int>");
+        parameter->SetArgType("int");
+        parameter->SetStringToType("atoi");
+        }
       }
     }
   else if (name == "float")
@@ -233,52 +192,76 @@ startElement(void *userData, const char *element, const char **attrs)
       return;
       }
     parameter = new ModuleParameter;
-    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
-    if (attrCount == 2 && 
-        (strcmp(attrs[0], "multiple") == 0) &&
-        (strcmp(attrs[1], "true") == 0))
-      {
-      parameter->SetMultiple(attrs[1]);
-      parameter->SetCPPType("std::vector<float>");
-      parameter->SetArgType("float");
-      parameter->SetStringToType("atof");
-      }
-    else
-      {
-      parameter->SetCPPType("float");
-      }
     parameter->SetTag(name);
+    parameter->SetCPPType("float");
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      // check hidden
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      // check multiple
+      if ((strcmp(attrs[2*attr], "multiple") == 0) &&
+          (strcmp(attrs[2*attr+1], "true") == 0))
+        {
+        parameter->SetMultiple(attrs[2*attr+1]);
+        parameter->SetCPPType("std::vector<float>");
+        parameter->SetArgType("float");
+        parameter->SetStringToType("atof");
+        }
+      }
     }
   else if (name == "double")
     {
     if (!group || (ps->OpenTags.top() != "parameters"))
       {
       std::string error("ModuleDescriptionParser Error: <" + std::string(name) + "> can only be used inside <parameters> but was found inside <" + ps->OpenTags.top() + ">");
-    if (ps->ErrorDescription.size() == 0)
-      {
-      ps->ErrorDescription = error;
-      ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
-      ps->Error = true;
-      }
+      if (ps->ErrorDescription.size() == 0)
+        {
+        ps->ErrorDescription = error;
+        ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+        ps->Error = true;
+        }
       ps->OpenTags.push(name);
       return;
       }
     parameter = new ModuleParameter;
-    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
-    if (attrCount == 2 && 
-        (strcmp(attrs[0], "multiple") == 0) &&
-        (strcmp(attrs[1], "true") == 0))
-      {
-      parameter->SetMultiple(attrs[1]);
-      parameter->SetCPPType("std::vector<double>");
-      parameter->SetArgType("double");
-      parameter->SetStringToType("atof");
-      }
-    else
-      {
-      parameter->SetCPPType("double");
-      }
     parameter->SetTag(name);
+    parameter->SetCPPType("double");
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      // check hidden
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      // check multiple
+      if ((strcmp(attrs[2*attr], "multiple") == 0) &&
+          (strcmp(attrs[2*attr+1], "true") == 0))
+        {
+        parameter->SetMultiple(attrs[2*attr+1]);
+        parameter->SetCPPType("std::vector<double>");
+        parameter->SetArgType("double");
+        parameter->SetStringToType("atof");
+        }
+      }
     }
   else if (name == "string")
     {
@@ -295,27 +278,40 @@ startElement(void *userData, const char *element, const char **attrs)
       return;
       }
     parameter = new ModuleParameter;
-    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
-    if (attrCount == 2 && 
-        (strcmp(attrs[0], "multiple") == 0) &&
-        (strcmp(attrs[1], "true") == 0))
-      {
-      parameter->SetMultiple(attrs[1]);
-      parameter->SetCPPType("std::vector<std::string>");
-      parameter->SetArgType("std::string");
-      parameter->SetStringToType("");      }
-    else
-      {
-      parameter->SetCPPType("std::string");
-      }
     parameter->SetTag(name);
+    parameter->SetCPPType("std::string");
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      // check hidden
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      // check multiple
+      if ((strcmp(attrs[2*attr], "multiple") == 0) &&
+          (strcmp(attrs[2*attr+1], "true") == 0))
+        {
+        parameter->SetMultiple(attrs[2*attr+1]);
+        parameter->SetCPPType("std::vector<std::string>");
+        parameter->SetArgType("std::string");
+        parameter->SetStringToType("");
+        }
+      }
     }
   else if (name == "boolean")
     {
     if (!group || (ps->OpenTags.top() != "parameters"))
       {
       std::string error("ModuleDescriptionParser Error: <" + name + "> can only be used inside <parameters> but was found inside <" + ps->OpenTags.top() + ">");
-    if (ps->ErrorDescription.size() == 0)
+      if (ps->ErrorDescription.size() == 0)
       {
       ps->ErrorDescription = error;
       ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
@@ -327,6 +323,24 @@ startElement(void *userData, const char *element, const char **attrs)
     parameter = new ModuleParameter;
     parameter->SetTag(name);
     parameter->SetCPPType("bool");
+
+    // Parse attribute pairs
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      // check hidden
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      }
     }
   else if (name == "integer-vector")
     {
@@ -360,6 +374,7 @@ startElement(void *userData, const char *element, const char **attrs)
       ps->Error = true;
       }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -380,6 +395,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -400,6 +416,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -420,6 +437,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -447,6 +465,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -468,6 +487,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -481,6 +501,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
         }
       }
@@ -504,6 +525,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -531,6 +553,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -552,6 +575,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -565,6 +589,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
         }
       }
@@ -588,11 +613,28 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
     parameter->SetTag(name);
     parameter->SetCPPType("std::string");
+    // Parse attribute pairs
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      }
     }
   else if (name == "integer-enumeration")
     {
@@ -606,11 +648,28 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
     parameter->SetTag(name);
     parameter->SetCPPType("int");
+    // Parse attribute pairs
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      }
     }
   else if (name == "float-enumeration")
     {
@@ -624,11 +683,28 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
     parameter->SetTag(name);
     parameter->SetCPPType("float");
+    // Parse attribute pairs
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      }
     }
   else if (name == "double-enumeration")
     {
@@ -642,11 +718,28 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
     parameter->SetTag(name);
     parameter->SetCPPType("double");
+    // Parse attribute pairs
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      bool res = true;
+      if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        res = ModuleDescriptionParser::processHiddenAttribute(attrs[2*attr+1], parameter, ps);
+        }
+      if (!res)
+        {
+        ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      }
     }
   else if (name == "file")
     {
@@ -659,6 +752,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
         ps->Error = true;
         }
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -691,6 +785,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -708,6 +803,7 @@ startElement(void *userData, const char *element, const char **attrs)
           ps->Error = true;
           }
         ps->OpenTags.push(name);
+        delete parameter;
         return;
         }
       }
@@ -725,6 +821,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -755,6 +852,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -787,6 +885,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -800,7 +899,7 @@ startElement(void *userData, const char *element, const char **attrs)
           }
         else
           {
-          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid value for the attribute \"" + "type" + "\". Only \"linear\" and \"nonlinear\" are accepted.");
+          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid value for the attribute \"" + "type" + "\". Only \"linear\", \"bspline\" and \"nonlinear\" are accepted.");
           if (ps->ErrorDescription.size() == 0)
             {
             ps->ErrorDescription = error;
@@ -808,6 +907,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -829,6 +929,7 @@ startElement(void *userData, const char *element, const char **attrs)
           ps->Error = true;
           }
         ps->OpenTags.push(name);
+        delete parameter;
         return;
         }
       }
@@ -846,6 +947,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -878,6 +980,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -888,13 +991,16 @@ startElement(void *userData, const char *element, const char **attrs)
             (strcmp(attrs[2*attr+1], "label") == 0) ||
             (strcmp(attrs[2*attr+1], "tensor") == 0) ||
             (strcmp(attrs[2*attr+1], "diffusion-weighted") == 0) ||
-            (strcmp(attrs[2*attr+1], "vector") == 0))
+            (strcmp(attrs[2*attr+1], "vector") == 0) ||
+            (strcmp(attrs[2*attr+1], "signal") == 0) ||
+            (strcmp(attrs[2*attr+1], "multichannel") == 0) ||
+            (strcmp(attrs[2*attr+1], "dynamic-contrast-enhanced") == 0))
           {
           parameter->SetType(attrs[2*attr+1]);
           }
         else
           {
-          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid value for the attribute \"" + "type" + "\". Only \"scalar\", \"label\" , \"tensor\", \"diffusion-weighted\", \"vector\" and \"any\" are accepted.");
+          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid value for the attribute \"" + "type" + "\". Only \"scalar\", \"label\" , \"tensor\", \"diffusion-weighted\", \"vector\", \"signal\", \"multichannel\", \"dynamic-contrast-enhanced\" and \"any\" are accepted.");
           if (ps->ErrorDescription.size() == 0)
             {
             ps->ErrorDescription = error;
@@ -902,6 +1008,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -909,9 +1016,34 @@ startElement(void *userData, const char *element, const char **attrs)
         {
         parameter->SetFileExtensionsAsString(attrs[2*attr+1]);
         }
+      else if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        if ((strcmp(attrs[2*attr+1], "true") == 0) ||
+            (strcmp(attrs[2*attr+1], "false") == 0))
+          {
+          parameter->SetHidden(attrs[2*attr+1]);
+          }
+        else
+          {
+          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid argument for the attribute \"hidden\". Only \"true\" and \"false\" are accepted.");
+          if (ps->ErrorDescription.size() == 0)
+            {
+            ps->ErrorDescription = error;
+            ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+            ps->Error = true;
+            }
+          ps->OpenTags.push(name);
+          delete parameter;
+          return;
+          }
+        }
+      else if ((strcmp(attrs[2*attr], "reference") == 0))
+        {
+        parameter->SetReference(attrs[2*attr+1]);
+        }
       else
         {
-        std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr]) + "\" is not a valid attribute for \"" + name + "\". Only \"multiple\", \"fileExtensions\" and \"type\" are accepted.");
+        std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr]) + "\" is not a valid attribute for \"" + name + "\". Only \"multiple\", \"fileExtensions\", \"type\", \"hidden\" and \"reference\" are accepted.");
         if (ps->ErrorDescription.size() == 0)
           {
           ps->ErrorDescription = error;
@@ -919,6 +1051,7 @@ startElement(void *userData, const char *element, const char **attrs)
           ps->Error = true;
           }
         ps->OpenTags.push(name);
+        delete parameter;
         return;
         }
       }
@@ -936,6 +1069,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -963,6 +1097,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -983,6 +1118,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }      else if ((strcmp(attrs[2*attr], "type") == 0))
@@ -1002,12 +1138,17 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
       else if ((strcmp(attrs[2*attr], "fileExtensions") == 0))
         {
         parameter->SetFileExtensionsAsString(attrs[2*attr+1]);
+        }
+      else if ((strcmp(attrs[2*attr], "reference") == 0))
+        {
+        parameter->SetReference(attrs[2*attr+1]);
         }
       else
         {
@@ -1019,6 +1160,7 @@ startElement(void *userData, const char *element, const char **attrs)
           ps->Error = true;
           }
         ps->OpenTags.push(name);
+        delete parameter;
         return;
         }
       }
@@ -1042,6 +1184,7 @@ startElement(void *userData, const char *element, const char **attrs)
         ps->Error = true;
         }
       ps->OpenTags.push(name);
+      delete parameter;
       return;
       }
     parameter = new ModuleParameter;
@@ -1074,6 +1217,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -1098,6 +1242,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -1119,6 +1264,7 @@ startElement(void *userData, const char *element, const char **attrs)
             ps->Error = true;
             }
           ps->OpenTags.push(name);
+          delete parameter;
           return;
           }
         }
@@ -1136,6 +1282,124 @@ startElement(void *userData, const char *element, const char **attrs)
           ps->Error = true;
           }
         ps->OpenTags.push(name);
+        delete parameter;
+        return;
+        }
+      }
+    parameter->SetTag(name);
+    }
+  else if (name == "measurement")
+    {
+    if (!group || (ps->OpenTags.top() != "parameters"))
+      {
+      std::string error("ModuleDescriptionParser Error: <" + name + "> can only be used inside <parameters> but was found inside <" + ps->OpenTags.top() + ">");
+      if (ps->ErrorDescription.size() == 0)
+        {
+        ps->ErrorDescription = error;
+        ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+        ps->Error = true;
+        }
+      ps->OpenTags.push(name);
+      delete parameter;
+      return;
+      }
+    parameter = new ModuleParameter;
+    int attrCount = XML_GetSpecifiedAttributeCount(ps->Parser);
+
+    // Parse attribute pairs
+    parameter->SetCPPType("std::string");
+    parameter->SetType("scalar");
+    for (int attr=0; attr < (attrCount / 2); attr++)
+      {
+      if ((strcmp(attrs[2*attr], "multiple") == 0))
+        {
+        if ((strcmp(attrs[2*attr+1], "true") == 0) ||
+            (strcmp(attrs[2*attr+1], "false") == 0))
+          {
+          parameter->SetMultiple(attrs[2*attr+1]);
+          if (strcmp(attrs[2*attr+1], "true") == 0)
+            {
+            parameter->SetCPPType("std::vector<std::string>");
+            parameter->SetArgType("std::string");
+            }
+          }
+        else
+          {
+          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid argument for the attribute \"multiple\". Only \"true\" and \"false\" are accepted.");
+          if (ps->ErrorDescription.size() == 0)
+            {
+            ps->ErrorDescription = error;
+            ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+            ps->Error = true;
+            }
+          ps->OpenTags.push(name);
+          delete parameter;
+          return;
+          }
+        }
+      else if ((strcmp(attrs[2*attr], "reference") == 0))
+        {
+        parameter->SetReference(attrs[2*attr+1]);
+        }
+      else if ((strcmp(attrs[2*attr], "hidden") == 0))
+        {
+        if ((strcmp(attrs[2*attr+1], "true") == 0) ||
+            (strcmp(attrs[2*attr+1], "false") == 0))
+          {
+          parameter->SetHidden(attrs[2*attr+1]);
+          }
+        else
+          {
+          std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid argument for the attribute \"hidden\". Only \"true\" and \"false\" are accepted.");
+          if (ps->ErrorDescription.size() == 0)
+            {
+            ps->ErrorDescription = error;
+            ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+            ps->Error = true;
+            }
+          ps->OpenTags.push(name);
+          delete parameter;
+          return;
+          }
+        }
+      else if ((strcmp(attrs[2*attr], "type") == 0))
+        {
+        // "type" will refer to the error models (regression,
+        // orthogonal regression, ...). We'll define these later. When
+        // we do, put the error handling back in.
+//         if ((strcmp(attrs[2*attr+1], "some_error_type") == 0))
+//           {
+          parameter->SetType(attrs[2*attr+1]);
+//           }
+//         else
+//           {
+//           std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr+1]) + "\" is not a valid value for the attribute \"" + "type" + "\". Only \"color\" is currently accepted.");
+//           if (ps->ErrorDescription.size() == 0)
+//             {
+//             ps->ErrorDescription = error;
+//             ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+//             ps->Error = true;
+//             }
+//           ps->OpenTags.push(name);
+//           delete parameter;
+//           return;
+//           }
+        }
+      else if ((strcmp(attrs[2*attr], "fileExtensions") == 0))
+        {
+        parameter->SetFileExtensionsAsString(attrs[2*attr+1]);
+        }
+      else
+        {
+        std::string error("ModuleDescriptionParser Error: \"" + std::string(attrs[2*attr]) + "\" is not a valid attribute for \"" + name + "\". Only \"multiple\", \"hidden\", \"reference\", \"type\", and \"fileExtensions\" are accepted.");
+        if (ps->ErrorDescription.size() == 0)
+          {
+          ps->ErrorDescription = error;
+          ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+          ps->Error = true;
+          }
+        ps->OpenTags.push(name);
+        delete parameter;
         return;
         }
       }
@@ -1193,8 +1457,11 @@ endElement(void *userData, const char *element)
 
   if (name == "parameters" && ps->Depth == 1)
     {
-
     ps->CurrentDescription.AddParameterGroup(*ps->CurrentGroup);
+    if (ps->CurrentGroup)
+      {
+      delete ps->CurrentGroup;
+      }
     ps->CurrentGroup = 0;
     ps->CurrentParameter = 0;
     }
@@ -1206,106 +1473,199 @@ endElement(void *userData, const char *element)
   else if (group && parameter && (name == "integer"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "float"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "double"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "string"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name =="boolean"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "file"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "directory"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "transform"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "image"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "geometry"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "table"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
+    ps->CurrentParameter = 0;
+    }
+  else if (group && parameter && (name == "measurement"))
+    {
+    ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "integer-vector"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "float-vector"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "string-vector"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "double-vector"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "point"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "region"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "string-enumeration"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "integer-enumeration"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "float-enumeration"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (group && parameter && (name == "double-enumeration"))
     {
     ps->CurrentGroup->AddParameter(*parameter);
+    if (ps->CurrentParameter)
+      {
+      delete ps->CurrentParameter;
+      }
     ps->CurrentParameter = 0;
     }
   else if (parameter && (name == "flag"))
@@ -1452,6 +1812,12 @@ endElement(void *userData, const char *element)
     trimLeadingAndTrailing(temp);
     ps->CurrentDescription.SetCategory(temp);
     }
+  else if (!parameter && (name == "index"))
+    {
+    std::string temp = ps->LastData[ps->Depth];
+    trimLeadingAndTrailing(temp);
+    ps->CurrentDescription.SetIndex(temp);
+    }
   else if (name == "title")
     {
     std::string temp = ps->LastData[ps->Depth];
@@ -1498,7 +1864,7 @@ endElement(void *userData, const char *element)
     {
     std::string temp = ps->LastData[ps->Depth];
     replaceSubWithSub(temp, "\"", "'");
-    replaceSubWithSub(temp, "\n", " ");
+    //replaceSubWithSub(temp, "\n", " ");
     trimLeadingAndTrailing(temp);
     if (!group && !parameter)
       {
@@ -1596,6 +1962,28 @@ endElement(void *userData, const char *element)
     }
 }
 
+bool
+ModuleDescriptionParser::processHiddenAttribute(const char* value, ModuleParameter* parameter, ParserState* ps)
+{
+  if ((strcmp(value, "true") == 0) ||
+      (strcmp(value, "false") == 0))
+    {
+    parameter->SetHidden(value);
+    return true;
+    }
+  else
+    {
+    std::string error("ModuleDescriptionParser Error: \"" + std::string(value) + "\" is not a valid argument for the attribute \"hidden\". Only \"true\" and \"false\" are accepted.");
+    if (ps->ErrorDescription.size() == 0)
+      {
+      ps->ErrorDescription = error;
+      ps->ErrorLine = XML_GetCurrentLineNumber(ps->Parser);
+      ps->Error = true;
+      }
+    return false;
+    }
+} 
+
 void
 charData(void *userData, const char *s, int len)
 {
@@ -1636,7 +2024,7 @@ ModuleDescriptionParser::Parse( const std::string& xml, ModuleDescription& descr
   // Parse the XML
   done = true;
   int status = 0;
-  if (XML_Parse(parser, xml.c_str(), xml.size(), done) == 0)
+  if (XML_Parse(parser, xml.c_str(), static_cast< int >(xml.size()), done) == 0)
     {
     std::cerr << XML_ErrorString(XML_GetErrorCode(parser))
               << " at line "

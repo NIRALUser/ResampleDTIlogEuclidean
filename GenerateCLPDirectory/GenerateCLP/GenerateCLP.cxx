@@ -2,7 +2,7 @@
 
   Portions (c) Copyright 2006 Brigham and Women's Hospital (BWH) All Rights Reserved.
 
-  See Doc/copyright/copyright.txt
+  See COPYRIGHT.txt
   or http://www.slicer.org/copyright/copyright.txt for details.
 
   Program:   GenerateCLP
@@ -49,36 +49,40 @@
   streams.
 */
 
+#include "GenerateCLPConfig.h" // For GENERATECLP_USE_MD5, GenerateCLP_USE_SERIALIZER
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <fstream>
+#include <sstream>
 #include "expat.h"
 #include <string>
 #include <vector>
+
 #include <itksys/SystemTools.hxx>
+#ifdef GENERATECLP_USE_MD5
+# include <itksys/MD5.h>
+#endif
 
 #include "GenerateCLP.h"
+#include "ModuleDescriptionUtilities.h"
 #include "ModuleDescriptionParser.h"
 #include "ModuleDescription.h"
 #include "ModuleParameterGroup.h"
 #include "ModuleParameter.h"
 
-/* A useful string utility */
-void
-replaceSubWithSub(std::string& s, const char *o, const char  *n)
+#ifdef GenerateCLP_USE_SERIALIZER
+# include "itkJsonCppArchiver.h"
+# include "itkSEMModuleDescriptionSerializer.h"
+# include "ModuleDescriptionParser.h"
+#endif
+
+#if defined( _WIN32 )
+#pragma warning ( disable : 4996 )
+#endif
+
+namespace
 {
-  if (s.size())
-    {
-    std::string from(o), to(n);
-    std::string::size_type start = 0;
-    while ((start = s.find(from, start)) != std::string::npos)
-      {
-      s.replace(start, from.size(), to);
-      start += to.size();
-      }
-    }
-}
 
 /* Comma separated arguments need a temporary variable to store the
  * string
@@ -127,43 +131,77 @@ bool HasDefault(const ModuleParameter &parameter)
   return (parameter.GetDefault().size() > 0 && parameter.GetMultiple() != "true");
 }
 
-
 /* Generate the preamble to the code. This includes the required
  * include files and code to process comma separated arguments.
  */
-void GeneratePre(std::ofstream &, ModuleDescription &, int, char *[]);
+void GeneratePre(std::ostream &, ModuleDescription &, int, char *[]);
+
+#ifdef GenerateCLP_USE_SERIALIZER
+/** Write the JSON description of the module in header. */
+void GenerateJson( std::ostream & sout,
+  itk::SEMModuleDescriptionSerializer::Pointer & serializer );
+#endif // GenerateCLP_USE_SERIALIZER
+
+#ifdef GenerateCLP_USE_JSONCPP
+/** Create code to deserialize parameters from a file. */
+void GenerateDeSerialization( std::ostream & sout,
+  const ModuleDescription & module );
+
+/** Create code to serialize the parameters to a file. */
+void GenerateSerialization( std::ostream & sout,
+  const ModuleDescription & module );
+#endif // GenerateCLP_USE_JSONCPP
 
 /* Generate the last statements. This defines the PARSE_ARGS macro */
-void GeneratePost(std::ofstream &);
+void GeneratePost(std::ostream &);
 
 /* Generate a function to split a string into a vector of strings. */
-void GenerateSplitString(std::ofstream &);
+void GenerateSplitString(std::ostream &);
 
 /* Generate a function to split a string into a vector of filenames
  * (which can contain commas in the name). */
-void GenerateSplitFilenames(std::ofstream &);
+void GenerateSplitFilenames(std::ostream &);
 
 /* Generate the code that echos the XML file that describes the
  * command line arguments.
  */
-void GenerateExports(std::ofstream &);
-void GeneratePluginDataSymbols(std::ofstream &, std::vector<std::string>&, std::string);
-void GeneratePluginEntryPoints(std::ofstream &, std::vector<std::string> &);
-void GeneratePluginProcedures(std::ofstream &, std::vector<std::string> &);
-void GenerateLOGO(std::ofstream &, std::vector<std::string> &);
-void GenerateXML(std::ofstream &);
+void GenerateExports(std::ostream &);
+void GeneratePluginDataSymbols(std::ostream &, std::vector<std::string>&, std::string);
+void GeneratePluginEntryPoints(std::ostream &, std::vector<std::string> &);
+void GeneratePluginProcedures(std::ostream &, std::vector<std::string> &);
+void GenerateLOGO(std::ostream &, std::vector<std::string> &);
+void GenerateXML(std::ostream &);
 
 /* Generate the code that uses TCLAP to parse the command line
  * arguments.
  */
-void GenerateTCLAP(std::ofstream &, ModuleDescription &);
+void GenerateTCLAP(std::ostream &, ModuleDescription &);
+
+/** Generate the code that parses the command line arguments and puts them into
+ * TCLAP data structures. */
+void GenerateTCLAPParse(std::ostream & sout, ModuleDescription & module);
+
+/* Generate the code that assigns the TCLAP parsed variables to their C++
+ * values.  If onlyIfSet is true, the will only be set values have been passed
+ * on the command line. */
+void GenerateTCLAPAssignment(std::ostream & sout, const ModuleDescription & module, bool onlyIfSet=false);
 
 /* Generate code to echo the command line arguments and their values. */
-void GenerateEchoArgs(std::ofstream &, ModuleDescription &);
+void GenerateEchoArgs(std::ostream &, ModuleDescription &);
 
 /** Generate code to decode the address of a process information
  * structure */
-void GenerateProcessInformationAddressDecoding(std::ofstream &sout);
+void GenerateProcessInformationAddressDecoding(std::ostream &sout);
+
+#ifdef GENERATECLP_USE_MD5
+///** Compute the md5sum of a file */
+bool ComputeFileMD5(const char* source, char* md5out);
+
+///** Compute the md5sum of a string.  */
+std::string ComputeStringMD5(const char* input);
+#endif
+
+} // end of anonymous namespace
 
 int
 main(int argc, char *argv[])
@@ -190,12 +228,12 @@ main(int argc, char *argv[])
   XML[len] = '\0';
 
   // Parse the module description
-  std::cerr << "GenerateCLP";
+  std::cout << "GenerateCLP";
   for (int i = 1; i < argc; i++)
     {
-    std::cerr << " " << argv[i];
+    std::cout << " " << argv[i];
     }
-  std::cerr << std::endl;
+  std::cout << std::endl;
 
   if (parser.Parse(XML, module))
     {
@@ -203,24 +241,59 @@ main(int argc, char *argv[])
     return EXIT_FAILURE;
     }
 
+#ifdef GenerateCLP_USE_SERIALIZER
+  itk::SEMModuleDescription::Pointer itkModule =
+    itk::SEMModuleDescription::New();
+  itkModule->SetModuleDescription( module );
+  itk::SEMModuleDescriptionSerializer::Pointer serializer =
+    itk::SEMModuleDescriptionSerializer::New();
+  serializer->SetTargetObject( itkModule );
+  serializer->Serialize();
+#endif // GenerateCLP_USE_SERIALIZER
+
+  std::stringstream parametersGroupsMsg;
+
   // Print each command line arg
-  std::cerr << "GenerateCLP: Found " << module.GetParameterGroups().size() << " parameters groups" << std::endl;
+  parametersGroupsMsg << "GenerateCLP: Found " << module.GetParameterGroups().size() << " parameters groups" << std::endl;
   std::vector<ModuleParameterGroup>::const_iterator git;
   for (git = module.GetParameterGroups().begin();
        git != module.GetParameterGroups().end();
        ++git)
     {
-    std::cerr << "GenerateCLP: Group \"" << (*git).GetLabel() << "\" has " << (*git).GetParameters().size() << " parameters" << std::endl;
+    parametersGroupsMsg << "GenerateCLP: Group \"" << (*git).GetLabel() << "\" has " << (*git).GetParameters().size() << " parameters" << std::endl;
     }
 
+  //
+  // If GENERATE_USE_MD5 is defined, generated output will be appended into a stringstream.
+  //
+  // Following the generation, the MD5 of both the output buffer and 
+  // the existing file (if any) will be computed.
+  // 
+  // Three cases can be numbered:
+  //   1) Output file [OutputCxx] do NOT exists               => Write output buffer to file.
+  //   2) Output file [OutputCxx] exists and MD5 match        => Discard Output buffer.
+  //   3) Output file [OutputCxx] exists and MD5 do NOT match => Write output buffer to file.
+  //
+  // Computing the MD5 allows to update the file only if required. Since the 
+  // modified time associated the file will be updated only if it really changed, 
+  // extra compilation cycle could be avoided.
+  //
+  
   // Do the hard stuff
-  std::ofstream sout(OutputCxx.c_str(),std::ios::out);
+#ifdef GENERATECLP_USE_MD5
+  std::stringstream sout;
+#else
+  std::cout << parametersGroupsMsg.str();
+  std::cout.flush();
+
+  std::ofstream sout(OutputCxx.c_str(), std::ios::out);
   if (sout.fail())
     {
     std::cerr << argv[0] << ": Cannot open " << OutputCxx << " for output" << std::endl;
     perror(argv[0]);
     return EXIT_FAILURE;
     }
+#endif
   if (logoFiles.size() > 0 && !itksys::SystemTools::FileExists(logoFiles[0].c_str()))
     {
     std::cerr << argv[0] << ": Cannot open " << logoFiles[0] << " as a logo file" << std::endl;
@@ -229,6 +302,14 @@ main(int argc, char *argv[])
 
   GeneratePre(sout, module, argc, argv);
   GenerateExports(sout);
+#ifdef GenerateCLP_USE_SERIALIZER
+  // TODO make this create json-dl
+  GenerateJson( sout, serializer );
+#endif // GenerateCLP_USE_SERIALIZER
+#ifdef GenerateCLP_USE_JSONCPP
+  GenerateDeSerialization( sout, module );
+  GenerateSerialization( sout, module );
+#endif // GenerateCLP_USE_JSONCPP
   GeneratePluginEntryPoints(sout, logoFiles);
   GeneratePluginDataSymbols(sout, logoFiles, InputXML);
   GenerateSplitString(sout);
@@ -236,16 +317,140 @@ main(int argc, char *argv[])
   GeneratePluginProcedures(sout, logoFiles);
   GenerateLOGO(sout, logoFiles);
   GenerateXML(sout);
+
+#ifdef GenerateCLP_USE_JSONCPP
+  ModuleParameterGroup serializationGroup;
+  serializationGroup.SetLabel("Parameter Serialization");
+
+  ModuleParameter parametersDeSerialize;
+  parametersDeSerialize.SetTag("file");
+  parametersDeSerialize.SetCPPType("std::string");
+  parametersDeSerialize.SetName("parametersDeSerialize");
+  parametersDeSerialize.SetLongFlag("deserialize");
+  parametersDeSerialize.SetDescription("Restore the module's parameters that were previously archived.");
+  parametersDeSerialize.SetDefault("");
+  parametersDeSerialize.SetChannel("input");
+  serializationGroup.AddParameter(parametersDeSerialize);
+
+  ModuleParameter parametersSerialize;
+  parametersSerialize.SetTag("file");
+  parametersSerialize.SetCPPType("std::string");
+  parametersSerialize.SetName("parametersSerialize");
+  parametersSerialize.SetLongFlag("serialize");
+  parametersSerialize.SetDescription("Store the module's parameters to a file.");
+  parametersSerialize.SetDefault("");
+  parametersSerialize.SetChannel("output");
+  serializationGroup.AddParameter(parametersSerialize);
+
+  module.AddParameterGroup(serializationGroup);
+#endif // GenerateCLP_USE_JSONCPP
+
   GenerateTCLAP(sout, module);
+  GenerateTCLAPAssignment(sout, module, true);
   GenerateEchoArgs(sout, module);
   GenerateProcessInformationAddressDecoding(sout);
   GeneratePost(sout);
+#ifndef GENERATECLP_USE_MD5
   sout.close();
+#endif
+
+#ifdef GENERATECLP_USE_MD5
+
+  bool writeOutputBuffer = true;
+  bool outputFileExists = itksys::SystemTools::FileExists(OutputCxx.c_str());
+  if (outputFileExists)
+    {
+    // Compute MD5 of output buffer
+    std::string outputBufferMD5 = itksys::SystemTools::LowerCase(ComputeStringMD5(sout.str().c_str()));
+
+    // Compute MD5 of existing file
+    char computedExistingOutputFileMD5[32];
+    bool success = ComputeFileMD5(OutputCxx.c_str(), computedExistingOutputFileMD5);
+
+    if (success)
+      {
+      std::string existingOutputFileMD5 =
+          itksys::SystemTools::LowerCase(std::string(computedExistingOutputFileMD5, 32));
+
+      if (outputBufferMD5.compare(existingOutputFileMD5) == 0)
+        {
+        std::cout << "GenerateCLP: File "
+                  << itksys::SystemTools::GetFilenameName(OutputCxx) << " up-to-date." << std::endl;
+        writeOutputBuffer = false;
+        }
+      }
+    else
+      {
+      std::cerr << argv[0] << ": Failed to compute MD5 of file:" << OutputCxx << std::endl;
+      }
+    }
+
+  if (writeOutputBuffer)
+    {
+    std::cout << parametersGroupsMsg.str();
+    std::cout.flush();
+
+    std::ofstream sOutputFile(OutputCxx.c_str(),std::ios::out);
+    if (sOutputFile.fail())
+      {
+      std::cerr << argv[0] << ": Cannot open " << OutputCxx << " for output" << std::endl;
+      perror(argv[0]);
+      return EXIT_FAILURE;
+      }
+    sOutputFile << sout.str();
+    sOutputFile.close();
+    }
+#endif
 
   return (EXIT_SUCCESS);
 }
 
-void GeneratePre(std::ofstream &sout, ModuleDescription &module, int argc, char *argv[])
+namespace
+{
+
+class MacroWriter
+{
+public:
+  MacroWriter(std::ostream &sout, const char * macroName)
+    : Stream(sout), Indent("    "), EOL(" \\\n")
+    {
+    sout << "#define " << macroName;
+    }
+
+  ~MacroWriter()
+    {
+    this->Stream << std::endl;
+    }
+
+  template <typename T> MacroWriter& operator+(const T& data)
+    {
+    this->Stream << data;
+    return *this;
+    }
+
+  template <typename T> MacroWriter& operator|(const T& data)
+    {
+    this->Stream << this->EOL << this->Indent << data;
+    return *this;
+    }
+
+private:
+  std::ostream &Stream;
+  const std::string Indent;
+  const std::string EOL;
+};
+
+void WriteLines(std::ostream &sout, const char * const * lines,
+                const std::string &indent, const std::string &eol)
+{
+  while(*lines)
+    {
+    sout << indent << *lines << eol;
+    ++lines;
+    }
+}
+
+void GeneratePre(std::ostream &sout, ModuleDescription &, int argc, char *argv[])
 {
   sout << "// This file was automatically generated by:" << std::endl;
   sout << "// ";
@@ -255,21 +460,147 @@ void GeneratePre(std::ofstream &sout, ModuleDescription &module, int argc, char 
     }
   sout << std::endl;
   sout << "//" << std::endl;
-  sout << "#include <stdio.h>" << std::endl;
-  sout << "#include <stdlib.h>" << std::endl;
+  sout << "#include <cstdio>" << std::endl;
+  sout << "#include <cstdlib>" << std::endl;
   sout << "#include <iostream>" << std::endl;
-  sout << "#include <string.h>" << std::endl;
+  sout << "#include <string>" << std::endl;
   sout << "#include <vector>" << std::endl;
   sout << "#include <map>" << std::endl;
   sout << std::endl;
-  sout << "#include <itksys/ios/sstream>" << std::endl;
+  sout << "#include <sstream>" << std::endl;
+#ifdef GenerateCLP_USE_JSONCPP
+  sout << "#include <fstream>\n";
+#endif // GenerateCLP_USE_JSONCPP
+#ifdef GenerateCLP_USE_SERIALIZER
+  sout << "#include <stdexcept>\n";
+#endif // GenerateCLP_USE_SERIALIZER
   sout << std::endl;
   sout << "#include \"tclap/CmdLine.h\"" << std::endl;
+#ifdef GenerateCLP_USE_JSONCPP
+  sout << "#include \"JsonSerializationUtilities.h\"\n";
+#endif // GenerateCLP_USE_JSONCPP
   sout << "#include \"ModuleProcessInformation.h\"" << std::endl;
   sout << std::endl;
 }
 
-void GenerateSplitString(std::ofstream &sout)
+#ifdef GenerateCLP_USE_SERIALIZER
+void GenerateJson( std::ostream & sout,
+  itk::SEMModuleDescriptionSerializer::Pointer & serializer )
+{
+  sout << "\nextern \"C\" {\n";
+  sout << "Module_EXPORT char JSONModuleDescription[] =" << std::endl;
+  std::ostringstream oStream;
+  itk::JsonCppArchiver::Pointer archiver =
+    dynamic_cast< itk::JsonCppArchiver * >( serializer->GetArchiver() );
+  archiver->WriteToStdStream( oStream );
+  std::istringstream iStream( oStream.str() );
+  while( !iStream.eof() )
+    {
+    std::string line;
+    std::getline( iStream, line );
+    size_t quotePosition = line.find( '"' );
+    while( quotePosition != std::string::npos )
+      {
+      line = line.replace( quotePosition, 1, "\\\"" );
+      quotePosition = line.find( '"', quotePosition + 2 );
+      }
+    sout << "\"" << line << "\\n\"\n";
+    }
+  sout << ";\n";
+  sout << "}" << std::endl;
+}
+#endif // GenerateCLP_USE_SERIALIZER
+
+#ifdef GenerateCLP_USE_JSONCPP
+void GenerateDeSerialization( std::ostream & sout,
+  const ModuleDescription & module )
+{
+  MacroWriter w(sout, "GENERATE_DESERIALIZATION");
+  w | "if( parametersDeSerializeArg.isSet() )"
+    | "  {"
+    | "  std::ifstream fStream( parametersDeSerializeArg.getValue().c_str() );"
+    | "  if( !fStream.is_open() )"
+    | "    {"
+    | "    std::cerr << \"Could not open file: \" << parametersDeSerializeArg.getValue() << \" for writing.\" << std::endl;"
+    | "    return EXIT_FAILURE;"
+    | "    }"
+    | "  Json::Value root;"
+    | "  Json::Reader reader;"
+    | "  reader.parse( fStream, root );"
+    | "  const Json::Value & parameters = root[\"Parameters\"];";
+
+  typedef std::vector<ModuleParameterGroup> ModuleParameterGroupsType;
+  const ModuleParameterGroupsType & parameterGroups = module.GetParameterGroups();
+  for( ModuleParameterGroupsType::const_iterator groupIt = parameterGroups.begin();
+       groupIt != parameterGroups.end();
+       ++groupIt )
+    {
+    const std::string & groupLabel = groupIt->GetLabel();
+    typedef std::vector< ModuleParameter > ModuleParametersType;
+    const ModuleParametersType & parameters = groupIt->GetParameters();
+    for( ModuleParametersType::const_iterator paramIt = parameters.begin();
+         paramIt != parameters.end();
+         ++paramIt )
+      {
+      // Use LongFlag if present, Name otherwise
+      const std::string & parameterName = paramIt->GetName();
+
+      w | "  ReadJsonParameter( parameters, \""
+           + groupLabel + "\", \""
+           + parameterName + "\", "
+           + paramIt->GetName()
+           + " );";
+      }
+    }
+  w | "  }";
+}
+
+void GenerateSerialization( std::ostream & sout,
+  const ModuleDescription & module )
+{
+  MacroWriter w(sout, "GENERATE_SERIALIZATION");
+  w | "if( parametersSerializeArg.isSet() )"
+    | "  {"
+    | "  Json::Value root;"
+    | "  Json::Value & parameters = root[\"Parameters\"];";
+  typedef std::vector<ModuleParameterGroup> ModuleParameterGroupsType;
+  const ModuleParameterGroupsType & parameterGroups = module.GetParameterGroups();
+  for( ModuleParameterGroupsType::const_iterator groupIt = parameterGroups.begin();
+       groupIt != parameterGroups.end();
+       ++groupIt )
+    {
+    const std::string & groupLabel = groupIt->GetLabel();
+    w | "    {"
+      | "    Json::Value & parameterGroup = parameters[\""
+         + groupLabel + "\"];";
+
+    typedef std::vector< ModuleParameter > ModuleParametersType;
+    const ModuleParametersType & parameters = groupIt->GetParameters();
+    for( ModuleParametersType::const_iterator paramIt = parameters.begin();
+         paramIt != parameters.end();
+         ++paramIt )
+      {
+      const std::string & parameterName = paramIt->GetName();
+      const std::string & cppType = paramIt->GetCPPType();
+      w | "    parameterGroup[\"" + parameterName
+           + "\"] = JsonSerialize( " + parameterName + " );";
+      }
+      w | "    }";
+    }
+  w | "  std::ofstream fStream( parametersSerializeArg.getValue().c_str() );"
+    | "  if( !fStream.is_open() )"
+    | "    {"
+    | "    std::cerr << \"Could not open file: \" << parametersSerializeArg.getValue() << \" for writing.\" << std::endl;"
+    | "    return EXIT_FAILURE;"
+    | "    }"
+    | "  Json::StyledStreamWriter writer;"
+    | "  writer.write( fStream, root );"
+    | "  fStream.close();"
+    | "  }";
+}
+#endif // GenerateCLP_USE_JSONCPP
+
+void GenerateSplitString(std::ostream &sout)
 {
   sout << "void" << std::endl;
   sout << "splitString (const std::string &text," << std::endl;
@@ -289,7 +620,7 @@ void GenerateSplitString(std::ofstream &sout)
   sout << std::endl;
 }
 
-void GenerateSplitFilenames(std::ofstream &sout)
+void GenerateSplitFilenames(std::ostream &sout)
 {
   sout << "void" << std::endl;
   sout << "splitFilenames (const std::string &text," << std::endl;
@@ -331,17 +662,17 @@ void GenerateSplitFilenames(std::ofstream &sout)
   sout << std::endl;
 }
 
-void GenerateExports(std::ofstream &sout)
+void GenerateExports(std::ostream &sout)
 {
-  sout << "#ifdef WIN32" << std::endl;
+  sout << "#ifdef _WIN32" << std::endl;
   sout << "#define Module_EXPORT __declspec(dllexport)" << std::endl;
   sout << "#else" << std::endl;
-  sout << "#define Module_EXPORT " << std::endl;
+  sout << "#define Module_EXPORT" << std::endl;
   sout << "#endif" << std::endl;
   sout << std::endl;
 }
 
-void GeneratePluginDataSymbols(std::ofstream &sout, std::vector<std::string>& logos, std::string XMLFile)
+void GeneratePluginDataSymbols(std::ostream &sout, std::vector<std::string>& logos, std::string XMLFile)
 {
   sout << "extern \"C\" {" << std::endl;
   sout << "Module_EXPORT char XMLModuleDescription[] = " << std::endl;
@@ -375,7 +706,7 @@ void GeneratePluginDataSymbols(std::ofstream &sout, std::vector<std::string>& lo
     {
     std::string logo = logos[0];
     std::string fileName = itksys::SystemTools::GetFilenameWithoutExtension (logo);
-    
+
     sout << "#define static Module_EXPORT" << std::endl;
     sout << "#define const" << std::endl;
     sout << "#define image_" << fileName << "_width ModuleLogoWidth"
@@ -401,7 +732,7 @@ void GeneratePluginDataSymbols(std::ofstream &sout, std::vector<std::string>& lo
   sout << std::endl;
 }
 
-void GeneratePluginEntryPoints(std::ofstream &sout, std::vector<std::string> &logos)
+void GeneratePluginEntryPoints(std::ostream &sout, std::vector<std::string> &logos)
 {
   sout << "#if defined(main) && !defined(REGISTER_TEST)" << std::endl;
   sout << "// If main defined as a preprocessor symbol, redefine it to the expected entry point." << std::endl;
@@ -421,12 +752,10 @@ void GeneratePluginEntryPoints(std::ofstream &sout, std::vector<std::string> &lo
   sout << std::endl;
 }
 
-void GeneratePluginProcedures(std::ofstream &sout, std::vector<std::string> &logos)
+void GeneratePluginProcedures(std::ostream &sout, std::vector<std::string> &logos)
 {
   if (logos.size() == 1)
     {
-    std::string logo = logos[0];
-    std::string fileName = itksys::SystemTools::GetFilenameWithoutExtension (logo);
     sout << "unsigned char *GetModuleLogo(int *width," << std::endl;
     sout << "                             int *height," << std::endl;
     sout << "                             int *pixel_size," << std::endl;
@@ -449,7 +778,7 @@ void GeneratePluginProcedures(std::ofstream &sout, std::vector<std::string> &log
   sout << std::endl;
 }
 
-void GenerateLOGO(std::ofstream &sout, std::vector<std::string> &logos)
+void GenerateLOGO(std::ostream &sout, std::vector<std::string> &logos)
 {
   if (logos.size() > 0)
     {
@@ -477,7 +806,7 @@ void GenerateLOGO(std::ofstream &sout, std::vector<std::string> &logos)
     }
 }
 
-void GenerateXML(std::ofstream &sout)
+void GenerateXML(std::ostream &sout)
 {
   std::string EOL(" \\");
 
@@ -490,7 +819,7 @@ void GenerateXML(std::ofstream &sout)
   sout << "    }" << std::endl;
 }
 
-void GenerateEchoArgs(std::ofstream &sout, ModuleDescription &module)
+void GenerateEchoArgs(std::ostream &sout, ModuleDescription &module)
 {
   std::string EOL(" \\");
   sout << "#define GENERATE_ECHOARGS \\" << std::endl;
@@ -530,7 +859,7 @@ void GenerateEchoArgs(std::ofstream &sout, ModuleDescription &module)
              << EOL << std::endl;
         sout << "std::cout <<std::endl;"
              << EOL << std::endl;
-        
+
         }
       else if (NeedsTemp(*pit) && pit->GetMultiple() == "true")
         {
@@ -593,11 +922,17 @@ void GenerateEchoArgs(std::ofstream &sout, ModuleDescription &module)
   sout << "}" << std::endl;
 }
 
-void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
+void GenerateTCLAP(std::ostream &sout, ModuleDescription &module)
 {
+  GenerateTCLAPParse(sout, module);
+  GenerateTCLAPAssignment(sout, module);
+  sout << "#define GENERATE_TCLAP GENERATE_TCLAP_PARSE;GENERATE_TCLAP_ASSIGNMENT" << std::endl;
+}
 
+void GenerateTCLAPParse(std::ostream &sout, ModuleDescription &module)
+{
   std::string EOL(" \\");
-  sout << "#define GENERATE_TCLAP \\" << std::endl;
+  sout << "#define GENERATE_TCLAP_PARSE \\" << std::endl;
 
   ModuleParameterGroup autoParameters;
 
@@ -630,8 +965,18 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
   processInformationAddressArg.SetLongFlag("processinformationaddress");
   processInformationAddressArg.SetDescription("Address of a structure to store process information (progress, abort, etc.).");
   processInformationAddressArg.SetDefault("0");
-
   autoParameters.AddParameter(processInformationAddressArg);
+
+  // Add an argument to accept a filename for simple return types
+  ModuleParameter returnParameterArg;
+  returnParameterArg.SetTag("file");
+  returnParameterArg.SetCPPType("std::string");
+  returnParameterArg.SetName("returnParameterFile");
+  returnParameterArg.SetLongFlag("returnparameterfile");
+  returnParameterArg.SetDescription("Filename in which to write simple return parameters (int, float, int-vector, etc.) as opposed to bulk return parameters (image, geometry, transform, measurement, table).");
+  returnParameterArg.SetDefault("");
+  autoParameters.AddParameter(returnParameterArg);
+
 
   // Add the parameter group to the module
   module.AddParameterGroup(autoParameters);
@@ -669,8 +1014,23 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
           sout << "Temp";
           }
         
-        if (!HasDefault(*pit))
-          {    
+        const std::string cppType = pit->GetCPPType();
+        if (!HasDefault(*pit) &&
+            cppType != "bool")
+          {
+          // Initialized to avoid compiler warnings.
+          if (cppType.compare("int") == 0)
+            {
+            sout << " = 0";
+            }
+          else if (cppType.compare("float") == 0)
+            {
+            sout << " = 0.0f";
+            }
+          else if (cppType.compare("double") == 0)
+            {
+            sout << " = 0.0";
+            }
           sout << ";"
                << EOL << std::endl;
           }
@@ -768,8 +1128,6 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
         }
       }
     }
-  sout << "try" << EOL << std::endl;
-  sout << "  {" << EOL << std::endl;
   sout << "    std::string fullDescription(\"Description: \");" << EOL << std::endl;
   sout << "    fullDescription += \"" << module.GetDescription() << "\";" << EOL << std::endl;
   sout << "    if (!std::string(\"" << module.GetContributor() << "\").empty())" << EOL << std::endl;
@@ -784,7 +1142,7 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
   sout << "       " << "' '," << EOL << std::endl;
   sout << "      " << "\"" << module.GetVersion() << "\"";
   sout << " );" << EOL << std::endl << EOL << std::endl;
-  sout << "      itksys_ios::ostringstream msg;" << EOL << std::endl;
+  sout << "      std::ostringstream msg;" << EOL << std::endl;
 
   // Second pass generates TCLAP declarations
   for (git = module.GetParameterGroups().begin();
@@ -795,6 +1153,13 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
          pit != git->GetParameters().end();
          ++pit)
       {
+      // Don't generate TCLAP data structures for parameters that are
+      // simple return types 
+      if ((*pit).IsReturnParameter())
+        {
+        continue;
+        }
+
       sout << "    msg.str(\"\");";
       sout << "msg << "
            << "\""
@@ -951,6 +1316,9 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
         }
       }
     }
+  sout << "try" << EOL << std::endl;
+  sout << "  {" << EOL << std::endl;
+
   // Remap any aliases in the flags or long flags
   sout << "    /* Build a map of flag aliases to the true flag */" << EOL << std::endl;
   sout << "    std::map<std::string,std::string> flagAliasMap;" << EOL << std::endl;
@@ -1140,17 +1508,36 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
    sout << "   std::vector<char*> vargs;" << EOL << std::endl;
    sout << "   for (ac = 0; ac < targs.size(); ++ac)" << EOL << std::endl;
    sout << "     { " << EOL << std::endl;
-   sout << "     vargs.push_back((char *)targs[ac].c_str());" << EOL << std::endl;
+   sout << "     vargs.push_back(const_cast<char *>(targs[ac].c_str()));" << EOL << std::endl;
    sout << "     }" << EOL << std::endl;
 
-   //sout << "std::cout << \"Remapped back command line\" << std::endl;" << EOL << std::endl;
-   //sout << "for(int ai=0; ai < argc; ++ai) std::cout << \"argv[\" << ai << \"]=\"<<vargs[ai] << std::endl;" << EOL << std::endl;
-   
   // Generate the code to parse the command line
   sout << "    commandLine.parse ( vargs.size(), (char**) &(vargs[0]) );" << EOL << std::endl;
-  //sout << "exit(0);" << EOL << std::endl;
-  
-  // Third pass generates access to arguments
+
+  // Wrapup the block and generate the catch block
+  sout << "  }" << EOL << std::endl;
+  sout << "catch ( TCLAP::ArgException e )" << EOL << std::endl;
+  sout << "  {" << EOL << std::endl;
+  sout << "  std::cerr << \"error: \" << e.error() << \" for arg \" << e.argId() << std::endl;" << EOL << std::endl;
+  sout << "  return ( EXIT_FAILURE );" << EOL << std::endl;
+  sout << "  }" << std::endl;
+}
+
+void GenerateTCLAPAssignment(std::ostream & sout, const ModuleDescription & module, bool onlyIfSet)
+{
+  std::string EOL(" \\");
+  sout << "#define GENERATE_TCLAP_ASSIGNMENT";
+  if( onlyIfSet )
+    {
+    sout << "_IFSET \\" << std::endl;
+    }
+  else
+    {
+    sout << " \\" << std::endl;
+    }
+
+  std::vector<ModuleParameterGroup>::const_iterator git;
+  std::vector<ModuleParameter>::const_iterator pit;
   for (git = module.GetParameterGroups().begin();
        git != module.GetParameterGroups().end();
        ++git)
@@ -1159,7 +1546,17 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
          pit != git->GetParameters().end();
          ++pit)
       {
-      sout << "    "
+      if ((*pit).IsReturnParameter())
+        {
+        continue;
+        }
+
+      if( onlyIfSet )
+        {
+        sout << "    if( " << pit->GetName() << "Arg.isSet() )" << EOL << '\n'
+             << "      {" << EOL << '\n';
+        }
+      sout << "      "
            << pit->GetName();
       if (NeedsTemp(*pit))
         {
@@ -1169,6 +1566,10 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
            << pit->GetName()
            << "Arg.getValue();"
            << EOL << std::endl;
+      if( onlyIfSet )
+        {
+        sout << "      }" << EOL << '\n';
+        }
       }
     }
 
@@ -1181,16 +1582,26 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
          pit != git->GetParameters().end();
          ++pit)
       {
+      if ((*pit).IsReturnParameter())
+        {
+        continue;
+        }
+
       if (NeedsTemp(*pit) && pit->GetMultiple() != "true")
         {
+        if( onlyIfSet )
+          {
+          sout << "    if( " << pit->GetName() << "Arg.isSet() )" << EOL << '\n';
+          }
         sout << "      { " << "/* Assignment for " << pit->GetName() << " */" << EOL << std::endl;
+        sout << "      " << pit->GetName() << ".clear();" << EOL << std::endl;
         sout << "      std::vector<std::string> words;"
              << EOL << std::endl;
         sout << "      std::string sep(\",\");"
              << EOL << std::endl;
         if ((*pit).GetTag() == "file")
           {
-          sout << "      splitFilenames(" 
+          sout << "      splitFilenames("
                << pit->GetName()
                << "Temp"
                << ", "
@@ -1199,7 +1610,7 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
           }
         else
           {
-          sout << "      splitString(" 
+          sout << "      splitString("
                << pit->GetName()
                << "Temp"
                << ", "
@@ -1267,21 +1678,30 @@ void GenerateTCLAP(std::ofstream &sout, ModuleDescription &module)
         }
       }
     }
-  // Wrapup the block and generate the catch block
-  sout << "  }" << EOL << std::endl;
-  sout << "catch ( TCLAP::ArgException e )" << EOL << std::endl;
-  sout << "  {" << EOL << std::endl;
-  sout << "  std::cerr << \"error: \" << e.error() << \" for arg \" << e.argId() << std::endl;" << EOL << std::endl;
-  sout << "  return ( EXIT_FAILURE );" << EOL << std::endl;
-  sout << "  }" << std::endl;
+  sout << "" << std::endl;
 }
 
-void GeneratePost(std::ofstream &sout)
+void GeneratePost(std::ostream &sout)
 {
-  sout << "#define PARSE_ARGS GENERATE_LOGO;GENERATE_XML;GENERATE_TCLAP;GENERATE_ECHOARGS;GENERATE_ProcessInformationAddressDecoding;" << std::endl;
+  sout << "#define PARSE_ARGS "
+       << "GENERATE_LOGO;"
+       << "GENERATE_XML;"
+#ifdef GenerateCLP_USE_SERIALIZER
+       // << "GENERATE_XML;" TODO
+#endif // GenerateCLP_USE_SERIALIZER
+       << "GENERATE_TCLAP;"
+#ifdef GenerateCLP_USE_JSONCPP
+       << "GENERATE_DESERIALIZATION;"
+#endif // GenerateCLP_USE_JSONCPP
+       << "GENERATE_ECHOARGS;"
+       << "GENERATE_ProcessInformationAddressDecoding;"
+#ifdef GenerateCLP_USE_JSONCPP
+       << "GENERATE_SERIALIZATION;"
+#endif // GenerateCLP_USE_JSONCPP
+       << std::endl;
 }
 
-void GenerateProcessInformationAddressDecoding(std::ofstream &sout)
+void GenerateProcessInformationAddressDecoding(std::ostream &sout)
 {
   std::string EOL(" \\");
   sout << "#define GENERATE_ProcessInformationAddressDecoding \\" << std::endl;
@@ -1292,3 +1712,66 @@ void GenerateProcessInformationAddressDecoding(std::ofstream &sout)
   sout << "sscanf(processInformationAddressString.c_str(), \"%p\", &CLPProcessInformation);" << EOL << std::endl;
   sout << "}" << std::endl;
 }
+
+#ifdef GENERATECLP_USE_MD5
+// Adapted from CMake/Source/cmSystemTools.cxx
+bool ComputeFileMD5(const char* source, char* md5out)
+{
+  if(!itksys::SystemTools::FileExists(source))
+    {
+    return false;
+    }
+
+  // Open files
+#if defined(_WIN32) || defined(__CYGWIN__)
+  itksys_ios::ifstream fin(source, itksys_ios::ios::binary | itksys_ios::ios::in);
+#else
+  itksys_ios::ifstream fin(source);
+#endif
+  if(!fin)
+    {
+    return false;
+    }
+
+  itksysMD5* md5 = itksysMD5_New();
+  itksysMD5_Initialize(md5);
+
+  // Should be efficient enough on most system:
+  const int bufferSize = 4096;
+  char buffer[bufferSize];
+  unsigned char const* buffer_uc =
+    reinterpret_cast<unsigned char const*>(buffer);
+  // This copy loop is very sensitive on certain platforms with
+  // slightly broken stream libraries (like HPUX).  Normally, it is
+  // incorrect to not check the error condition on the fin.read()
+  // before using the data, but the fin.gcount() will be zero if an
+  // error occurred.  Therefore, the loop should be safe everywhere.
+  while(fin)
+    {
+    fin.read(buffer, bufferSize);
+    if(int gcount = static_cast<int>(fin.gcount()))
+      {
+      itksysMD5_Append(md5, buffer_uc, gcount);
+      }
+    }
+  itksysMD5_FinalizeHex(md5, md5out);
+  itksysMD5_Delete(md5);
+
+  fin.close();
+  return true;
+}
+
+// Adapted from CMake/Source/cmSystemTools.cxx
+std::string ComputeStringMD5(const char* input)
+{
+  char md5out[32];
+  itksysMD5* md5 = itksysMD5_New();
+  itksysMD5_Initialize(md5);
+  itksysMD5_Append(md5, reinterpret_cast<unsigned char const*>(input), -1);
+  itksysMD5_FinalizeHex(md5, md5out);
+  itksysMD5_Delete(md5);
+  return std::string(md5out, 32);
+}
+#endif
+
+} // end of anonymous namespace
