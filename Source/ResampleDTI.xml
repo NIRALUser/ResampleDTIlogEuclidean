@@ -33,8 +33,8 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
       <name>referenceVolume</name>
       <label>Reference Volume (To Set Output Parameters)</label>
       <channel>input</channel>
-      <flag>-R</flag>
-      <longflag>--Reference</longflag>
+      <flag>R</flag>
+      <longflag alias="Reference">referenceVolume</longflag>
       <description>Reference Volume (spacing,size,orientation,origin)</description>
       <default></default>
     </image>
@@ -45,8 +45,8 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <transform fileExtensions=".mat">
       <name>transformationFile</name>
       <label>Transform Node</label>
-      <flag>-f</flag>
-      <longflag>--transformationFile</longflag>
+      <flag>f</flag>
+      <longflag>transformationFile</longflag>
       <default></default>
       <channel>input</channel>
     </transform>
@@ -54,15 +54,15 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
         <name>deffield</name>
         <label>Deformation Field Volume</label>
         <channel>input</channel>
-        <flag>-H</flag>
-        <longflag>--defField</longflag>
+        <flag deprecatedalias="H">D</flag>
+        <longflag alias="defField">deformationFieldVolume</longflag>
         <description>File containing the deformation field (3D vector image containing vectors with 3 components)</description>
         <default></default>
      </image>
     <string-enumeration>
       <name>typeOfField</name>
-      <longflag>--hfieldtype</longflag>
-      <description>Set if the deformation field is an -Field</description>
+      <longflag deprecatedalias="hfieldtype" alias="deformationfieldtype">deformationFieldType</longflag>
+      <description>Sets if the deformation field is an -Field</description>
       <label>Displacement or h-Field</label>
       <element>displacement</element>
       <element>h-Field</element>
@@ -73,8 +73,8 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
   <label>Processing Options</label>
   <string-enumeration>
       <name>interpolationType</name>
-      <flag>-i</flag>
-      <longflag>--interpolation</longflag>
+      <flag>i</flag>
+      <longflag alias="interpolation">interpolationType</longflag>
       <description>Sampling algorithm (linear , nn (nearest neighborhoor), ws (WindowedSinc), bs (BSpline) )</description>
       <label>Interpolation</label>
       <element>linear</element>
@@ -85,22 +85,22 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
   </string-enumeration>
   <boolean>
      <name>nolog</name>
-     <longflag>--nolog</longflag>
-     <description>Do not use the Log-Euclidean Framework to compute the resampled volume</description>
+     <longflag>nolog</longflag>
+     <description>Does not use the Log-Euclidean Framework to compute the resampled volume</description>
      <label>No Log-Euclidean</label>
      <default>false</default>
   </boolean>
   <boolean>
      <name>noMeasurementFrame</name>
-     <longflag>--noMeasurementFrame</longflag>
-     <description>Do not use the measurement frame that is in the input image to transform the tensors. Uses the image orientation instead</description>
+     <longflag>noMeasurementFrame</longflag>
+     <description>Does not use the measurement frame that is in the input image to transform the tensors. Uses the image orientation instead</description>
      <label>No Measurement Frame</label>
      <default>false</default>
   </boolean>
   <string-enumeration>
       <name>correction</name>
-      <longflag>--correction</longflag>
-      <description>Correct the tensors if computed tensor is not semi-definite positive. Useful only if nolog is selected</description>
+      <longflag alias="correction">correctionType</longflag>
+      <description>Corrects the tensors if computed tensor is not semi-definite positive. Useful only if nolog is selected</description>
       <label>Tensors Correction</label>
       <element>zero</element>
       <element>none</element>
@@ -113,7 +113,7 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
   <label>Tensor Transform Type</label>
     <string-enumeration>
       <name>ppd</name>
-      <longflag>--transform_tensor_method</longflag>
+      <longflag deprecatedalias="transform_tensor_method">transformTensorMethod</longflag>
       <flag>-T</flag>
       <description>Chooses between 2 methods to transform the tensors: Finite Strain (FS), faster but less accurate, or Preservation of the Principal Direction (PPD)</description>
       <label>Finite Strain (FS) or \nPreservation of the Principal Direction (PPD)</label>
@@ -127,8 +127,8 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <description>Those parameters should normally not be modified</description>
     <string-enumeration>
       <name>transformsOrder</name>
-      <longflag>--transform_order</longflag>
-      <description>Select in what order the transforms are read</description>
+      <longflag deprecatedalias="transform_order">transformFileTransformsOrder</longflag>
+      <description>Selects in what order the transforms in the transform file are read</description>
       <label>Transforms Order</label>
       <element>input-to-output</element>
       <element>output-to-input</element>
@@ -136,14 +136,14 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     </string-enumeration>
     <boolean>
       <name>notbulk</name>
-      <longflag>--notbulk</longflag>
+      <longflag deprecatedalias="notbulk">bsplineNotBulk</longflag>
       <description>The transform following the BSpline transform is not set as a bulk transform for the BSpline transform</description>
       <label>Not a Bulk Transform</label>
       <default>false</default>
     </boolean>
     <boolean>
       <name>space</name>
-      <longflag>--spaceChange</longflag>
+      <longflag>spaceChange</longflag>
       <description>Space Orientation between transform and image is different (RAS/LPS) (warning: if the transform is a Transform Node in Slicer3, do not select)</description>
       <label>Space Orientation inconsistency (between transform and image)</label>
       <default>false</default>
@@ -152,13 +152,13 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
         <name>outputDisfield</name>
         <label>Save concatenation of transforms</label>
         <channel>output</channel>
-        <longflag>--outputDisplacementField</longflag>
-        <description>Save transform as a displacement Field (3D vector image containing vectors with 3 components)</description>
+        <longflag>outputDisplacementField</longflag>
+        <description>Saves transform as a displacement Field (3D vector image containing vectors with 3 components)</description>
         <default></default>
     </image>
     <boolean>
       <name>concatOnly</name>
-      <longflag>--concatenationOnly</longflag>
+      <longflag>concatenationOnly</longflag>
       <description>The program exists after concatenating the transforms in a displacement field (only if an h-field or a displacement field are given as an input and if --outputDisplacementField is set)</description>
       <label>Only concatenate</label>
       <default>false</default>
@@ -168,23 +168,23 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <label>Advanced Rigid/Affine Parameters</label>
     <point multiple="false" coordinateSystem="lps">
       <name>rotationPoint</name>
-      <flag>-r</flag>
-      <longflag>--rotation_point</longflag>
+      <flag>r</flag>
+      <longflag deprecatedalias="rotation_point">rotationPoint</longflag>
       <description>Center of rotation (only for rigid and affine transforms)</description>
       <label>Rotation Center</label>
       <default>0,0,0</default>
     </point>
     <boolean>
       <name>centeredTransform</name>
-      <flag>-c</flag>
-      <longflag>--centered_transform</longflag>
-      <description>Set the center of the transformation to the center of the input image (only for rigid and affine transforms)</description>
+      <flag>c</flag>
+      <longflag deprecatedalias="centered_transform">centeredTransform</longflag>
+      <description>Sets the center of the transformation to the center of the input image (only for rigid and affine transforms)</description>
       <label>Centered Transform</label>
       <default>false</default>
     </boolean>
     <string-enumeration>
       <name>imageCenter</name>
-      <longflag>--image_center</longflag>
+      <longflag deprecatedalias="image_center">imageCenter</longflag>
       <description>Image to use to center the transform (used only if "Centered Transform" is selected)</description>
       <label>Image Center</label>
       <element>input</element>
@@ -193,9 +193,9 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
      </string-enumeration>
     <boolean>
       <name>inverseITKTransformation</name>
-      <flag>-b</flag>
-      <longflag>--Inverse_ITK_Transformation</longflag>
-      <description>Inverse the transformation before applying it from output image to input image (only for rigid and affine transforms)</description>
+      <flag>b</flag>
+      <longflag deprecatedalias="Inverse_ITK_Transformation">inverseITKTransformation</longflag>
+      <description>Inverses the transformation before applying it from output image to input image (only for rigid and affine transforms)</description>
       <label>Inverse Transformation</label>
       <default>false</default>
     </boolean>
@@ -207,32 +207,32 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
   <description>Parameters of the output image</description>
     <double-vector>
       <name>outputImageSpacing</name>
-      <flag>-s</flag>
-      <longflag>--spacing</longflag>
+      <flag>s</flag>
+      <longflag alias="spacing">outputVolumeSpacing</longflag>
       <description>Spacing along each dimension (0 means use input spacing)</description>
       <label>Spacing</label>
       <default>0,0,0</default>
     </double-vector>
     <double-vector>
       <name>outputImageSize</name>
-      <flag>-z</flag>
-      <longflag>--size</longflag>
+      <flag>z</flag>
+      <longflag alias="size">outputVolumeSize</longflag>
       <description>Size along each dimension (0 means use input size)</description>
       <label>Size</label>
       <default>0,0,0</default>
     </double-vector>
     <point multiple="false" coordinateSystem="lps">
       <name>outputImageOrigin</name>
-      <flag>-O</flag>
-      <longflag>--origin</longflag>
+      <flag>O</flag>
+      <longflag alias="origin">outputVolumeOrigin</longflag>
       <description>Origin of the output Image</description>
       <label>Origin</label>
       <default></default>
     </point>
     <double-vector>
       <name>directionMatrix</name>
-      <flag>-d</flag>
-      <longflag>--direction_matrix</longflag>
+      <flag>d</flag>
+      <longflag deprecatedalias="direction_matrix">outputVolumeDirectionMatrix</longflag>
       <description>9 parameters of the direction matrix by rows (ijk to LPS if LPS transform, ijk to RAS if RAS transform)</description>
       <label>Direction Matrix</label>
       <default>0,0,0,0,0,0,0,0,0</default>
@@ -243,16 +243,16 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <description>Parameters used for resampling</description>
     <integer>
       <name>numberOfThread</name>
-      <flag>-n</flag>
-      <longflag>--number_of_thread</longflag>
+      <flag>n</flag>
+      <longflag deprecatedalias="number_of_thread">numberOfThreads</longflag>
       <description>Number of thread used to compute the output image</description>
       <label>Number Of Threads</label>
       <default>0</default>
     </integer>
     <double>
       <name>defaultPixelValue</name>
-      <flag>-p</flag>
-      <longflag>--default_pixel_value</longflag>
+      <flag>p</flag>
+      <longflag deprecatedalias="default_pixel_value">defaultPixelValue</longflag>
       <description>Default pixel value for samples falling outside of the input region</description>
       <label>Default Pixel Value</label>
       <default>1e-10</default>
@@ -265,8 +265,8 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <description>Parameters used for the Windowed Sinc interpolation</description>
     <string-enumeration>
       <name>windowFunction</name>
-      <flag>-W</flag>
-      <longflag>--window_function</longflag>
+      <flag>W</flag>
+      <longflag deprecatedalias="window_function">windowFunction</longflag>
       <description>Window Function \nh = Hamming \nc = Cosine \nw = Welch \nl = Lanczos \nb = Blackman</description>
       <label>Window Function</label>
       <element>h</element>
@@ -283,8 +283,8 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <description>Parameters used for the BSpline interpolation</description>
     <integer>
       <name>splineOrder</name>
-      <flag>-o</flag>
-      <longflag>--spline_order</longflag>
+      <flag>o</flag>
+      <longflag deprecatedalias="spline_order">splineOrder</longflag>
       <description>Spline Order (Spline order may be from 0 to 5)</description>
       <label>Spline Order</label>
       <default>3</default>
@@ -295,16 +295,16 @@ The Log-Euclidean framework is protected by a patent: for any commercial use, pl
     <label>Manual Transform (Used only if no transform node set)</label>
     <double-vector>
       <name>transformMatrix</name>
-      <flag>-m</flag>
-      <longflag>--transform_matrix</longflag>
-      <description>12 parameters of the transform matrix by rows ( --last 3 being translation-- )</description>
+      <flag>m</flag>
+      <longflag deprecatedalias="transform_matrix">transformMatrix</longflag>
+      <description>12 parameters of the transform matrix by rows (last 3 being translation)</description>
       <label>Transform Matrix</label>
       <default>1,0,0,0,1,0,0,0,1,0,0,0</default>
     </double-vector>
     <string-enumeration>
       <name>transformType</name>
-      <flag>-t</flag>
-      <longflag>--transform</longflag>
+      <flag>t</flag>
+      <longflag alias="transform">matrixOffsetTransformType</longflag>
       <description>Transform algorithm\nrt = Rigid Transform\na = Affine Transform</description>
       <label>Transform Type</label>
       <element>rt</element>
