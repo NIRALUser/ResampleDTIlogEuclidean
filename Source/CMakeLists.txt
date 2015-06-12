@@ -27,13 +27,10 @@ ITKIOTransformHDF5
 ITKIOTransformMatlab
 ITKIOVTK
 ITKIOXML
-ITKIOMINC
 MGHIO
 )
 
-
 find_package(ITK REQUIRED )
-include(${ITK_USE_FILE})
 list(APPEND LIST_ITK_IO_USED ITKIONRRD ITKIOTransformInsightLegacy)
 foreach( io ${ALL_IO} )
   list( FIND ITK_MODULES_ENABLED ${io} position )
@@ -51,8 +48,8 @@ set(ITKComponents
   ITKIOTransformBase
   ${LIST_ITK_IO_USED}
   )
-
 find_package(ITK COMPONENTS ${ITKComponents} REQUIRED )
+include(${ITK_USE_FILE})
 if( ${ITK_VERSION_MAJOR} VERSION_LESS 4)
   message(FATAL_ERROR "ITKv4 is necessary to compile this tool")
 endif()
