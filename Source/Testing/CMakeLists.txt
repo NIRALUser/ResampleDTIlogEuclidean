@@ -13,7 +13,7 @@ list(APPEND ExternalData_URL_TEMPLATES
 
 # ResampleDTI tests
 set(ExternalData_DIRECTORY TestData )
-set(SOURCE_DIRECTORY ${ResampleDTIlogEuclidean_SOURCE_DIR}/Testing/TestData )
+set(SOURCE_DIRECTORY ${ResampleDTIlogEuclidean_SOURCE_DIR}/Source/Testing/TestData )
 set(TEMP_DIR ${ResampleDTIlogEuclidean_BINARY_DIR}/Testing/Temporary )
 
 set(TransformedImage ${TEMP_DIR}/dt-helix-transformed.nrrd )
@@ -22,7 +22,7 @@ set(OriginalImage DATA{${ExternalData_DIRECTORY}/dt-helix.nrrd} )
 add_executable(${CLP}Test ${CLP}Test.cxx)
 target_link_libraries(${CLP}Test ${CLP}Lib ${SlicerExecutionModel_EXTRA_EXECUTABLE_TARGET_LIBRARIES})
 set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
-set_target_properties(${CLP}Test PROPERTIES FOLDER ${${CLP}_TARGETS_FOLDER})
+#set_target_properties(${CLP}Test PROPERTIES FOLDER ${${CLP}_TARGETS_FOLDER})
 
 set(TransformFile ${SOURCE_DIRECTORY}/rotation.tfm )
 set(TransformedImage1 ${TEMP_DIR}/dt-helix-transformed1.nrrd )
