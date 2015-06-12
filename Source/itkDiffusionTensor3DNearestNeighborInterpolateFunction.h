@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DNearestNeighborInterpolateFunction.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DNearestNeighborInterpolateFunction.h $
   Language:  C++
-  Date:      $Date: 2010-04-29 11:58:49 -0400 (Thu, 29 Apr 2010) $
-  Version:   $Revision: 13073 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -40,7 +40,7 @@ public:
   typedef ImageFunction<DiffusionImageType, DataType, double> ImageFunctionType;
   typedef typename Superclass::ContinuousIndexType            ContinuousIndexType;
   itkNewMacro( Self );
-  ///Evaluate the value of a tensor at a given position
+  // /Evaluate the value of a tensor at a given position
 //  TensorDataType Evaluate( const PointType &point ) ;
   TensorDataType EvaluateAtContinuousIndex( const ContinuousIndexType & index ) const;
 
@@ -50,7 +50,7 @@ protected:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DNearestNeighborInterpolateFunction.hxx"
+#include "itkDiffusionTensor3DNearestNeighborInterpolateFunction.txx"
 #endif
 
 #endif

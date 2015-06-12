@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DInterpolateImageFunctionReimplementation.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DInterpolateImageFunctionReimplementation.h $
   Language:  C++
-  Date:      $Date: 2010-06-28 07:45:15 -0400 (Mon, 28 Jun 2010) $
-  Version:   $Revision: 13964 $
+  Date:      $Date: 2014-09-15 22:57:09 -0400 (Mon, 15 Sep 2014) $
+  Version:   $Revision: 23682 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -20,7 +20,6 @@
 #include <itkInterpolateImageFunction.h>
 #include "itkSeparateComponentsOfADiffusionTensorImage.h"
 // #include <itkMutexLock.h>
-// #include <itkSemaphore.h>
 
 namespace itk
 {
@@ -63,6 +62,7 @@ public:
   typedef typename Superclass::ContinuousIndexType                       ContinuousIndexType;
   /** Evaluate the interpolated tensor at a position
    */
+  // TensorDataType Evaluate( const PointType &point ) ;
   TensorDataType EvaluateAtContinuousIndex( const ContinuousIndexType & index ) const;
 
   virtual void SetInputImage( const DiffusionImageType *inputImage );
@@ -72,15 +72,31 @@ protected:
   DiffusionTensor3DInterpolateImageFunctionReimplementation();
   virtual void AllocateInterpolator() = 0;
 
+//  void SeparateImages() ;
+//  void AllocateImages() ;
+//  bool DivideRegion( int currentThread ) ;
+//  int RegionToDivide() ;
   typename InterpolateImageFunctionType::Pointer m_Interpol[6];
   ImagePointer m_ImageVec[6];
   int          m_NumberOfThreads;
+//  Semaphore::Pointer m_Threads ;
+//  int m_SplitAxis ;
+//  bool m_SeparationDone ;
+//  bool m_CannotSplit ;
+//  MutexLock::Pointer m_Lock ;
+//  MutexLock::Pointer m_LockNewThreadDetected ;
+//  std::vector< RegionType > m_ListRegions ;
+//  int m_NbThread ;
+//  MutexLock::Pointer m_CheckRegionsDone ;
+//  bool m_ExceptionThrown ;
+//  SizeType m_Size ;
+//  bool m_AllocateInterpolatorsDone ;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DInterpolateImageFunctionReimplementation.hxx"
+#include "itkDiffusionTensor3DInterpolateImageFunctionReimplementation.txx"
 #endif
 
 #endif

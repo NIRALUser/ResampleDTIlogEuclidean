@@ -46,11 +46,7 @@
 #include "itkSubtractImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 #include "itkExtractImageFilter.h"
-#if ITK_VERSION_MAJOR < 4
-#include "itkDifferenceImageFilter.h"
-#else
 #include "itkTestingComparisonImageFilter.h"
-#endif
 #include "itkDifferenceDiffusionTensor3DImageFilter.h"
 #include "itkDiffusionTensor3D.h"
 #include "itkImageRegion.h"
@@ -363,11 +359,7 @@ int RegressionTestImage(const char *testImageFilename,
   DiffusionImageType::Pointer diffusionBaselineImage ;
   DiffusionImageType::Pointer diffusionTestImage ;
   unsigned long status = 0;
-  #if ITK_VERSION_MAJOR < 4
-  typedef itk::DifferenceImageFilter<ImageType, ImageType> DiffType;
-  #else
   typedef itk::Testing::ComparisonImageFilter<ImageType, ImageType> DiffType;
-  #endif
   DiffType::Pointer diff ;
   typedef itk::DifferenceDiffusionTensor3DImageFilter<DiffusionImageType,ImageType> DiffusionDiffType;
   DiffusionDiffType::Pointer diffusiondiff ;
@@ -454,9 +446,7 @@ int RegressionTestImage(const char *testImageFilename,
 
     typedef itk::ExtractImageFilter<OutputType, DiffOutputType> ExtractType;
     ExtractType::Pointer extract = ExtractType::New();
-#if  ITK_VERSION_MAJOR >= 4
     extract->SetDirectionCollapseToGuess(); // ITKv3 compatible, but not recommended
-#endif
     extract->SetInput( rescale->GetOutput() );
     extract->SetExtractionRegion(region);
 

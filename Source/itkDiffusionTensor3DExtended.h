@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DExtended.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DExtended.h $
   Language:  C++
-  Date:      $Date: 2010-04-29 11:58:49 -0400 (Thu, 29 Apr 2010) $
-  Version:   $Revision: 13073 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -38,16 +38,15 @@ public:
   DiffusionTensor3DExtended()
   {
   }
-
   DiffusionTensor3DExtended( const Superclass & tensor );
-  ///Get a Symmetric matrix representing the tensor
+  // /Get a Symmetric matrix representing the tensor
   MatrixType GetTensor2Matrix();
 
-  ///Set the Tensor from a symmetric matrix
+  // /Set the Tensor from a symmetric matrix
   template <class C>
   void SetTensorFromMatrix( Matrix<C, 3, 3> matrix );
 
-  ///Cast the component values of the tensor
+  // /Cast the component values of the tensor
   template <class C>
   operator DiffusionTensor3DExtended<C> const ();
 
@@ -56,7 +55,7 @@ public:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DExtended.hxx"
+#include "itkDiffusionTensor3DExtended.txx"
 #endif
 
 #endif

@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DFSAffineTransform.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DFSAffineTransform.h $
   Language:  C++
-  Date:      $Date: 2010/04/07 17:23:40 $
-  Version:   $Revision: 1.3 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -65,7 +65,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DFSAffineTransform.hxx"
+#include "itkDiffusionTensor3DFSAffineTransform.txx"
 #endif
 
 #endif

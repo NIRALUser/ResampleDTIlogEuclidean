@@ -1,11 +1,9 @@
 project(ResampleDTIlogEuclidean)
 
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.12)
 
-find_package(GenerateCLP REQUIRED)
-if(GenerateCLP_FOUND)
-  include(${GenerateCLP_USE_FILE})
-endif(GenerateCLP_FOUND)
+find_package(SlicerExecutionModel REQUIRED)
+include(${SlicerExecutionModel_USE_FILE})
 
 set( ALL_IO
 ITKIOBMP
@@ -33,8 +31,13 @@ ITKIOTransformHDF5
 ITKIOTransformMatlab
 ITKIOVTK
 ITKIOXML
+ITKIOMINC
+MGHIO
 )
 
+
+find_package(ITK REQUIRED )
+include(${ITK_USE_FILE})
 list(APPEND LIST_ITK_IO_USED ITKIONRRD ITKIOTransformInsightLegacy)
 foreach( io ${ALL_IO} )
   list( FIND ITK_MODULES_ENABLED ${io} position )
@@ -44,70 +47,45 @@ foreach( io ${ALL_IO} )
 endforeach()
 
 set(ITKComponents
-ITKCommon
+  ITKCommon
   ITKImageFunction
   ITKImageGrid
   ITKTransform
-
-ITKIOImageBase
-ITKIOTransformBase
-${LIST_ITK_IO_USED}
-)
+  ITKIOImageBase
+  ITKIOTransformBase
+  ${LIST_ITK_IO_USED}
+  )
 
 find_package(ITK COMPONENTS ${ITKComponents} REQUIRED )
-include(${ITK_USE_FILE})
 if( ${ITK_VERSION_MAJOR} VERSION_LESS 4)
   message(FATAL_ERROR "ITKv4 is necessary to compile this tool")
 endif()
-set (CLP ResampleDTI)
-
-set ( ${CLP}_SOURCE ${CLP}.cxx )
-generateclp(${CLP}_SOURCE ${CLP}.xml ${LOGOFILE})
+set (MODULE_NAME ResampleDTIlogEuclidean)
 
 Set( dtiProcessFiles
-dtiprocessFiles/deformationfieldio.h
-dtiprocessFiles/deformationfieldio.cxx
-dtiprocessFiles/itkHFieldToDeformationFieldImageFilter.h
-dtiprocessFiles/itkHFieldToDeformationFieldImageFilter.txx
-dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.h
-dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.txx
-)
+  dtiprocessFiles/deformationfieldio.h
+  dtiprocessFiles/deformationfieldio.cxx
+  dtiprocessFiles/itkHFieldToDeformationFieldImageFilter.h
+  dtiprocessFiles/itkHFieldToDeformationFieldImageFilter.txx
+  dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.h
+  dtiprocessFiles/itkDeformationFieldToHFieldImageFilter.txx
+  )
 
 option(STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ON)
 
 
 if( ${STATIC_RESAMPLEDTI} )
-  add_library(${CLP}logEuclideanLib STATIC ${${CLP}_SOURCE} ${dtiProcessFiles} )
-else( ${STATIC_RESAMPLEDTI} )
-  add_library(${CLP}logEuclideanLib SHARED ${${CLP}_SOURCE} ${dtiProcessFiles} )
-endif()
-if(Slicer3_SOURCE_DIR)
-  slicer3_set_plugins_output_path(${CLP}logEuclideanLib)
-endif(Slicer3_SOURCE_DIR)
-set_target_properties (${CLP}logEuclideanLib PROPERTIES COMPILE_FLAGS "-Dmain=ModuleEntryPoint")
-target_link_libraries (${CLP}logEuclideanLib
-  ModuleDescriptionParser
-  ${ITK_LIBRARIES}
-)
-
-
-add_executable(${CLP}logEuclidean ResampleDTIApp.cxx)
-target_link_libraries (${CLP}logEuclidean ${CLP}logEuclideanLib)
-if( NOT ${STATIC_RESAMPLEDTI} )
-  set_target_properties(${CLP}logEuclidean PROPERTIES COMPILE_FLAGS "-DBUILD_SHARED_LIBS") # definition of the variable for c++ preprocessor
+  set( STATIC "EXECUTABLE_ONLY" )
 endif()
 
+SEMMacroBuildCLI(
+  NAME ${MODULE_NAME}
+  ${STATIC}
+  ADDITIONAL_SRCS ${dtiProcessFiles}
+  TARGET_LIBRARIES ${ITK_LIBRARIES}
+  )
+option(BUILD_TESTING "Build Testing" ON)
 if(BUILD_TESTING)
   add_subdirectory(Testing)
 endif(BUILD_TESTING)
 
-if( NOT DEFINED RUNTIME_DESTINATION )
-  set( RUNTIME_DESTINATION bin)
-endif()
-if( NOT DEFINED LIBRARY_DESTINATION )
-  set( LIBRARY_DESTINATION lib)
-endif()
-install( TARGETS ${CLP}logEuclidean RUNTIME DESTINATION ${RUNTIME_DESTINATION} )
-if( NOT ${STATIC_RESAMPLEDTI} )
-  install( TARGETS ${CLP}logEuclideanLib LIBRARY DESTINATION ${LIBRARY_DESTINATION} )
-endif()

@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DRigidTransform.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DRigidTransform.h $
   Language:  C++
-  Date:      $Date: 2010/04/07 17:23:40 $
-  Version:   $Revision: 1.2 $
+  Date:      $Date: 2015-02-05 10:02:04 -0500 (Thu, 05 Feb 2015) $
+  Version:   $Revision: 23962 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -15,7 +15,7 @@
 #define __itkDiffusionTensor3DRigidTransform_h
 
 #include "itkDiffusionTensor3DMatrix3x3Transform.h"
-#include <itkRigid3DTransform.h>
+#include <itkVersorRigid3DTransform.h>
 
 #define PRECISION .001
 
@@ -39,15 +39,16 @@ public:
   typedef typename Superclass::InternalMatrixTransformType InternalMatrixTransformType;
   typedef Matrix<double, 4, 4>                             MatrixTransform4x4Type;
   typedef Rigid3DTransform<double>                         Rigid3DTransformType;
-  ///Set the 4x4 Matrix (the last row is ignored and considered to be 0,0,0,1
+  typedef VersorRigid3DTransform<double>                   VersorRigid3DTransformType;
+  // /Set the 4x4 Matrix (the last row is ignored and considered to be 0,0,0,1
   void SetMatrix4x4( MatrixTransform4x4Type matrix );
 
-  ///Set the transformation matrix from an itk::RigidTransform< double > object
+  // /Set the transformation matrix from an itk::RigidTransform< double > object
   void SetTransform( typename Rigid3DTransformType::Pointer transform );
-  typename Rigid3DTransformType::Pointer GetRigidTransform();
+  typename VersorRigid3DTransformType::Pointer GetRigidTransform();
 
   itkNewMacro( Self );
-  ///Set the 3x3 rotation matrix
+  // /Set the 3x3 rotation matrix
   void SetMatrix3x3( MatrixTransformType & matrix );
 
   void DisablePrecision();
@@ -65,7 +66,7 @@ protected:
 } // end itk namespace
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DRigidTransform.hxx"
+#include "itkDiffusionTensor3DRigidTransform.txx"
 #endif
 
 #endif

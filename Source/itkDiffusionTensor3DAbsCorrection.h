@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DAbsCorrection.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DAbsCorrection.h $
   Language:  C++
-  Date:      $Date: 2008-11-25 14:23:08 -0500 (Tue, 25 Nov 2008) $
-  Version:   $Revision: 7976 $
+  Date:      $Date: 2014-03-02 19:08:33 -0500 (Sun, 02 Mar 2014) $
+  Version:   $Revision: 22915 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -51,11 +51,9 @@ public:
   DiffusionTensor3DAbs()
   {
   }
-
   ~DiffusionTensor3DAbs()
   {
   }
-
   bool operator!=( const DiffusionTensor3DAbs & other ) const
   {
     return *this != other;
@@ -74,8 +72,7 @@ public:
     Matrix<double, 3, 3>       matcorrect;
     typename DiffusionTensor3DExtended<double>::EigenValuesArrayType eigenValues;
     typename DiffusionTensor3DExtended<double>::EigenVectorsMatrixType eigenVectors;
-    DiffusionTensor3DExtended<double> tensorDouble;
-    tensorDouble = ( DiffusionTensor3DExtended<TInput> )A;
+    DiffusionTensor3DExtended<double> tensorDouble( A );
     tensorDouble.ComputeEigenAnalysis( eigenValues, eigenVectors );
     for( int i = 0; i < 3; i++ )
       {
@@ -129,11 +126,9 @@ protected:
   DiffusionTensor3DAbsCorrectionFilter()
   {
   }
-
   virtual ~DiffusionTensor3DAbsCorrectionFilter()
   {
   }
-
 private:
   DiffusionTensor3DAbsCorrectionFilter( const Self & ); // purposely not implemented
   void operator=( const Self & );                       // purposely not implemented

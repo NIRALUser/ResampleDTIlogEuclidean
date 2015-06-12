@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DResample.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DResample.h $
   Language:  C++
   Date:      $Date: 2010/04/05 10:04:59 $
   Version:   $Revision: 1.1 $
@@ -36,9 +36,9 @@ public:
   typedef TInput  InputDataType;
   typedef TOutput OutputDataType;
   typedef ImageToImageFilter
-    <Image<DiffusionTensor3D<TInput>, 3>,
-     Image<TOutput, 3> >
-    Superclass;
+  <Image<DiffusionTensor3D<TInput>, 3>,
+   Image<TOutput, 3> >
+  Superclass;
   typedef DiffusionTensor3D<InputDataType>              InputTensorDataType;
   typedef Image<InputTensorDataType, 3>                 InputImageType;
   typedef SeparateComponentsOfADiffusionTensorImage     Self;
@@ -55,6 +55,7 @@ public:
   itkNewMacro( Self );
 protected:
   SeparateComponentsOfADiffusionTensorImage();
+
   void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
 
   void GenerateOutputInformation();
@@ -68,7 +69,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSeparateComponentsOfADiffusionTensorImage.hxx"
+#include "itkSeparateComponentsOfADiffusionTensorImage.txx"
 #endif
 
 #endif

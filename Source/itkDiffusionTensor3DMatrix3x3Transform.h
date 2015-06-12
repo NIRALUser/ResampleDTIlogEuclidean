@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DMatrix3x3Transform.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DMatrix3x3Transform.h $
   Language:  C++
-  Date:      $Date: 2010-04-29 11:58:49 -0400 (Thu, 29 Apr 2010) $
-  Version:   $Revision: 13073 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -48,25 +48,25 @@ public:
   typedef SmartPointer<Self>                               Pointer;
   typedef SmartPointer<const Self>                         ConstPointer;
 
-  ///Set the translation vector
+  // /Set the translation vector
   void SetTranslation( VectorType translation );
 
-  ///Get the translation vector
+  // /Get the translation vector
   VectorType GetTranslation();
 
-  ///Set the center of the transformation
+  // /Set the center of the transformation
   void SetCenter( PointType center );
 
-  ///Evaluate the position of the transformed tensor in the output image
+  // /Evaluate the position of the transformed tensor in the output image
   PointType EvaluateTensorPosition( const PointType & point );
 
-  ///Set the 3x3 transform matrix
+  // /Set the 3x3 transform matrix
   virtual void SetMatrix3x3( MatrixTransformType & matrix );
 
-  ///Get the 3x3 transform matrix
+  // /Get the 3x3 transform matrix
   virtual InternalMatrixTransformType GetMatrix3x3();
 
-  ///Evaluate the transformed tensor
+  // /Evaluate the transformed tensor
   virtual TensorDataType EvaluateTransformedTensor( TensorDataType & tensor );
 
   virtual TensorDataType EvaluateTransformedTensor( TensorDataType & tensor, PointType & outputPosition ); // dummy
@@ -99,7 +99,7 @@ protected:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DMatrix3x3Transform.hxx"
+#include "itkDiffusionTensor3DMatrix3x3Transform.txx"
 #endif
 
 #endif

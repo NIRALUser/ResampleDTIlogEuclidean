@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkMatrixExtended.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkMatrixExtended.h $
   Language:  C++
-  Date:      $Date: 2010/03/08 16:18:20 $
-  Version:   $Revision: 1.1 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -35,7 +35,7 @@ public:
   MatrixExtended( const InternalMatrixType & matrix );
   MatrixExtended( const Self & matrix );
   MatrixExtended( const Superclass & matrix );
-  ///Cast the matrix
+  // /Cast the matrix
   template <class C, unsigned int NRowsC, unsigned int NColumnsC>
   operator MatrixExtended<C, NRowsC, NColumnsC> const ();
   Self operator=( const Self & matrix );
@@ -49,7 +49,7 @@ public:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMatrixExtended.hxx"
+#include "itkMatrixExtended.txx"
 #endif
 
 #endif

@@ -26,9 +26,9 @@ public:
   typedef TInput  InputDataType;
   typedef TOutput OutputDataType;
   typedef ImageToImageFilter
-    <Image<itk::Vector<InputDataType, NDimensions>, NDimensions>,
-     Image<itk::Vector<OutputDataType, NDimensions>, NDimensions> >
-    Superclass;
+  <Image<itk::Vector<InputDataType, NDimensions>, NDimensions>,
+   Image<itk::Vector<OutputDataType, NDimensions>, NDimensions> >
+  Superclass;
   typedef itk::Vector<InputDataType, NDimensions>        InputDeformationPixelType;
   typedef Image<InputDeformationPixelType, NDimensions>  InputDeformationFieldType;
   typedef itk::Vector<OutputDataType, NDimensions>       OutputDeformationPixelType;
@@ -46,12 +46,10 @@ public:
   typedef typename OutputDeformationFieldType::RegionType              OutputImageRegionType;
 
   itkNewMacro( Self );
-///Set the transform
+// /Set the transform
   itkSetObjectMacro( Transform, TransformType );
-///Set the input deformation field
-  void SetInput( InputDeformationFieldPointerType inputDeformationField );
 
-///Get the time of the last modification of the object
+// /Get the time of the last modification of the object
   unsigned long GetMTime() const;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
@@ -64,6 +62,7 @@ public:
 #endif
 protected:
   TransformDeformationFieldFilter();
+
   void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
 
   void BeforeThreadedGenerateData();
@@ -80,7 +79,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTransformDeformationFieldFilter.hxx"
+#include "itkTransformDeformationFieldFilter.txx"
 #endif
 
 #endif

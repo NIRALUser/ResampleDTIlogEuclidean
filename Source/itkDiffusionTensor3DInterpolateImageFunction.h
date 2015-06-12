@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DInterpolateImageFunction.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DInterpolateImageFunction.h $
   Language:  C++
-  Date:      $Date: 2010-06-28 07:45:15 -0400 (Mon, 28 Jun 2010) $
-  Version:   $Revision: 13964 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -18,9 +18,6 @@
 #include "itkDiffusionTensor3D.h"
 #include <itkImage.h>
 #include <itkPoint.h>
-// #include <itkSemaphore.h>
-// #include <itkNumericTraits.h>
-// #include "define.h"
 #include <itkImageFunction.h>
 
 namespace itk
@@ -55,7 +52,7 @@ public:
   typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
   typedef typename Superclass::IndexType           IndexType;
 
-/////Copied from itkInterpolateImageFunction.h
+// ///Copied from itkInterpolateImageFunction.h
 
   /** Interpolate the image at a point position
    *
@@ -110,7 +107,7 @@ protected:
 
 } // end namespace itk
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DInterpolateImageFunction.hxx"
+#include "itkDiffusionTensor3DInterpolateImageFunction.txx"
 #endif
 
 #endif

@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DResample.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DResample.h $
   Language:  C++
-  Date:      $Date: 2010-06-28 07:45:15 -0400 (Mon, 28 Jun 2010) $
-  Version:   $Revision: 13964 $
+  Date:      $Date: 2014-04-11 00:10:41 -0400 (Fri, 11 Apr 2014) $
+  Version:   $Revision: 23077 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -23,7 +23,8 @@
 #include <itkCastImageFilter.h>
 #include <itkImageRegionIterator.h>
 #include <itkPoint.h>
-#include "define.h"
+
+#include "itkDiffusionTensor3DConstants.h"
 
 namespace itk
 {
@@ -42,9 +43,9 @@ public:
   typedef TInput  InputDataType;
   typedef TOutput OutputDataType;
   typedef ImageToImageFilter
-    <Image<DiffusionTensor3D<TInput>, 3>,
-     Image<DiffusionTensor3D<TOutput>, 3> >
-    Superclass;
+  <Image<DiffusionTensor3D<TInput>, 3>,
+   Image<DiffusionTensor3D<TOutput>, 3> >
+  Superclass;
   typedef DiffusionTensor3D<InputDataType>                         InputTensorDataType;
   typedef Image<InputTensorDataType, 3>                            InputImageType;
   typedef DiffusionTensor3D<OutputDataType>                        OutputTensorDataType;
@@ -61,17 +62,15 @@ public:
 // typedef typename OutputTensorDataType::RealValueType TensorRealType ;
 
   itkNewMacro( Self );
-///Set the transform
+// /Set the transform
   itkSetObjectMacro( Transform, TransformType );
-///Set the interpolation
+// /Set the interpolation
   itkSetObjectMacro( Interpolator, InterpolatorType );
-///Set the input image
-  void SetInput( InputImagePointerType inputImage );
 
-///Set the output parameters (size, spacing, origin, orientation) from a reference image
+// /Set the output parameters (size, spacing, origin, orientation) from a reference image
   void SetOutputParametersFromImage( InputImagePointerType Image );
 
-///Get the time of the last modification of the object
+// /Get the time of the last modification of the object
   unsigned long GetMTime() const;
 
   itkSetMacro( DefaultPixelValue, OutputDataType );
@@ -89,6 +88,7 @@ public:
   itkGetMacro( OutputDirection, typename OutputImageType::DirectionType );
 protected:
   DiffusionTensor3DResample();
+
   void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
 
   void BeforeThreadedGenerateData();
@@ -113,7 +113,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DResample.hxx"
+#include "itkDiffusionTensor3DResample.txx"
 #endif
 
 #endif

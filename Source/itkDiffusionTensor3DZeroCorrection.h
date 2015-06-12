@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DZeroCorrection.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DZeroCorrection.h $
   Language:  C++
-  Date:      $Date: 2010-03-15 18:00:34 -0400 (Mon, 15 Mar 2010) $
-  Version:   $Revision: 12353 $
+  Date:      $Date: 2014-03-02 19:08:33 -0500 (Sun, 02 Mar 2014) $
+  Version:   $Revision: 22915 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -18,7 +18,7 @@
 #include "vnl/vnl_math.h"
 #include <itkMatrix.h>
 #include "itkDiffusionTensor3DExtended.h"
-#include "define.h"
+#include "itkDiffusionTensor3DConstants.h"
 
 namespace itk
 {
@@ -51,11 +51,9 @@ public:
   DiffusionTensor3DZero()
   {
   }
-
   ~DiffusionTensor3DZero()
   {
   }
-
   bool operator!=( const DiffusionTensor3DZero & other ) const
   {
     return *this != other;
@@ -74,12 +72,11 @@ public:
     Matrix<double, 3, 3>       matcorrect;
     typename DiffusionTensor3DExtended<double>::EigenValuesArrayType eigenValues;
     typename DiffusionTensor3DExtended<double>::EigenVectorsMatrixType eigenVectors;
-    DiffusionTensor3DExtended<double> tensorDouble;
-    tensorDouble = ( DiffusionTensor3DExtended<TInput> )A;
+    DiffusionTensor3DExtended<double> tensorDouble( A );
     tensorDouble.ComputeEigenAnalysis( eigenValues, eigenVectors );
     for( int i = 0; i < 3; i++ )
       {
-      mat[i][i] = ( eigenValues[i] <= 0 ? ZERO : eigenValues[i] );
+      mat[i][i] = ( eigenValues[i] <= 0 ? ITK_DIFFUSION_TENSOR_3D_ZERO : eigenValues[i] );
       }
     eigenVectors = eigenVectors.GetTranspose();
     matcorrect = eigenVectors * mat * eigenVectors.GetInverse();
@@ -129,11 +126,9 @@ protected:
   DiffusionTensor3DZeroCorrectionFilter()
   {
   }
-
   virtual ~DiffusionTensor3DZeroCorrectionFilter()
   {
   }
-
 private:
   DiffusionTensor3DZeroCorrectionFilter( const Self & ); // purposely not implemented
   void operator=( const Self & );                        // purposely not implemented

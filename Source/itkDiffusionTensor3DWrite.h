@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DWrite.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DWrite.h $
   Language:  C++
-  Date:      $Date: 2010-06-28 07:45:15 -0400 (Mon, 28 Jun 2010) $
-  Version:   $Revision: 13964 $
+  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
+  Version:   $Revision: 19197 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -22,10 +22,6 @@
 #include <itkNrrdImageIO.h>
 #include <itkImageIOBase.h>
 #include "itkDiffusionTensor3D.h"
-
-#ifndef NRRD_SPACE_MAX
-#include <NrrdIO.h>
-#endif
 
 namespace itk
 {
@@ -50,15 +46,15 @@ public:
   typedef MetaDataObject<DoubleVectorType>    MetaDataDoubleVectorType;
   typedef MetaDataObject<std::string>         MetaDataIntType;
   itkNewMacro( Self );
-  ///Set input tensor image
+  // /Set input tensor image
   itkSetObjectMacro( Input, DiffusionImageType );
-  ///Write the image in the given file
+  // /Write the image in the given file
   int Update( const char* output );
 
-  ///Set the metadatadictionary of the image, including its measurement frame
+  // /Set the metadatadictionary of the image, including its measurement frame
   void SetMetaDataDictionary( DictionaryType dic );
 
-  ///Set Number of Threads
+  // /Set Number of Threads
   itkSetMacro( NumberOfThreads, unsigned int);
   /**Set the Measurement frame of the image. If the measurement frame has been modified from an original image,
   * one can use SetMetaDataDictionary to copy the metadatadictionary from the original image and then
@@ -94,7 +90,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DWrite.hxx"
+#include "itkDiffusionTensor3DWrite.txx"
 #endif
 
 #endif

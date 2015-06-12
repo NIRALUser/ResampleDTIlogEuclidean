@@ -3,29 +3,31 @@
 #
 
 
-include( CTest )
-
+# Add standard remote object stores to user's
+# configuration.
+list(APPEND ExternalData_URL_TEMPLATES
+"http://slicer.kitware.com/midas3/api/rest?method=midas.bitstream.download&checksum=%(hash)"
+)
 
 
 
 # ResampleDTI tests
-set(SOURCE_DIRECTORY ${ResampleDTIIJ_SOURCE_DIR}/Source/Testing/TestData )
-set(TEMP_DIR ${ResampleDTIIJ_BINARY_DIR}/Testing/Temporary )
+set(ExternalData_DIRECTORY TestData )
+set(SOURCE_DIRECTORY ${ResampleDTIlogEuclidean_SOURCE_DIR}/Testing/TestData )
+set(TEMP_DIR ${ResampleDTIlogEuclidean_BINARY_DIR}/Testing/Temporary )
 
-#set(ResampleTest ${ResampleDTIIJ_BINARY_DIR}/bin/${CLP}logEuclideanTest )
 set(TransformedImage ${TEMP_DIR}/dt-helix-transformed.nrrd )
-set(OriginalImage ${SOURCE_DIRECTORY}/dt-helix.nrrd )
+set(OriginalImage DATA{${ExternalData_DIRECTORY}/dt-helix.nrrd} )
 
-add_executable(${CLP}logEuclideanTest ${CLP}Test.cxx)
-target_link_libraries(${CLP}logEuclideanTest ${CLP}logEuclideanLib)
-if( NOT ${STATIC_RESAMPLEDTI} )
-  set_target_properties(${CLP}logEuclideanTest PROPERTIES COMPILE_FLAGS "-DBUILD_SHARED_LIBS") # definition of the variable for c++ preprocessor
-endif()
+add_executable(${CLP}Test ${CLP}Test.cxx)
+target_link_libraries(${CLP}Test ${CLP}Lib ${SlicerExecutionModel_EXTRA_EXECUTABLE_TARGET_LIBRARIES})
+set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
+set_target_properties(${CLP}Test PROPERTIES FOLDER ${${CLP}_TARGETS_FOLDER})
 
 set(TransformFile ${SOURCE_DIRECTORY}/rotation.tfm )
 set(TransformedImage1 ${TEMP_DIR}/dt-helix-transformed1.nrrd )
-set(ReferenceImageRotationNN ${SOURCE_DIRECTORY}/dt-helix-ref-Rotated.nrrd)
-add_test(NAME ${CLP}logEuclideanRotationNNTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+set(ReferenceImageRotationNN DATA{${ExternalData_DIRECTORY}/dt-helix-ref-Rotated.nrrd})
+ExternalData_add_test(${CLP}Data NAME ${CLP}RotationNNTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageRotationNN}
     ${TransformedImage1}
@@ -42,9 +44,9 @@ add_test(NAME ${CLP}logEuclideanRotationNNTest COMMAND $<TARGET_FILE:${CLP}logEu
   )
 
 set(TransformedImage2 ${TEMP_DIR}/dt-helix-transformed2.nrrd )
-set(ReferenceImageRotationAndAffine ${SOURCE_DIRECTORY}/dt-helix-ref-RotationAndAffine.nrrd)
+set(ReferenceImageRotationAndAffine DATA{${ExternalData_DIRECTORY}/dt-helix-ref-RotationAndAffine.nrrd})
 set(RotationAndAffineFile ${SOURCE_DIRECTORY}/rotationAndAffine.tfm )
-add_test( NAME ${CLP}logEuclidean2RigidTransformsLinearTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+ExternalData_add_test(${CLP}Data NAME ${CLP}2RigidTransformsLinearTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageRotationAndAffine}
     ${TransformedImage2}
@@ -62,9 +64,9 @@ add_test( NAME ${CLP}logEuclidean2RigidTransformsLinearTest COMMAND $<TARGET_FIL
   )
 
 set(TransformedImage3 ${TEMP_DIR}/dt-helix-transformed3.nrrd )
-set(ReferenceImageBSplineWS ${SOURCE_DIRECTORY}/dt-helix-ref-BS.nrrd)
+set(ReferenceImageBSplineWS DATA{${ExternalData_DIRECTORY}/dt-helix-ref-BS.nrrd})
 set(BSplineFile ${SOURCE_DIRECTORY}/FastNonrigidBSplineregistrationTransform.tfm)
-add_test( NAME ${CLP}logEuclideanBSplineWSInterpolationTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+ExternalData_add_test(${CLP}Data NAME ${CLP}BSplineWSInterpolationTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageBSplineWS}
     ${TransformedImage3}
@@ -80,9 +82,9 @@ add_test( NAME ${CLP}logEuclideanBSplineWSInterpolationTest COMMAND $<TARGET_FIL
   )
 
 set(TransformedImage4 ${TEMP_DIR}/dt-helix-transformed4.nrrd )
-set(ReferenceImageBSplineInterpolation ${SOURCE_DIRECTORY}/dt-helix-ref-BSInterpolation.nrrd)
+set(ReferenceImageBSplineInterpolation DATA{${ExternalData_DIRECTORY}/dt-helix-ref-BSInterpolation.nrrd})
 set(AffineFile ${SOURCE_DIRECTORY}/affine.tfm)
-add_test( NAME ${CLP}logEuclideanBSplineInterpolationTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+ExternalData_add_test(${CLP}Data NAME ${CLP}BSplineInterpolationTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageBSplineInterpolation}
     ${TransformedImage4}
@@ -98,9 +100,9 @@ add_test( NAME ${CLP}logEuclideanBSplineInterpolationTest COMMAND $<TARGET_FILE:
   )
 
 set(TransformedImage5 ${TEMP_DIR}/dt-helix-transformed5.nrrd )
-set(ReferenceImageHField ${SOURCE_DIRECTORY}/dt-helix-ref-HField.nrrd)
-set(HFieldFile ${SOURCE_DIRECTORY}/deformationField.nrrd)
-add_test( NAME ${CLP}logEuclideanHFieldTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+set(ReferenceImageHField DATA{${ExternalData_DIRECTORY}/dt-helix-ref-HField.nrrd})
+set(HFieldFile DATA{${ExternalData_DIRECTORY}/deformationField.nrrd})
+ExternalData_add_test(${CLP}Data NAME ${CLP}HFieldTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageHField}
     ${TransformedImage5}
@@ -115,9 +117,9 @@ add_test( NAME ${CLP}logEuclideanHFieldTest COMMAND $<TARGET_FILE:${CLP}logEucli
   )
 
 set(TransformedImage7 ${TEMP_DIR}/dt-helix-transformed7.nrrd )
-set(ReferenceImageLog ${SOURCE_DIRECTORY}/dt-helix-ref-Log.nrrd)
+set(ReferenceImageLog DATA{${ExternalData_DIRECTORY}/dt-helix-ref-Log.nrrd})
 set(AffineFile ${SOURCE_DIRECTORY}/affine.tfm)
-add_test(NAME ${CLP}logEuclideanLogTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+ExternalData_add_test(${CLP}Data NAME ${CLP}LogTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageLog}
     ${TransformedImage7}
@@ -132,14 +134,12 @@ add_test(NAME ${CLP}logEuclideanLogTest COMMAND $<TARGET_FILE:${CLP}logEuclidean
 
 #Test itkTestMainExtended.h
 #copy scalar file to binary directory
-set(SourceScalarFile ${SOURCE_DIRECTORY}/AddTest_DOUBLE.mha )
-file( COPY ${SourceScalarFile} DESTINATION ${TEMP_DIR} )
-set( BinaryScalarFile ${TEMP_DIR}/AddTest_DOUBLE.mha )
+set(SourceScalarFile DATA{${ExternalData_DIRECTORY}/AddTest_DOUBLE.mha} )
 
-add_test( NAME itkTestMainExtendedScalarTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+ExternalData_add_test(${CLP}Data NAME itkTestMainExtendedScalarTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
  --compare
-   ${BinaryScalarFile}
-   ${BinaryScalarFile}
+   ${SourceScalarFile}
+   ${SourceScalarFile}
   ModuleEntryPoint
     --interpolation nn
     ${OriginalImage}
@@ -147,7 +147,7 @@ add_test( NAME itkTestMainExtendedScalarTest COMMAND $<TARGET_FILE:${CLP}logEucl
   )
 
 set(TransformedImage6 ${TEMP_DIR}/dt-helix-transformed6.nrrd )
-add_test( NAME itkTestMainExtendedFailedTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+ExternalData_add_test(${CLP}Data NAME itkTestMainExtendedFailedTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ReferenceImageHField}
     ${TransformedImage6}
@@ -162,12 +162,12 @@ set_tests_properties( itkTestMainExtendedFailedTest PROPERTIES WILL_FAIL true)
 
 
 
-set(ReferenceConcatenatedDisplacementField ${SOURCE_DIRECTORY}/ReferenceConcatenatedDisplacementField.nrrd)
+set(ReferenceConcatenatedDisplacementField DATA{${ExternalData_DIRECTORY}/ReferenceConcatenatedDisplacementField.nrrd})
 set(ConcatDisplacementField ${TEMP_DIR}/ConcatenatedDisplacementField.nrrd )
 set(DummyTransformedImage ${TEMP_DIR}/dt-helix-transformed8-dummy.nrrd )
-set(HFieldFile ${SOURCE_DIRECTORY}/deformationField.nrrd)
-set(ScalarInput ${SOURCE_DIRECTORY}/dt-helix-fa.nrrd)
-add_test( NAME ${CLP}logEuclideanHFieldConcatOnlyTest COMMAND $<TARGET_FILE:${CLP}logEuclideanTest>
+set(HFieldFile DATA{${ExternalData_DIRECTORY}/deformationField.nrrd})
+set(ScalarInput DATA{${ExternalData_DIRECTORY}/dt-helix-fa.nrrd})
+ExternalData_add_test(${CLP}Data NAME ${CLP}HFieldConcatOnlyTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare
     ${ConcatDisplacementField}
     ${ReferenceConcatenatedDisplacementField}
@@ -183,7 +183,7 @@ add_test( NAME ${CLP}logEuclideanHFieldConcatOnlyTest COMMAND $<TARGET_FILE:${CL
     --outputDisplacementField ${ConcatDisplacementField}
   )
 
-add_test(NAME ${CLP}logEuclideanHFieldConcatFailedNoConcatenationOnlyTest COMMAND $<TARGET_FILE:${CLP}logEuclidean>
+ExternalData_add_test(${CLP}Data NAME ${CLP}HFieldConcatFailedNoConcatenationOnlyTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}>
     -H ${HFieldFile}
     ${ScalarInput}
     ${DummyTransformedImage}
@@ -192,9 +192,9 @@ add_test(NAME ${CLP}logEuclideanHFieldConcatFailedNoConcatenationOnlyTest COMMAN
     -R ${OriginalImage}
     --outputDisplacementField ${ConcatDisplacementField}
   )
-set_tests_properties(${CLP}logEuclideanHFieldConcatFailedNoConcatenationOnlyTest PROPERTIES WILL_FAIL true)
+set_tests_properties(${CLP}HFieldConcatFailedNoConcatenationOnlyTest PROPERTIES WILL_FAIL true)
 
-add_test(NAME ${CLP}logEuclideanHFieldConcatFailedNoReferenceImageTest COMMAND ${CLP}logEuclidean
+ExternalData_add_test(${CLP}Data NAME ${CLP}HFieldConcatFailedNoReferenceImageTest COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}>
     -H ${HFieldFile}
     ${ScalarInput}
     ${DummyTransformedImage}
@@ -203,12 +203,7 @@ add_test(NAME ${CLP}logEuclideanHFieldConcatFailedNoReferenceImageTest COMMAND $
     --hfieldtype h-Field
     --outputDisplacementField ${ConcatDisplacementField}
   )
-set_tests_properties(${CLP}logEuclideanHFieldConcatFailedNoReferenceImageTest PROPERTIES WILL_FAIL true)
+set_tests_properties(${CLP}HFieldConcatFailedNoReferenceImageTest PROPERTIES WILL_FAIL true)
 
-
-
-
-
-
-
+ExternalData_add_target(${CLP}Data)
 

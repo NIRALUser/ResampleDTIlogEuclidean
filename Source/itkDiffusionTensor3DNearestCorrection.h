@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DNearestCorrection.h $
+  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DNearestCorrection.h $
   Language:  C++
-  Date:      $Date: 2010-04-29 11:58:49 -0400 (Thu, 29 Apr 2010) $
-  Version:   $Revision: 13073 $
+  Date:      $Date: 2014-03-02 19:08:33 -0500 (Sun, 02 Mar 2014) $
+  Version:   $Revision: 22915 $
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
@@ -47,11 +47,9 @@ public:
   DiffusionTensor3DNearest()
   {
   }
-
   ~DiffusionTensor3DNearest()
   {
   }
-
   bool operator!=( const DiffusionTensor3DNearest & other ) const
   {
     return *this != other;
@@ -65,9 +63,7 @@ public:
   inline DiffusionTensor3D<TOutput> operator()
     ( const DiffusionTensor3D<TInput> & tensorA )
   {
-    DiffusionTensor3D<TOutput>        tensor;
-    DiffusionTensor3DExtended<double> tensorDouble;
-    tensorDouble = ( DiffusionTensor3DExtended<TInput> )tensorA;
+    DiffusionTensor3DExtended<double> tensorDouble( tensorA );
     Matrix<double, 3, 3> B;
     Matrix<double, 3, 3> A;
     Matrix<double, 3, 3> transpose;
@@ -96,10 +92,12 @@ public:
     mat.Fill(0);
     for( int i = 0; i < 3; i++ )
       {
-      mat[i][i] = ( eigenValues[i] <= 0 ? ZERO : eigenValues[i] );
+      mat[i][i] = ( eigenValues[i] <= 0 ? ITK_DIFFUSION_TENSOR_3D_ZERO : eigenValues[i] );
       }
     eigenVectors = eigenVectors.GetTranspose();
     tensorDouble.SetTensorFromMatrix<double>( eigenVectors * mat * eigenVectors.GetInverse() );
+
+    DiffusionTensor3D<TOutput>        tensor;
     for( int i = 0; i < 6; i++ )
       {
       tensor[i] = ( TOutput ) tensorDouble[i];
@@ -145,11 +143,9 @@ protected:
   DiffusionTensor3DNearestCorrectionFilter()
   {
   }
-
   virtual ~DiffusionTensor3DNearestCorrectionFilter()
   {
   }
-
 private:
   DiffusionTensor3DNearestCorrectionFilter( const Self & ); // purposely not implemented
   void operator=( const Self & );                           // purposely not implemented
