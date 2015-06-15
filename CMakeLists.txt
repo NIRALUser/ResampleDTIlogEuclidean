@@ -27,6 +27,7 @@ if( ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION )
   # Extension dependencies
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
+  set(STATIC_RESAMPLEDTI OFF CACHE BOOL "Build static ResampleDTIlogEuclidean" FORCE )
 endif()
 
 #-----------------------------------------------------------------------------
