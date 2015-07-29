@@ -77,6 +77,7 @@ SEMMacroBuildCLI(
   ADDITIONAL_SRCS ${dtiProcessFiles}
   TARGET_LIBRARIES ${ITK_LIBRARIES}
   )
+export(TARGETS ${MODULE_NAME} FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exports.cmake)
 option(BUILD_TESTING "Build Testing" ON)
 if(BUILD_TESTING)
   add_subdirectory(Testing)
