@@ -68,7 +68,7 @@ public:
     typename DiffusionTensor3DExtended<double>::EigenValuesArrayType eigenValues;
     typename DiffusionTensor3DExtended<double>::EigenVectorsMatrixType eigenVectors;
     DiffusionTensor3DExtended<double> tensorDouble;
-    tensorDouble = ( DiffusionTensor3DExtended<TInput> )A;
+    tensorDouble = ( DiffusionTensor3DExtended<double> )A;
     tensorDouble.ComputeEigenAnalysis( eigenValues, eigenVectors );
     for( int i = 0; i < 3; i++ )
       {
