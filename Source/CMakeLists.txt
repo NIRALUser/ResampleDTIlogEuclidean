@@ -81,5 +81,5 @@ export(TARGETS ${MODULE_NAME} FILE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-exp
 option(BUILD_TESTING "Build Testing" ON)
 if(BUILD_TESTING)
   add_subdirectory(Testing)
-endif(BUILD_TESTING)
+endif()
 
