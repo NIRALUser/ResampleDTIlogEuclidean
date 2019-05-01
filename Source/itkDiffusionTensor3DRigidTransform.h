@@ -52,7 +52,7 @@ public:
 
   itkNewMacro( Self );
   // /Set the 3x3 rotation matrix
-  void SetMatrix3x3( MatrixTransformType & matrix );
+  void SetMatrix3x3( MatrixTransformType & matrix ) override;
 
   void DisablePrecision();
 
@@ -62,7 +62,7 @@ protected:
   bool m_PrecisionChecking;
   double GetDet( MatrixTransformType & matrix );
 
-  void PreCompute();
+  void PreCompute() override;
 
 };
 

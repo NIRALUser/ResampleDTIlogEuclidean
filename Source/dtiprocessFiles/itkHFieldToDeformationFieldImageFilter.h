@@ -68,27 +68,25 @@ public:
   itkNewMacro(Self);
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream& os, Indent indent) const
+  void PrintSelf(std::ostream& os, Indent indent) const override
   {
     this->Superclass::PrintSelf( os, indent );
   }
 
   // need to override GenerateData (This should be threaded)
-  void GenerateData();
+  void GenerateData() override;
 
   OutputPixelType ComputeDisplacement(typename InputImageType::ConstPointer input,
                                       typename InputImageType::IndexType ind,
                                       typename InputImageType::PixelType hvec);
 protected:
   HFieldToDeformationFieldImageFilter()
-  {
-  };
-  virtual ~HFieldToDeformationFieldImageFilter()
-  {
-  };
+   = default;
+  ~HFieldToDeformationFieldImageFilter() override
+   = default;
 private:
-  HFieldToDeformationFieldImageFilter(const Self &); // purposely not implemented
-  void operator=(const Self &);                      // purposely not implemented
+  HFieldToDeformationFieldImageFilter(const Self &) = delete;
+  void operator=(const Self &) = delete;
 
 };
 

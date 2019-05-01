@@ -75,7 +75,7 @@ public:
   void SetOutputParametersFromImage( InputImagePointerType Image );
 
 // /Get the time of the last modification of the object
-  unsigned long GetMTime() const;
+  unsigned long GetMTime() const override;
 
   itkSetMacro( DefaultPixelValue, OutputDataType );
   itkGetMacro( DefaultPixelValue, OutputDataType );
@@ -95,13 +95,13 @@ protected:
 
   void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
 
-  void BeforeThreadedGenerateData();
+  void BeforeThreadedGenerateData() override;
 
-  void GenerateOutputInformation();
+  void GenerateOutputInformation() override;
 
-  void AfterThreadedGenerateData();
+  void AfterThreadedGenerateData() override;
 
-  void GenerateInputRequestedRegion();
+  void GenerateInputRequestedRegion() override;
 
 private:
   typename InterpolatorType::Pointer      m_Interpolator;

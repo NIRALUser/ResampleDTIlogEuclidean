@@ -63,9 +63,9 @@ protected:
 
   void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
 
-  void GenerateOutputInformation();
+  void GenerateOutputInformation() override;
 
-  void GenerateInputRequestedRegion();
+  void GenerateInputRequestedRegion() override;
 
 private:
 
