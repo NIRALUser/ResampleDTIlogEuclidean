@@ -19,7 +19,7 @@
 // #include <itkImageRegionIteratorWithIndex.h>
 #include <itkInterpolateImageFunction.h>
 #include "itkSeparateComponentsOfADiffusionTensorImage.h"
-// #include <itkMutexLock.h>
+// #include <mutex>
 
 namespace itk
 {
@@ -83,11 +83,11 @@ protected:
 //  int m_SplitAxis ;
 //  bool m_SeparationDone ;
 //  bool m_CannotSplit ;
-//  MutexLock::Pointer m_Lock ;
-//  MutexLock::Pointer m_LockNewThreadDetected ;
+//  std::mutex m_Lock ;
+//  std::mutex m_LockNewThreadDetected ;
 //  std::vector< RegionType > m_ListRegions ;
 //  int m_NbThread ;
-//  MutexLock::Pointer m_CheckRegionsDone ;
+//  std::mutex m_CheckRegionsDone ;
 //  bool m_ExceptionThrown ;
 //  SizeType m_Size ;
 //  bool m_AllocateInterpolatorsDone ;
