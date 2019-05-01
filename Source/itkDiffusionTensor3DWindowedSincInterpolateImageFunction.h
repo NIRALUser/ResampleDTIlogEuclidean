@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DWindowedSincInterpolateImageFunction.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2013-01-11 16:30:04 -0500 (Fri, 11 Jan 2013) $
-  Version:   $Revision: 21594 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DWindowedSincInterpolateImageFunction_h
-#define __itkDiffusionTensor3DWindowedSincInterpolateImageFunction_h
+#ifndef itkDiffusionTensor3DWindowedSincInterpolateImageFunction_h
+#define itkDiffusionTensor3DWindowedSincInterpolateImageFunction_h
 
 #include "itkDiffusionTensor3DInterpolateImageFunctionReimplementation.h"
 #include <itkWindowedSincInterpolateImageFunction.h>

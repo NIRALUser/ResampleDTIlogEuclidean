@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkDifferenceDiffusionTensor3DImageFilter_txx
-#define __itkDifferenceDiffusionTensor3DImageFilter_txx
+#ifndef itkDifferenceDiffusionTensor3DImageFilter_txx
+#define itkDifferenceDiffusionTensor3DImageFilter_txx
 
 #include "itkDifferenceDiffusionTensor3DImageFilter.h"
 
@@ -180,8 +180,10 @@ DifferenceDiffusionTensor3DImageFilter<TInputImage, TOutputImage>
   typedef ConstNeighborhoodIterator<InputImageType> SmartIterator;
   typedef ImageRegionConstIterator<InputImageType>  InputIterator;
   typedef ImageRegionIterator<OutputImageType>      OutputIterator;
+
   typedef NeighborhoodAlgorithm::ImageBoundaryFacesCalculator<InputImageType>
   FacesCalculator;
+
   typedef typename FacesCalculator::RadiusType   RadiusType;
   typedef typename FacesCalculator::FaceListType FaceListType;
   typedef typename FaceListType::iterator        FaceListIterator;

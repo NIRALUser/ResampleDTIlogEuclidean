@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DRead.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2010-06-28 07:45:15 -0400 (Mon, 28 Jun 2010) $
-  Version:   $Revision: 13964 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DRead_h
-#define __itkDiffusionTensor3DRead_h
+#ifndef itkDiffusionTensor3DRead_h
+#define itkDiffusionTensor3DRead_h
 
 #include <itkObject.h>
 #include <itkMetaDataObject.h>
@@ -69,7 +69,9 @@ public:
   itkGetMacro( HasMeasurementFrame , bool ) ;
 private:
   DiffusionTensor3DRead();
+
   typename FileReaderType::Pointer m_Reader;
+
   MatrixType   m_MeasurementFrame;
   unsigned int m_NumberOfThreads;
   bool m_CatchExceptions ;

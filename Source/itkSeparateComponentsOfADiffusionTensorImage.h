@@ -11,8 +11,8 @@
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkSeparateComponentsOfADiffusionTensorImage_h
-#define __itkSeparateComponentsOfADiffusionTensorImage_h
+#ifndef itkSeparateComponentsOfADiffusionTensorImage_h
+#define itkSeparateComponentsOfADiffusionTensorImage_h
 
 #include <itkImageToImageFilter.h>
 #include <itkImage.h>
@@ -35,10 +35,12 @@ class SeparateComponentsOfADiffusionTensorImage
 public:
   typedef TInput  InputDataType;
   typedef TOutput OutputDataType;
+
   typedef ImageToImageFilter
   <Image<DiffusionTensor3D<TInput>, 3>,
    Image<TOutput, 3> >
   Superclass;
+
   typedef DiffusionTensor3D<InputDataType>              InputTensorDataType;
   typedef Image<InputTensorDataType, 3>                 InputImageType;
   typedef SeparateComponentsOfADiffusionTensorImage     Self;

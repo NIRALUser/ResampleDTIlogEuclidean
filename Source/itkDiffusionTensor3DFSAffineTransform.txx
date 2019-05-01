@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DFSAffineTransform.txx $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2015-01-08 12:49:00 -0500 (Thu, 08 Jan 2015) $
-  Version:   $Revision: 23857 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DFSAffineTransform_txx
-#define __itkDiffusionTensor3DFSAffineTransform_txx
+#ifndef itkDiffusionTensor3DFSAffineTransform_txx
+#define itkDiffusionTensor3DFSAffineTransform_txx
 
 #include "itkDiffusionTensor3DFSAffineTransform.h"
 

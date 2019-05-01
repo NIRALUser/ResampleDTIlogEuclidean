@@ -1,25 +1,24 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer3/trunk/Applications/CLI/DiffusionApplications/ResampleDTI/itkDiffusionTensor3DRead.txx $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2008-11-25 14:23:08 -0500 (Tue, 25 Nov 2008) $
-  Version:   $Revision: 7976 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DRead_txx
-#define __itkDiffusionTensor3DRead_txx
+#ifndef itkDiffusionTensor3DRead_txx
+#define itkDiffusionTensor3DRead_txx
 
 #include "itkDiffusionTensor3DRead.h"
 
 namespace itk
 {
-  
-  
+
 template< class TData >
 DiffusionTensor3DRead< TData >
 ::DiffusionTensor3DRead()
@@ -30,7 +29,6 @@ DiffusionTensor3DRead< TData >
   m_HasMeasurementFrame = false ; 
 }
 
-
 template< class TData >
 typename DiffusionTensor3DRead< TData >::DiffusionImagePointer
 DiffusionTensor3DRead< TData >
@@ -38,7 +36,6 @@ DiffusionTensor3DRead< TData >
 {
   return m_Reader->GetOutput() ;
 }
-
 
 template< class TData >
 typename DiffusionTensor3DRead< TData >::DictionaryType
@@ -96,6 +93,7 @@ DiffusionTensor3DRead< TData >
       }
     ++itr ;
     }
+
     return 0;
   }
   catch( itk::ExceptionObject &excep )

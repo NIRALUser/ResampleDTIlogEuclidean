@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DInterpolateImageFunction.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
-  Version:   $Revision: 19197 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DInterpolateImageFunction_h
-#define __itkDiffusionTensor3DInterpolateImageFunction_h
+#ifndef itkDiffusionTensor3DInterpolateImageFunction_h
+#define itkDiffusionTensor3DInterpolateImageFunction_h
 
 #include <itkObject.h>
 #include "itkDiffusionTensor3D.h"
@@ -45,10 +45,12 @@ public:
   typedef SmartPointer<Self>                        Pointer;
   typedef SmartPointer<const Self>                  ConstPointer;
   typedef typename TensorDataType::RealValueType    TensorRealType;
+
   typedef ImageFunction<Image<DiffusionTensor3D<TData>, 3>,
                         DiffusionTensor3D<TData>,
                         TCoordRep
                         > Superclass;
+
   typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
   typedef typename Superclass::IndexType           IndexType;
 

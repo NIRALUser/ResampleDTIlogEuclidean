@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DNonRigidTransform.txx $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2014-04-11 00:10:41 -0400 (Fri, 11 Apr 2014) $
-  Version:   $Revision: 23077 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DNonRigidTransform_txx
-#define __itkDiffusionTensor3DNonRigidTransform_txx
+#ifndef itkDiffusionTensor3DNonRigidTransform_txx
+#define itkDiffusionTensor3DNonRigidTransform_txx
 
 #include "itkDiffusionTensor3DNonRigidTransform.h"
 

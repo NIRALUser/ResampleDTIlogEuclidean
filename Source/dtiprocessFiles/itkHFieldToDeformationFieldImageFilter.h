@@ -16,8 +16,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkHFieldToDeformationFieldImageFilter_h
-#define __itkHFieldToDeformationFieldImageFilter_h
+#ifndef itkHFieldToDeformationFieldImageFilter_h
+#define itkHFieldToDeformationFieldImageFilter_h
 
 #include <itkImageToImageFilter.h>
 
@@ -30,7 +30,7 @@ namespace itk
 /** \class HFieldToDeformationFieldImageFilter
  * \brief Computes the Mean Diffusivity for every pixel of a input tensor image.
  *
- * HFieldToDeformationFieldImageFilter applies pixel-wise the invokation for
+ * HFieldToDeformationFieldImageFilter applies pixel-wise the invocation for
  * computing the mean diffusivity of every pixel. The pixel type of the
  * input image is expected to implement a method GetTrace(), and
  * to specify its return type as RealValueType.

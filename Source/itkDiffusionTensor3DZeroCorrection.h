@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DZeroCorrection.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2014-03-02 19:08:33 -0500 (Sun, 02 Mar 2014) $
-  Version:   $Revision: 22915 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DZeroCorrectionFilter_h
-#define __itkDiffusionTensor3DZeroCorrectionFilter_h
+#ifndef itkDiffusionTensor3DZeroCorrection_h
+#define itkDiffusionTensor3DZeroCorrection_h
 
 #include "itkUnaryFunctorImageFilter.h"
 #include "vnl/vnl_math.h"

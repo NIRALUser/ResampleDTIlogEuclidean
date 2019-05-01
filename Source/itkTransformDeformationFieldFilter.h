@@ -1,5 +1,5 @@
-#ifndef __itkTransformDeformationFieldFilter_h
-#define __itkTransformDeformationFieldFilter_h
+#ifndef itkTransformDeformationFieldFilter_h
+#define itkTransformDeformationFieldFilter_h
 
 #include <itkObject.h>
 #include <itkImageToImageFilter.h>
@@ -25,10 +25,12 @@ class TransformDeformationFieldFilter
 public:
   typedef TInput  InputDataType;
   typedef TOutput OutputDataType;
+
   typedef ImageToImageFilter
   <Image<itk::Vector<InputDataType, NDimensions>, NDimensions>,
    Image<itk::Vector<OutputDataType, NDimensions>, NDimensions> >
   Superclass;
+
   typedef itk::Vector<InputDataType, NDimensions>        InputDeformationPixelType;
   typedef Image<InputDeformationPixelType, NDimensions>  InputDeformationFieldType;
   typedef itk::Vector<OutputDataType, NDimensions>       OutputDeformationPixelType;
