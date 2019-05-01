@@ -105,7 +105,7 @@ public:
 //  itkGetMacro( DefaultPixelValue , TensorRealType ) ;
 protected:
   DiffusionTensor3DInterpolateImageFunction();
-  unsigned long latestTime;
+  unsigned long m_LatestTime;
 //  TensorRealType m_DefaultPixelValue ;
 //  TensorDataType m_DefaultPixel ;
 };
