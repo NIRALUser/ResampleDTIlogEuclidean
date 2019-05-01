@@ -26,6 +26,31 @@ set(EXTENSION_ICONURL "http://www.slicer.org/slicerWiki/images/1/13/ResampleDTIl
 set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/4/41/ResampleDTI-Slice_extracted_from_a_real_Diffusion_Tensor_Image_-_No_transformation.png" "http://www.slicer.org/slicerWiki/images/8/87/ResampleDTI-Real_DTI_transformed_with_a_45deg_rotation_-_Linear_interpolation.png" "http://www.slicer.org/slicerWiki/images/1/14/ResampleDTI-Real_DTI_upscaled_with_a_factor_2_-_Linear_interpolation.png")
 
 #-----------------------------------------------------------------------------
+# Standalone vs Slicer extension option
+#-----------------------------------------------------------------------------
+
+# This option should be named after the project name, it corresponds to the
+# option set to ON when the project is build by the Slicer Extension build
+# system.
+
+set(_default OFF)
+set(_reason "${PROJECT_NAME}_BUILD_SLICER_EXTENSION is ON")
+if(NOT DEFINED ${PROJECT_NAME}_BUILD_SLICER_EXTENSION AND DEFINED Slicer_DIR)
+  set(_default ON)
+  set(_reason "Slicer_DIR is SET")
+endif()
+
+option(${PROJECT_NAME}_BUILD_SLICER_EXTENSION "Build as a Slicer Extension" ${_default})
+
+set(_msg "Checking if building as a Slicer extension")
+message(STATUS ${_msg})
+if(${PROJECT_NAME}_BUILD_SLICER_EXTENSION)
+  message(STATUS "${_msg} - yes (${_reason})")
+else()
+  message(STATUS "${_msg} - no (${PROJECT_NAME}_BUILD_SLICER_EXTENSION is OFF)")
+endif()
+
+#-----------------------------------------------------------------------------
 # Extension dependencies
 #-----------------------------------------------------------------------------
 if(ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION)
