@@ -797,7 +797,7 @@ int Do( parameters list )
   typedef typename WriterType::Pointer           WriterTypePointer;
   WriterTypePointer         writer = WriterType::New();
   itk::Matrix<double, 3, 3> measurementFrame;
-  bool hasMeasurementFrame ;
+  bool hasMeasurementFrame = false;
   try
   {
     typedef itk::DiffusionTensor3DRead< PixelType > ReaderType ;
