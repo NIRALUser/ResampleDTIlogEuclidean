@@ -18,7 +18,6 @@
 #include "itkDiffusionTensor3DFSAffineTransform.h"
 #include "itkDiffusionTensor3DPPDAffineTransform.h"
 #include <itkTransform.h>
-#include <mutex>
 
 namespace itk
 {
@@ -60,7 +59,6 @@ public:
 protected:
   DiffusionTensor3DNonRigidTransform();
   unsigned long                     m_LatestTime;
-  std::mutex m_LockGetJacobian;
   typename TransformType::Pointer   m_Transform;
   typename AffineTransform::Pointer m_Affine;
 };
