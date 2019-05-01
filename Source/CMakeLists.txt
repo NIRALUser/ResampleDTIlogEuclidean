@@ -81,15 +81,15 @@ set(MODULE_TARGET_LIBRARIES
   )
 
 #-----------------------------------------------------------------------------
-option(STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ON)
-if(${STATIC_RESAMPLEDTI})
-  set(STATIC "EXECUTABLE_ONLY")
+set(executable_only_option)
+if(${ResampleDTIlogEuclidean_STATIC_RESAMPLEDTI})
+  set(executable_only_option "EXECUTABLE_ONLY")
 endif()
 
 #-----------------------------------------------------------------------------
 SEMMacroBuildCLI(
   NAME ${MODULE_NAME}
-  ${STATIC}
+  ${executable_only_option}
   ADDITIONAL_SRCS ${MODULE_SRCS}
   TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
   )

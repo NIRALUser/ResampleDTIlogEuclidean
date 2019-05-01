@@ -31,8 +31,16 @@ set(EXTENSION_SCREENSHOTURLS "http://www.slicer.org/slicerWiki/images/4/41/Resam
 if(ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION)
   find_package(Slicer REQUIRED)
   include(${Slicer_USE_FILE})
-  set(STATIC_RESAMPLEDTI OFF CACHE BOOL "Build static ResampleDTIlogEuclidean" FORCE )
 endif()
+
+#-----------------------------------------------------------------------------
+# Build option(s)
+#-----------------------------------------------------------------------------
+set(_default ON)
+if(ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION)
+  set(_default OFF)
+endif()
+option(ResampleDTIlogEuclidean_STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ${_default})
 
 #-----------------------------------------------------------------------------
 # Extension modules
