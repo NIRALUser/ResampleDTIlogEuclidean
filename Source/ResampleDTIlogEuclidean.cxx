@@ -1061,7 +1061,7 @@ int Do( parameters list )
       }
     logFilter->Update();
     image = logFilter->GetOutput();
-    defaultPixelValue = vcl_log( defaultPixelValue );
+    defaultPixelValue = std::log( defaultPixelValue );
     }
   // start transform
     {                                                 // local for memory management: the input image should not stay in

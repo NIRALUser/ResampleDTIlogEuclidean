@@ -25,7 +25,7 @@ namespace itk
  *
  * - cast the pixel value to \c DiffusionTensor3DExtended<double>,
  * - Compute the eigenvalues and the eigenvectors
- * - apply the \c vcl_log() function to the eigenvalues
+ * - apply the \c std::log() function to the eigenvalues
  *   of the output image
  * - store the casted value into the output image.
  *
@@ -75,7 +75,7 @@ public:
 //      if( eigenValues[ i ] > 0 )
       if( eigenValues[i] > ZERO )
         {
-        mat[i][i] = vcl_log( eigenValues[i] );
+        mat[i][i] = std::log( eigenValues[i] );
         }
       else
         {

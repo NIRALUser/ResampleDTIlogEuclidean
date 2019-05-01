@@ -23,7 +23,7 @@ namespace itk
  *
  * - cast the pixel value to \c DiffusionTensor3DExtended<double>,
  * - Compute the eigenvalues and the eigenvectors
- * - apply the \c vcl_exp() function to the eigenvalues
+ * - apply the \c std::exp() function to the eigenvalues
  *   of the output image
  * - store the casted value into the output image.
  *
@@ -68,7 +68,7 @@ public:
     // mat.Fill(0);
     for( int i = 0; i < 3; i++ )
       {
-      mat[i][i] = vcl_exp( eigenValues[i] );
+      mat[i][i] = std::exp( eigenValues[i] );
       }
     eigenVectors = eigenVectors.GetTranspose();
     matexp = eigenVectors * mat * eigenVectors.GetInverse();
