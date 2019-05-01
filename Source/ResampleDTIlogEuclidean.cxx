@@ -347,7 +347,7 @@ ComputeTransformMatrix( const parameters & list,
 
 template <class PixelType>
 typename itk::DiffusionTensor3DAffineTransform<PixelType>::Pointer
-FSOrPPD( const std::string & ppd, itk::Matrix<double, 4, 4> *matrix = NULL )
+FSOrPPD( const std::string & ppd, itk::Matrix<double, 4, 4> *matrix = nullptr )
 {
   typedef itk::DiffusionTensor3DFSAffineTransform<PixelType>
     FSAffineTransformType;
@@ -492,7 +492,7 @@ SetTransformAndOrder( parameters & list,
             {
             std::cerr << "Transformation type not yet implemented for tensors"
                       << std::endl;
-            return NULL;
+            return nullptr;
             }
           }
         }
@@ -504,7 +504,7 @@ SetTransformAndOrder( parameters & list,
         {
         std::cerr << "Error in the file containing the transformation"
                   << std::endl;
-        return NULL;
+        return nullptr;
         }
       }
     }

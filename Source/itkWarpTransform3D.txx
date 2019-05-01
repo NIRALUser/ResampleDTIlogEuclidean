@@ -1,3 +1,7 @@
+
+#ifndef itkWarpTransform3D_txx
+#define itkWarpTransform3D_txx
+
 #include "itkWarpTransform3D.h"
 
 namespace itk
@@ -44,7 +48,7 @@ WarpTransform3D<FieldData>
 ::WarpTransform3D() :
   Superclass( 1 )
 {
-  m_DeformationField = 0;
+  m_DeformationField = nullptr;
 //  m_OutputSpacing.Fill( 1 ) ;
   for( int i = 0; i < 3; i++ )
     {
@@ -125,3 +129,5 @@ WarpTransform3D<FieldData>
 }
 
 } // end of namespace
+
+#endif
