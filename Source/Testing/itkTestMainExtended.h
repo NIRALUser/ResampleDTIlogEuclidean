@@ -54,6 +54,7 @@
 #include "itkIntTypes.h"
 #include "itkFloatingPointExceptions.h"
 #include <itkTensorFractionalAnisotropyImageFilter.h>
+#include "itkPluginUtilities.h"
 
 #define ITK_TEST_DIMENSION_MAX 6
 
@@ -252,20 +253,6 @@ int main(int ac, char *av[])
 
 // Regression Testing Code
 
-//What pixeltype is the image 
-void GetImageType( const char* fileName ,
-                   itk::ImageIOBase::IOPixelType &pixelType ,
-                   itk::ImageIOBase::IOComponentType &componentType )
-{
-   typedef itk::Image< unsigned char , 3 > ImageType ;
-   itk::ImageFileReader< ImageType >::Pointer imageReader =
-         itk::ImageFileReader< ImageType >::New();
-   imageReader->SetFileName( fileName ) ;
-   imageReader->UpdateOutputInformation() ;
-   pixelType = imageReader->GetImageIO()->GetPixelType() ;
-   componentType = imageReader->GetImageIO()->GetComponentType() ;
-}
-
 template< class ImageType >
 int ReadImages(  const char* baselineImageFilename ,
                  const char* testImageFilename ,
@@ -319,8 +306,6 @@ testImage = testReader->GetOutput() ;
 return 0 ;
 }
 
-
-
 int RegressionTestImage(const char *testImageFilename,
                         const char *baselineImageFilename,
                         int reportErrors,
@@ -328,20 +313,18 @@ int RegressionTestImage(const char *testImageFilename,
                         ::itk::SizeValueType numberOfPixelsTolerance,
                         unsigned int radiusTolerance)
 {
-  // Use the factory mechanism to read the test and baseline files and convert
-  // them to double
+  // Use the factory mechanism to read the test and baseline files and convert them to double
   typedef itk::Image<double, ITK_TEST_DIMENSION_MAX>        ImageType;
   typedef itk::Image<itk::DiffusionTensor3D<double>,ITK_TEST_DIMENSION_MAX>        DiffusionImageType;
   typedef itk::Image<unsigned char, ITK_TEST_DIMENSION_MAX> OutputType;
   typedef itk::Image<unsigned char, 2>                      DiffOutputType;
 
-
- itk::ImageIOBase::IOPixelType pixelTypeBaseline ;
+  itk::ImageIOBase::IOPixelType pixelTypeBaseline ;
   itk::ImageIOBase::IOComponentType componentTypeBaseline ;
-  GetImageType( baselineImageFilename , pixelTypeBaseline , componentTypeBaseline ) ;
+  itk::GetImageType( baselineImageFilename , pixelTypeBaseline , componentTypeBaseline ) ;
   itk::ImageIOBase::IOPixelType pixelTypeTestImage ;
   itk::ImageIOBase::IOComponentType componentTypeTestImage ;
-  GetImageType( testImageFilename , pixelTypeTestImage , componentTypeTestImage ) ;
+  itk::GetImageType( testImageFilename , pixelTypeTestImage , componentTypeTestImage ) ;
   bool diffusion = false ;
   //check if the voxels of the image are diffusion tensors
   if( ( pixelTypeBaseline == itk::ImageIOBase::SYMMETRICSECONDRANKTENSOR
@@ -383,6 +366,7 @@ int RegressionTestImage(const char *testImageFilename,
       diff->SetDifferenceThreshold( intensityTolerance );
       diff->SetToleranceRadius( radiusTolerance );
       diff->UpdateLargestPossibleRegion();
+
       status = diff->GetNumberOfPixelsWithDifferences();
 
   }
@@ -407,7 +391,7 @@ int RegressionTestImage(const char *testImageFilename,
      status = diffusiondiff->GetNumberOfPixelsWithDifferences();
   }
 
-  // if there are discrepencies, create an diff image
+  // if there are discrepancies, create an diff image
   if( ( status > numberOfPixelsTolerance ) && reportErrors )
     {
     typedef itk::RescaleIntensityImageFilter<ImageType, OutputType> RescaleType;
@@ -568,7 +552,7 @@ int RegressionTestImage(const char *testImageFilename,
     std::cout << baseName.str();
     std::cout << "</DartMeasurementFile>" << std::endl;
 
-    std::ostringstream testName;
+    ::std::ostringstream testName;
     if( !diffusion )
     {
       testName << testImageFilename << ".test.png";
