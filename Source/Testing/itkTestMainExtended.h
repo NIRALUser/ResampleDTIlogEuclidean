@@ -56,6 +56,11 @@
 #include <itkTensorFractionalAnisotropyImageFilter.h>
 #include "itkPluginUtilities.h"
 
+#include "itkTestMainExtendedConfigure.h" // For ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION
+#ifdef ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION
+#include <itkFactoryRegistration.h>
+#endif
+
 #define ITK_TEST_DIMENSION_MAX 6
 
 typedef int ( *MainFuncPointer )(int, char *[]);
@@ -99,6 +104,10 @@ int main(int ac, char *av[])
 
   typedef std::pair<char *, char *> ComparePairType;
   std::vector<ComparePairType> compareList;
+
+#ifdef ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION
+  itk::itkFactoryRegistration();
+#endif
 
   RegisterTests();
   std::string testToRun;

@@ -14,6 +14,10 @@ set(TransformedImage ${TEMP_DIR}/dt-helix-transformed.nrrd)
 set(OriginalImage DATA{${ExternalData_DIRECTORY}/dt-helix.nrrd})
 
 #-----------------------------------------------------------------------------
+configure_file(
+  itkTestMainExtendedConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/itkTestMainExtendedConfigure.h
+  )
 add_executable(${CLP}Test ${CLP}Test.cxx)
 target_link_libraries(${CLP}Test ${CLP}Lib ${SlicerExecutionModel_EXTRA_EXECUTABLE_TARGET_LIBRARIES})
 set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})

@@ -67,6 +67,8 @@ if(ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION)
 endif()
 option(ResampleDTIlogEuclidean_STATIC_RESAMPLEDTI "Build static ResampleDTIlogEuclidean" ${_default})
 
+set(CMAKE_INCLUDE_CURRENT_DIR 1)
+
 #-----------------------------------------------------------------------------
 # Extension modules
 add_subdirectory(Source)
