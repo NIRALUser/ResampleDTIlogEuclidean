@@ -93,7 +93,7 @@ public:
 protected:
   DiffusionTensor3DResample();
 
-  void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
+  void DynamicThreadedGenerateData( const OutputImageRegionType & outputRegionForThread) override;
 
   void BeforeThreadedGenerateData() override;
 
