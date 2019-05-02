@@ -73,6 +73,7 @@ ExternalData_add_test(${CLP}Data NAME ${CLP}BSplineWSInterpolationTest COMMAND $
     ${ReferenceImageBSplineWS}
     ${TransformedImage3}
   --compareIntensityTolerance 0
+  --compareNumberOfPixelsTolerance 1
   ModuleEntryPoint
     -f ${BSplineFile}
     --interpolation ws
@@ -92,6 +93,7 @@ ExternalData_add_test(${CLP}Data NAME ${CLP}BSplineInterpolationTest COMMAND ${S
     ${ReferenceImageBSplineInterpolation}
     ${TransformedImage4}
   --compareIntensityTolerance 0
+  --compareNumberOfPixelsTolerance 1
   ModuleEntryPoint
     -f ${AffineFile}
     --interpolation bs
@@ -129,6 +131,7 @@ ExternalData_add_test(${CLP}Data NAME ${CLP}LogTest COMMAND ${SEM_LAUNCH_COMMAND
     ${ReferenceImageLog}
     ${TransformedImage7}
   --compareIntensityTolerance 0
+  --compareNumberOfPixelsTolerance 1
   ModuleEntryPoint
     -f ${AffineFile}
     ${OriginalImage}
