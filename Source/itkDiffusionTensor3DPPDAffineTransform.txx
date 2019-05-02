@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DPPDAffineTransform.txx $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2014-03-02 19:08:33 -0500 (Sun, 02 Mar 2014) $
-  Version:   $Revision: 22915 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DPPDAffineTransform_txx
-#define __itkDiffusionTensor3DPPDAffineTransform_txx
+#ifndef itkDiffusionTensor3DPPDAffineTransform_txx
+#define itkDiffusionTensor3DPPDAffineTransform_txx
 
 #include "itkDiffusionTensor3DPPDAffineTransform.h"
 
@@ -33,7 +33,7 @@ DiffusionTensor3DPPDAffineTransform<TData>
     itkExceptionMacro(<< "Transform matrix is not invertible" );
     }
   this->ComputeOffset();
-  this->latestTime = Object::GetMTime();
+  this->m_LatestTime = Object::GetMTime();
 }
 
 template <class TData>
@@ -43,14 +43,14 @@ DiffusionTensor3DPPDAffineTransform<TData>
 {
   InternalTensorDataType internalTensor = tensor;
 
-  if( this->latestTime < Object::GetMTime() )
+  if( this->m_LatestTime < Object::GetMTime() )
     {
-    this->m_Lock->Lock();
-    if( this->latestTime < Object::GetMTime() )
+    this->m_Lock.lock();
+    if( this->m_LatestTime < Object::GetMTime() )
       {
       PreCompute();
       }
-    this->m_Lock->Unlock();
+    this->m_Lock.unlock();
     }
   EValuesType                       eigenValues;
   EVectorsType                      eigenVectors;

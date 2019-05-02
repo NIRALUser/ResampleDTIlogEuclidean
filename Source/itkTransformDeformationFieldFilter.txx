@@ -1,5 +1,5 @@
-#ifndef __TransformDeformationFieldFilter_txx
-#define __TransformDeformationFieldFilter_txx
+#ifndef itkTransformDeformationFieldFilter_txx
+#define itkTransformDeformationFieldFilter_txx
 
 #include "itkTransformDeformationFieldFilter.h"
 
@@ -48,8 +48,7 @@ TransformDeformationFieldFilter<TInput, TOutput, NDimensions>
 template <class TInput, class TOutput, int NDimensions>
 void
 TransformDeformationFieldFilter<TInput, TOutput, NDimensions>
-::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread,
-                        ThreadIdType itkNotUsed(threadId) )
+::DynamicThreadedGenerateData( const OutputImageRegionType &outputRegionForThread)
   {
   OutputDeformationFieldPointerType outputImagePtr = this->GetOutput( 0 );
   InputIteratorType                 it( this->GetInput( 0 ), outputRegionForThread );

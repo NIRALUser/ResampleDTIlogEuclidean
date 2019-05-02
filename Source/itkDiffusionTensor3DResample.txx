@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DResample.txx $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2014-04-11 00:10:41 -0400 (Fri, 11 Apr 2014) $
-  Version:   $Revision: 23077 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DResample_txx
-#define __itkDiffusionTensor3DResample_txx
+#ifndef itkDiffusionTensor3DResample_txx
+#define itkDiffusionTensor3DResample_txx
 
 #include "itkDiffusionTensor3DResample.h"
 
@@ -83,10 +83,9 @@ DiffusionTensor3DResample<TInput, TOutput>
 template <class TInput, class TOutput>
 void
 DiffusionTensor3DResample<TInput, TOutput>
-::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread,
-                        ThreadIdType itkNotUsed(threadId) )
+::DynamicThreadedGenerateData( const OutputImageRegionType &outputRegionForThread)
   {
-  OutputImagePointerType outputImagePtr = this->GetOutput( 0 );
+  OutputImageType*       outputImagePtr = this->GetOutput( 0 );
   IteratorType           it( outputImagePtr, outputRegionForThread );
   InputTensorDataType    inputTensor;
   OutputTensorDataType   outputTensor;
@@ -166,7 +165,7 @@ void
 DiffusionTensor3DResample<TInput, TOutput>
 ::AfterThreadedGenerateData()
 {
-  m_Interpolator->SetInputImage( NULL );
+  m_Interpolator->SetInputImage( nullptr );
 }
 
 /**

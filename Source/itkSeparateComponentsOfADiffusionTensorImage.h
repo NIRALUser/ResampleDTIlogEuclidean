@@ -11,8 +11,8 @@
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkSeparateComponentsOfADiffusionTensorImage_h
-#define __itkSeparateComponentsOfADiffusionTensorImage_h
+#ifndef itkSeparateComponentsOfADiffusionTensorImage_h
+#define itkSeparateComponentsOfADiffusionTensorImage_h
 
 #include <itkImageToImageFilter.h>
 #include <itkImage.h>
@@ -35,10 +35,12 @@ class SeparateComponentsOfADiffusionTensorImage
 public:
   typedef TInput  InputDataType;
   typedef TOutput OutputDataType;
+
   typedef ImageToImageFilter
   <Image<DiffusionTensor3D<TInput>, 3>,
    Image<TOutput, 3> >
   Superclass;
+
   typedef DiffusionTensor3D<InputDataType>              InputTensorDataType;
   typedef Image<InputTensorDataType, 3>                 InputImageType;
   typedef SeparateComponentsOfADiffusionTensorImage     Self;
@@ -52,15 +54,18 @@ public:
   typedef typename OutputImageType::RegionType          OutputImageRegionType;
 // typedef typename OutputTensorDataType::RealValueType TensorRealType ;
 
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(SeparateComponentsOfADiffusionTensorImage, ImageToImageFilter);
+
   itkNewMacro( Self );
 protected:
   SeparateComponentsOfADiffusionTensorImage();
 
-  void ThreadedGenerateData( const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId );
+  void DynamicThreadedGenerateData( const OutputImageRegionType & outputRegionForThread) override;
 
-  void GenerateOutputInformation();
+  void GenerateOutputInformation() override;
 
-  void GenerateInputRequestedRegion();
+  void GenerateInputRequestedRegion() override;
 
 private:
 

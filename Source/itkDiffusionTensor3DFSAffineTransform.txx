@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DFSAffineTransform.txx $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2015-01-08 12:49:00 -0500 (Thu, 08 Jan 2015) $
-  Version:   $Revision: 23857 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DFSAffineTransform_txx
-#define __itkDiffusionTensor3DFSAffineTransform_txx
+#ifndef itkDiffusionTensor3DFSAffineTransform_txx
+#define itkDiffusionTensor3DFSAffineTransform_txx
 
 #include "itkDiffusionTensor3DFSAffineTransform.h"
 
@@ -29,14 +29,14 @@ DiffusionTensor3DFSAffineTransform<TData>
   vnl_matrix<double> M( 3, 3 );
   M = matrix.GetVnlMatrix();
   vnl_real_eigensystem             eig( M );
-  vnl_matrix<vcl_complex<double> > D( 3, 3 );
-  vnl_matrix<vcl_complex<double> > vnl_sqrMatrix( 3, 3 );
+  vnl_matrix<std::complex<double> > D( 3, 3 );
+  vnl_matrix<std::complex<double> > vnl_sqrMatrix( 3, 3 );
   D.fill( NumericTraits<TData>::ZeroValue() );
   for( int i = 0; i < 3; i++ )
     {
-    D.put( i, i, vcl_pow( eig.D.get( i, i ), 0.5 ) );
+    D.put( i, i, std::pow( eig.D.get( i, i ), 0.5 ) );
     }
-  vnl_sqrMatrix = eig.V * D * vnl_matrix_inverse<vcl_complex<double> >( eig.V );
+  vnl_sqrMatrix = eig.V * D * vnl_matrix_inverse<std::complex<double> >( eig.V );
   vnl_matrix<double> vnl_sqrMatrix_real( 3, 3 );
   vnl_sqrMatrix_real = vnl_real( vnl_sqrMatrix );
   for( int i = 0; i < 3; i++ )
@@ -67,7 +67,7 @@ DiffusionTensor3DFSAffineTransform<TData>
   this->m_Transform = RotationMatrixTranspose * this->m_MeasurementFrame;
 
   this->ComputeOffset();
-  this->latestTime = Object::GetMTime();
+  this->m_LatestTime = Object::GetMTime();
 }
 
 template <class TData>

@@ -1,24 +1,23 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DNonRigidTransform.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
-  Version:   $Revision: 19197 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DNonRigidTransform_h
-#define __itkDiffusionTensor3DNonRigidTransform_h
+#ifndef itkDiffusionTensor3DNonRigidTransform_h
+#define itkDiffusionTensor3DNonRigidTransform_h
 
 #include "itkDiffusionTensor3DTransform.h"
 #include "itkDiffusionTensor3DFSAffineTransform.h"
 #include "itkDiffusionTensor3DPPDAffineTransform.h"
 #include <itkTransform.h>
-#include <itkMutexLock.h>
 
 namespace itk
 {
@@ -40,24 +39,27 @@ public:
   typedef itk::DiffusionTensor3DPPDAffineTransform<DataType> PPDAffineTransformType;
   typedef itk::DiffusionTensor3DFSAffineTransform<DataType>  FSAffineTransformType;
   typedef itk::DiffusionTensor3DAffineTransform<DataType>    AffineTransform;
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(DiffusionTensor3DNonRigidTransform, DiffusionTensor3DTransform);
+
   // SmartPointer
   itkNewMacro( Self );
   // /Set the transform
   itkSetObjectMacro( Transform, TransformType );
-  TransformType::Pointer GetTransform();
+  TransformType::Pointer GetTransform() override;
 
   // /Evaluate the position of the transformed tensor in the output image
-  PointType EvaluateTensorPosition( const PointType & point );
+  PointType EvaluateTensorPosition( const PointType & point ) override;
 
   // /Evaluate the transformed tensor
-  virtual TensorDataType EvaluateTransformedTensor( TensorDataType & tensor, PointType & outputPosition );
+  TensorDataType EvaluateTransformedTensor( TensorDataType & tensor, PointType & outputPosition ) override;
 
   void SetAffineTransformType(typename AffineTransform::Pointer transform);
 protected:
   DiffusionTensor3DNonRigidTransform();
-  MutexLock::Pointer m_LockGetJacobian;
-  unsigned long      latestTime;
-  typename TransformType::Pointer m_Transform;
+  unsigned long                     m_LatestTime;
+  typename TransformType::Pointer   m_Transform;
   typename AffineTransform::Pointer m_Affine;
 };
 

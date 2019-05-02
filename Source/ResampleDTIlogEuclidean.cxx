@@ -347,7 +347,7 @@ ComputeTransformMatrix( const parameters & list,
 
 template <class PixelType>
 typename itk::DiffusionTensor3DAffineTransform<PixelType>::Pointer
-FSOrPPD( const std::string & ppd, itk::Matrix<double, 4, 4> *matrix = NULL )
+FSOrPPD( const std::string & ppd, itk::Matrix<double, 4, 4> *matrix = nullptr )
 {
   typedef itk::DiffusionTensor3DFSAffineTransform<PixelType>
     FSAffineTransformType;
@@ -432,10 +432,8 @@ SetTransformAndOrder( parameters & list,
                       const itk::Point<double> & outputImageCenter
                       )
 {
-  typedef itk::DiffusionTensor3DTransform<PixelType> TransformType;
   typedef itk::DiffusionTensor3DNonRigidTransform<PixelType>
     NonRigidTransformType;
-  typedef typename TransformType::Pointer                 TransformTypePointer;
   typedef itk::DiffusionTensor3DRigidTransform<PixelType> RigidTransformType;
   typedef itk::DiffusionTensor3DFSAffineTransform<PixelType>
     FSAffineTransformType;
@@ -494,7 +492,7 @@ SetTransformAndOrder( parameters & list,
             {
             std::cerr << "Transformation type not yet implemented for tensors"
                       << std::endl;
-            return NULL;
+            return nullptr;
             }
           }
         }
@@ -506,7 +504,7 @@ SetTransformAndOrder( parameters & list,
         {
         std::cerr << "Error in the file containing the transformation"
                   << std::endl;
-        return NULL;
+        return nullptr;
         }
       }
     }
@@ -797,7 +795,7 @@ int Do( parameters list )
   typedef typename WriterType::Pointer           WriterTypePointer;
   WriterTypePointer         writer = WriterType::New();
   itk::Matrix<double, 3, 3> measurementFrame;
-  bool hasMeasurementFrame ;
+  bool hasMeasurementFrame = false;
   try
   {
     typedef itk::DiffusionTensor3DRead< PixelType > ReaderType ;
@@ -1061,7 +1059,7 @@ int Do( parameters list )
       }
     logFilter->Update();
     image = logFilter->GetOutput();
-    defaultPixelValue = vcl_log( defaultPixelValue );
+    defaultPixelValue = std::log( defaultPixelValue );
     }
   // start transform
     {                                                 // local for memory management: the input image should not stay in

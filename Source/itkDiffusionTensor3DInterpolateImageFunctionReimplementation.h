@@ -1,36 +1,26 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DInterpolateImageFunctionReimplementation.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2014-09-15 22:57:09 -0400 (Mon, 15 Sep 2014) $
-  Version:   $Revision: 23682 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DInterpolateImageFunctionReimplementation_h
-#define __itkDiffusionTensor3DInterpolateImageFunctionReimplementation_h
+#ifndef itkDiffusionTensor3DInterpolateImageFunctionReimplementation_h
+#define itkDiffusionTensor3DInterpolateImageFunctionReimplementation_h
 
 #include "itkDiffusionTensor3DInterpolateImageFunction.h"
 #include <itkImage.h>
-// #include <itkImageRegionIteratorWithIndex.h>
 #include <itkInterpolateImageFunction.h>
 #include "itkSeparateComponentsOfADiffusionTensorImage.h"
-// #include <itkMutexLock.h>
 
 namespace itk
 {
-
-/*struct RegionType
-{
-  ImageRegion< 3 > itkRegion ;
-  bool Done ;
-  Index< 3 > PositionInImage ;
-  bool Stop ;
-};*/
 
 /**
  * \class DiffusionTensor3DInterpolateImageFunctionReimplementation
@@ -60,37 +50,25 @@ public:
   typedef typename DiffusionImageType::RegionType                        itkRegionType;
   typedef typename DiffusionImageType::SizeType                          SizeType;
   typedef typename Superclass::ContinuousIndexType                       ContinuousIndexType;
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(DiffusionTensor3DInterpolateImageFunctionReimplementation, DiffusionTensor3DInterpolateImageFunction);
+
   /** Evaluate the interpolated tensor at a position
    */
   // TensorDataType Evaluate( const PointType &point ) ;
-  TensorDataType EvaluateAtContinuousIndex( const ContinuousIndexType & index ) const;
+  TensorDataType EvaluateAtContinuousIndex( const ContinuousIndexType & index ) const override;
 
-  virtual void SetInputImage( const DiffusionImageType *inputImage );
+  void SetInputImage( const DiffusionImageType *inputImage ) override;
 
   itkSetMacro( NumberOfThreads, int );
 protected:
   DiffusionTensor3DInterpolateImageFunctionReimplementation();
   virtual void AllocateInterpolator() = 0;
 
-//  void SeparateImages() ;
-//  void AllocateImages() ;
-//  bool DivideRegion( int currentThread ) ;
-//  int RegionToDivide() ;
   typename InterpolateImageFunctionType::Pointer m_Interpol[6];
   ImagePointer m_ImageVec[6];
   int          m_NumberOfThreads;
-//  Semaphore::Pointer m_Threads ;
-//  int m_SplitAxis ;
-//  bool m_SeparationDone ;
-//  bool m_CannotSplit ;
-//  MutexLock::Pointer m_Lock ;
-//  MutexLock::Pointer m_LockNewThreadDetected ;
-//  std::vector< RegionType > m_ListRegions ;
-//  int m_NbThread ;
-//  MutexLock::Pointer m_CheckRegionsDone ;
-//  bool m_ExceptionThrown ;
-//  SizeType m_Size ;
-//  bool m_AllocateInterpolatorsDone ;
 };
 
 } // end namespace itk

@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DNearestCorrection.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2014-03-02 19:08:33 -0500 (Sun, 02 Mar 2014) $
-  Version:   $Revision: 22915 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DNearestCorrectionFilter_h
-#define __itkDiffusionTensor3DNearestCorrectionFilter_h
+#ifndef itkDiffusionTensor3DNearestCorrection_h
+#define itkDiffusionTensor3DNearestCorrection_h
 
 #include "itkUnaryFunctorImageFilter.h"
 #include "vnl/vnl_math.h"
@@ -125,6 +125,9 @@ public:
   typedef SmartPointer<Self>       Pointer;
   typedef SmartPointer<const Self> ConstPointer;
 
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(DiffusionTensor3DNearestCorrectionFilter, UnaryFunctorImageFilter);
+
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
 
@@ -143,7 +146,7 @@ protected:
   DiffusionTensor3DNearestCorrectionFilter()
   {
   }
-  virtual ~DiffusionTensor3DNearestCorrectionFilter()
+  ~DiffusionTensor3DNearestCorrectionFilter() override
   {
   }
 private:

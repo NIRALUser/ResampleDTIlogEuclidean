@@ -11,8 +11,8 @@
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkSeparateComponentsOfADiffusionTensorImage_txx
-#define __itkSeparateComponentsOfADiffusionTensorImage_txx
+#ifndef itkSeparateComponentsOfADiffusionTensorImage_txx
+#define itkSeparateComponentsOfADiffusionTensorImage_txx
 
 #include "itkSeparateComponentsOfADiffusionTensorImage.h"
 
@@ -38,8 +38,7 @@ SeparateComponentsOfADiffusionTensorImage<TInput, TOutput>
 template <class TInput, class TOutput>
 void
 SeparateComponentsOfADiffusionTensorImage<TInput, TOutput>
-::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread,
-                        ThreadIdType itkNotUsed(threadId) )
+::DynamicThreadedGenerateData( const OutputImageRegionType &outputRegionForThread)
   {
   InputIteratorType it( this->GetInput(), outputRegionForThread );
 

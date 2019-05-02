@@ -1,0 +1,6 @@
+#ifndef itkTestMainExtendedConfigure_h
+#define itkTestMainExtendedConfigure_h
+
+#cmakedefine ResampleDTIlogEuclidean_BUILD_SLICER_EXTENSION
+
+#endif

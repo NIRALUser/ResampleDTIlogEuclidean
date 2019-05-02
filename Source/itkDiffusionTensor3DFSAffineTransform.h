@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DFSAffineTransform.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
-  Version:   $Revision: 19197 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DFSAffineTransform_h
-#define __itkDiffusionTensor3DFSAffineTransform_h
+#ifndef itkDiffusionTensor3DFSAffineTransform_h
+#define itkDiffusionTensor3DFSAffineTransform_h
 
 #include "itkDiffusionTensor3DAffineTransform.h"
 #include <vnl/vnl_matrix.h>
@@ -52,8 +52,12 @@ public:
   typedef SmartPointer<const Self>                         ConstPointer;
 
   itkNewMacro(Self);
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(DiffusionTensor3DFSAffineTransform, DiffusionTensor3DAffineTransform);
+
 protected:
-  void PreCompute();
+  void PreCompute() override;
 
 private:
   MatrixTransformType ComputeMatrixSquareRoot( MatrixTransformType matrix );

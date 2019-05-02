@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DRigidTransform.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2015-02-05 10:02:04 -0500 (Thu, 05 Feb 2015) $
-  Version:   $Revision: 23962 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DRigidTransform_h
-#define __itkDiffusionTensor3DRigidTransform_h
+#ifndef itkDiffusionTensor3DRigidTransform_h
+#define itkDiffusionTensor3DRigidTransform_h
 
 #include "itkDiffusionTensor3DMatrix3x3Transform.h"
 #include <itkVersorRigid3DTransform.h>
@@ -47,9 +47,12 @@ public:
   void SetTransform( typename Rigid3DTransformType::Pointer transform );
   typename VersorRigid3DTransformType::Pointer GetRigidTransform();
 
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(DiffusionTensor3DRigidTransform, DiffusionTensor3DMatrix3x3Transform);
+
   itkNewMacro( Self );
   // /Set the 3x3 rotation matrix
-  void SetMatrix3x3( MatrixTransformType & matrix );
+  void SetMatrix3x3( MatrixTransformType & matrix ) override;
 
   void DisablePrecision();
 
@@ -59,7 +62,7 @@ protected:
   bool m_PrecisionChecking;
   double GetDet( MatrixTransformType & matrix );
 
-  void PreCompute();
+  void PreCompute() override;
 
 };
 

@@ -16,8 +16,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkHFieldToDeformationFieldImageFilter_h
-#define __itkHFieldToDeformationFieldImageFilter_h
+#ifndef itkHFieldToDeformationFieldImageFilter_h
+#define itkHFieldToDeformationFieldImageFilter_h
 
 #include <itkImageToImageFilter.h>
 
@@ -30,7 +30,7 @@ namespace itk
 /** \class HFieldToDeformationFieldImageFilter
  * \brief Computes the Mean Diffusivity for every pixel of a input tensor image.
  *
- * HFieldToDeformationFieldImageFilter applies pixel-wise the invokation for
+ * HFieldToDeformationFieldImageFilter applies pixel-wise the invocation for
  * computing the mean diffusivity of every pixel. The pixel type of the
  * input image is expected to implement a method GetTrace(), and
  * to specify its return type as RealValueType.
@@ -68,27 +68,25 @@ public:
   itkNewMacro(Self);
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream& os, Indent indent) const
+  void PrintSelf(std::ostream& os, Indent indent) const override
   {
     this->Superclass::PrintSelf( os, indent );
   }
 
   // need to override GenerateData (This should be threaded)
-  void GenerateData();
+  void GenerateData() override;
 
   OutputPixelType ComputeDisplacement(typename InputImageType::ConstPointer input,
                                       typename InputImageType::IndexType ind,
                                       typename InputImageType::PixelType hvec);
 protected:
   HFieldToDeformationFieldImageFilter()
-  {
-  };
-  virtual ~HFieldToDeformationFieldImageFilter()
-  {
-  };
+   = default;
+  ~HFieldToDeformationFieldImageFilter() override
+   = default;
 private:
-  HFieldToDeformationFieldImageFilter(const Self &); // purposely not implemented
-  void operator=(const Self &);                      // purposely not implemented
+  HFieldToDeformationFieldImageFilter(const Self &) = delete;
+  void operator=(const Self &) = delete;
 
 };
 

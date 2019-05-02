@@ -1,18 +1,18 @@
 /*=========================================================================
 
   Program:   Diffusion Applications
-  Module:    $HeadURL: http://svn.slicer.org/Slicer4/trunk/Modules/CLI/ResampleDTIVolume/itkDiffusionTensor3DBSplineInterpolateImageFunction.h $
+  Module:    $HeadURL$
   Language:  C++
-  Date:      $Date: 2012-02-02 01:52:52 -0500 (Thu, 02 Feb 2012) $
-  Version:   $Revision: 19197 $
+  Date:      $Date$
+  Version:   $Revision$
 
   Copyright (c) Brigham and Women's Hospital (BWH) All Rights Reserved.
 
   See License.txt or http://www.slicer.org/copyright/copyright.txt for details.
 
 ==========================================================================*/
-#ifndef __itkDiffusionTensor3DBSplineInterpolateImageFunction_h
-#define __itkDiffusionTensor3DBSplineInterpolateImageFunction_h
+#ifndef itkDiffusionTensor3DBSplineInterpolateImageFunction_h
+#define itkDiffusionTensor3DBSplineInterpolateImageFunction_h
 
 #include "itkDiffusionTensor3DInterpolateImageFunctionReimplementation.h"
 #include <itkBSplineInterpolateImageFunction.h>
@@ -39,13 +39,16 @@ public:
   typedef BSplineInterpolateImageFunction<ImageType, TCoordRep, double>
   BSplineInterpolateFunction;
 
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(DiffusionTensor3DBSplineInterpolateImageFunction, DiffusionTensor3DInterpolateImageFunctionReimplementation);
+
   itkNewMacro( Self );
   // /Get the Spline Order, supports 0th - 5th order splines. The default is a 1st order spline.
   itkGetMacro( SplineOrder, int );
   // /Set the Spline Order, supports 0th - 5th order splines. The default is a 1st order spline.
   itkSetMacro( SplineOrder, unsigned int );
 protected:
-  void AllocateInterpolator();
+  void AllocateInterpolator() override;
 
   DiffusionTensor3DBSplineInterpolateImageFunction();
   unsigned int m_SplineOrder;
